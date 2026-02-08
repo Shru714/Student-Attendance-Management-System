@@ -1,38 +1,38 @@
-const express = require('express');
-const cors = require('cors');
+const http = require('http');
 require('dotenv').config();
-
-const authRoutes = require('./routes/authRoutes');
-const adminRoutes = require('./routes/adminRoutes');
-const teacherRoutes = require('./routes/teacherRoutes');
-const attendanceRoutes = require('./routes/attendanceRoutes');
-
-const app = express();
-
-// Middleware
-app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-// Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/admin', adminRoutes);
-app.use('/api/teacher', teacherRoutes);
-app.use('/api/attendance', attendanceRoutes);
-
-// Health check
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'OK', message: 'Server is running' });
-});
-
-// Error handling
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ message: 'Something went wrong!' });
-});
+const router = require('./routes/router');
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+const server = http.createServer(async (req, res) => {
+  // CORS Headers
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+
+  // Handle preflight requests
+  if (req.method === 'OPTIONS') {
+    res.writeHead(200);
+    res.end();
+    return;
+  }
+
+  // Set JSON response header
+  res.setHeader('Content-Type', 'application/json');
+
+  try {
+    const result = await router(req, res);
+    res.writeHead(result.status);
+    res.end(JSON.stringify(result.data));
+  } catch (error) {
+    console.error('Server Error:', error);
+    res.writeHead(500);
+    res.end(JSON.stringify({ message: 'Internal server error' }));
+  }
+});
+
+server.listen(PORT, () => {
+  console.log(`✅ Server running on http://localhost:${PORT}`);
+  console.log(`📊 Database: ${process.env.DB_NAME}`);
+  console.log(`🔐 JWT Secret configured`);
 });

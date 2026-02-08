@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Attendance Management System</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Login Page -->
+        <div id="loginPage" class="page active">
+            <div class="login-container">
+                <h1>Student Attendance System</h1>
+                <p>Select your role to continue</p>
+                <div class="role-buttons">
+                    <button class="role-btn admin-btn" onclick="login('admin')">
+                        <span class="icon">👨‍💼</span>
+                        Login as Admin
+                    </button>
+                    <button class="role-btn teacher-btn" onclick="login('teacher')">
+                        <span class="icon">👨‍🏫</span>
+                        Login as Teacher
+                    </button>
+                    <button class="role-btn student-btn" onclick="showStudentLogin()">
+                        <span class="icon">👨‍🎓</span>
+                        Login as Student
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Student Login Page -->
+        <div id="studentLoginPage" class="page">
+            <div class="login-container">
+                <h1>Student Login</h1>
+                <p>Enter your roll number to continue</p>
+                <div class="student-login-form">
+                    <form onsubmit="studentLogin(event)">
+                        <div class="form-group">
+                            <input type="text" id="studentRollLogin" placeholder="Enter Roll Number" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Login</button>
+                        <button type="button" class="btn btn-secondary" onclick="backToLogin()">Back</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Dashboard -->
+        <div id="adminDashboard" class="page">
+            <div class="dashboard">
+                <aside class="sidebar">
+                    <div class="sidebar-header">
+                        <h2>Admin Panel</h2>
+                    </div>
+                    <nav class="sidebar-nav">
+                        <a href="#" onclick="showAdminSection('dashboard')" class="nav-item active">
+                            <span>📊</span> Dashboard
+                        </a>
+                        <a href="#" onclick="showAdminSection('classes')" class="nav-item">
+                            <span>📚</span> Manage Classes
+                        </a>
+                        <a href="#" onclick="showAdminSection('teachers')" class="nav-item">
+                            <span>👨‍🏫</span> Manage Teachers
+                        </a>
+                        <a href="#" onclick="showAdminSection('students')" class="nav-item">
+                            <span>👨‍🎓</span> Manage Students
+                        </a>
+                        <a href="#" onclick="showAdminSection('reports')" class="nav-item">
+                            <span>📈</span> Attendance Reports
+                        </a>
+                        <a href="#" onclick="logout()" class="nav-item logout">
+                            <span>🚪</span> Logout
+                        </a>
+                    </nav>
+                </aside>
+                <main class="main-content">
+                    <div class="top-header">
+                        <h1 id="adminSectionTitle">Dashboard</h1>
+                        <div class="user-info">Admin User</div>
+                    </div>
+                    
+                    <!-- Dashboard Section -->
+                    <div id="adminDashboardSection" class="content-section active">
+                        <div class="demo-data-section">
+                            <button class="btn btn-primary" onclick="loadDemoData()">📊 Load Demo Data</button>
+                            <button class="btn btn-danger" onclick="clearAllData()">🗑️ Clear All Data</button>
+                        </div>
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <h3 id="totalClasses">0</h3>
+                                <p>Total Classes</p>
+                            </div>
+                            <div class="stat-card">
+                                <h3 id="totalTeachers">0</h3>
+                                <p>Total Teachers</p>
+                            </div>
+                            <div class="stat-card">
+                                <h3 id="totalStudents">0</h3>
+                                <p>Total Students</p>
+                            </div>
+                            <div class="stat-card">
+                                <h3 id="todayAttendance">0</h3>
+                                <p>Today's Attendance</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Manage Classes Section -->
+                    <div id="adminClassesSection" class="content-section">
+                        <button class="btn btn-primary" onclick="showAddClassModal()">+ Add Class</button>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Class Name</th>
+                                        <th>Year</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="classesTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Manage Teachers Section -->
+                    <div id="adminTeachersSection" class="content-section">
+                        <button class="btn btn-primary" onclick="showAddTeacherModal()">+ Add Teacher</button>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Assigned Class</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="teachersTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Manage Students Section -->
+                    <div id="adminStudentsSection" class="content-section">
+                        <button class="btn btn-primary" onclick="showAddStudentModal()">+ Add Student</button>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Roll Number</th>
+                                        <th>Class</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="studentsTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Attendance Reports Section -->
+                    <div id="adminReportsSection" class="content-section">
+                        <div class="filter-bar">
+                            <select id="reportClassFilter" onchange="loadAttendanceReports()">
+                                <option value="">All Classes</option>
+                            </select>
+                            <input type="date" id="reportDateFilter" onchange="loadAttendanceReports()">
+                            <button class="btn btn-primary" onclick="exportAttendanceReport()">💾 Save Report</button>
+                        </div>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Class</th>
+                                        <th>Student</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="reportsTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+
+        <!-- Teacher Dashboard -->
+        <div id="teacherDashboard" class="page">
+            <div class="dashboard">
+                <aside class="sidebar">
+                    <div class="sidebar-header">
+                        <h2>Teacher Panel</h2>
+                    </div>
+                    <nav class="sidebar-nav">
+                        <a href="#" onclick="showTeacherSection('dashboard')" class="nav-item active">
+                            <span>📊</span> Dashboard
+                        </a>
+                        <a href="#" onclick="showTeacherSection('mark')" class="nav-item">
+                            <span>✅</span> Mark Attendance
+                        </a>
+                        <a href="#" onclick="showTeacherSection('history')" class="nav-item">
+                            <span>📜</span> Attendance History
+                        </a>
+                        <a href="#" onclick="logout()" class="nav-item logout">
+                            <span>🚪</span> Logout
+                        </a>
+                    </nav>
+                </aside>
+                <main class="main-content">
+                    <div class="top-header">
+                        <h1 id="teacherSectionTitle">Dashboard</h1>
+                        <div class="user-info">Teacher User</div>
+                    </div>
+
+                    <!-- Teacher Dashboard Section -->
+                    <div id="teacherDashboardSection" class="content-section active">
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <h3 id="teacherClasses">0</h3>
+                                <p>My Classes</p>
+                            </div>
+                            <div class="stat-card">
+                                <h3 id="teacherStudents">0</h3>
+                                <p>Total Students</p>
+                            </div>
+                        </div>
+                        <div class="assigned-class-info" id="assignedClassInfo"></div>
+                    </div>
+
+                    <!-- Mark Attendance Section -->
+                    <div id="teacherMarkSection" class="content-section">
+                        <div class="attendance-form">
+                            <div class="form-group">
+                                <label>Select Class:</label>
+                                <select id="teacherClassSelect" onchange="loadStudentsForAttendance()">
+                                    <option value="">Select a class</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Date:</label>
+                                <input type="date" id="attendanceDate">
+                            </div>
+                        </div>
+                        <div id="attendanceStudentsList"></div>
+                        <button class="btn btn-primary" onclick="saveAttendance()" id="saveAttendanceBtn" style="display:none;">Save Attendance</button>
+                    </div>
+
+                    <!-- Attendance History Section -->
+                    <div id="teacherHistorySection" class="content-section">
+                        <div class="filter-bar">
+                            <select id="historyClassFilter" onchange="loadTeacherHistory()">
+                                <option value="">Select Class</option>
+                            </select>
+                            <input type="date" id="historyDateFilter" onchange="loadTeacherHistory()">
+                        </div>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Student</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="historyTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+
+        <!-- Student Dashboard -->
+        <div id="studentDashboard" class="page">
+            <div class="dashboard">
+                <aside class="sidebar">
+                    <div class="sidebar-header">
+                        <h2>Student Panel</h2>
+                    </div>
+                    <nav class="sidebar-nav">
+                        <a href="#" onclick="showStudentSection('dashboard')" class="nav-item active">
+                            <span>📊</span> Dashboard
+                        </a>
+                        <a href="#" onclick="showStudentSection('attendance')" class="nav-item">
+                            <span>📋</span> My Attendance
+                        </a>
+                        <a href="#" onclick="logout()" class="nav-item logout">
+                            <span>🚪</span> Logout
+                        </a>
+                    </nav>
+                </aside>
+                <main class="main-content">
+                    <div class="top-header">
+                        <h1 id="studentSectionTitle">Dashboard</h1>
+                        <div class="user-info" id="studentUserInfo">Student User</div>
+                    </div>
+
+                    <!-- Student Dashboard Section -->
+                    <div id="studentDashboardSection" class="content-section active">
+                        <div class="student-info-card">
+                            <h3>Personal Details</h3>
+                            <div id="studentDetails"></div>
+                        </div>
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <h3 id="studentAttendancePercent">0%</h3>
+                                <p>Attendance Percentage</p>
+                            </div>
+                            <div class="stat-card">
+                                <h3 id="studentPresentDays">0</h3>
+                                <p>Present Days</p>
+                            </div>
+                            <div class="stat-card">
+                                <h3 id="studentAbsentDays">0</h3>
+                                <p>Absent Days</p>
+                            </div>
+                            <div class="stat-card">
+                                <h3 id="studentTotalDays">0</h3>
+                                <p>Total Days</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- My Attendance Section -->
+                    <div id="studentAttendanceSection" class="content-section">
+                        <div class="filter-bar">
+                            <input type="month" id="studentMonthFilter" onchange="loadStudentAttendance()">
+                        </div>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="studentAttendanceTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="modalOverlay" class="modal-overlay" onclick="closeModal()"></div>
+    
+    <!-- Add/Edit Class Modal -->
+    <div id="addClassModal" class="modal">
+        <div class="modal-content">
+            <h2 id="classModalTitle">Add Class</h2>
+            <form onsubmit="saveClass(event)">
+                <input type="hidden" id="classId">
+                <div class="form-group">
+                    <label>Class Name:</label>
+                    <input type="text" id="className" required placeholder="e.g., BCA 1st Year">
+                </div>
+                <div class="form-group">
+                    <label>Year:</label>
+                    <input type="number" id="classYear" required placeholder="e.g., 1">
+                </div>
+                <div class="modal-actions">
+                    <button type="submit" class="btn btn-primary">Save</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add/Edit Teacher Modal -->
+    <div id="addTeacherModal" class="modal">
+        <div class="modal-content">
+            <h2 id="teacherModalTitle">Add Teacher</h2>
+            <form onsubmit="saveTeacher(event)">
+                <input type="hidden" id="teacherId">
+                <div class="form-group">
+                    <label>Name:</label>
+                    <input type="text" id="teacherName" required>
+                </div>
+                <div class="form-group">
+                    <label>Email:</label>
+                    <input type="email" id="teacherEmail" required>
+                </div>
+                <div class="form-group">
+                    <label>Assigned Class:</label>
+                    <select id="teacherClass" required>
+                        <option value="">Select Class</option>
+                    </select>
+                </div>
+                <div class="modal-actions">
+                    <button type="submit" class="btn btn-primary">Save</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add/Edit Student Modal -->
+    <div id="addStudentModal" class="modal">
+        <div class="modal-content">
+            <h2 id="studentModalTitle">Add Student</h2>
+            <form onsubmit="saveStudent(event)">
+                <input type="hidden" id="studentId">
+                <div class="form-group">
+                    <label>Name:</label>
+                    <input type="text" id="studentName" required>
+                </div>
+                <div class="form-group">
+                    <label>Roll Number:</label>
+                    <input type="text" id="studentRoll" required>
+                </div>
+                <div class="form-group">
+                    <label>Class:</label>
+                    <select id="studentClass" required>
+                        <option value="">Select Class</option>
+                    </select>
+                </div>
+                <div class="modal-actions">
+                    <button type="submit" class="btn btn-primary">Save</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Attendance Modal -->
+    <div id="editAttendanceModal" class="modal">
+        <div class="modal-content">
+            <h2>Edit Attendance</h2>
+            <form onsubmit="updateAttendance(event)">
+                <input type="hidden" id="attendanceId">
+                <div class="form-group">
+                    <label>Student:</label>
+                    <input type="text" id="attendanceStudent" readonly>
+                </div>
+                <div class="form-group">
+                    <label>Date:</label>
+                    <input type="date" id="attendanceEditDate" required>
+                </div>
+                <div class="form-group">
+                    <label>Status:</label>
+                    <select id="attendanceStatus" required>
+                        <option value="present">Present</option>
+                        <option value="absent">Absent</option>
+                    </select>
+                </div>
+                <div class="modal-actions">
+                    <button type="submit" class="btn btn-primary">Update</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js?v=2"></script>
+</body>
+</html>

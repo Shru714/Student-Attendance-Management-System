@@ -1,31 +1,42 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const db = require('../config/db');
+const UserModel = require('../models/userModel');
+const StudentModel = require('../models/studentModel');
 
-const login = async (req, res) => {
-  try {
-    const { email, password } = req.body;
+const AuthController = {
+  async register(data) {
+    const { name, email, password, role, rollNumber, classId } = data;
+
+    const existingUser = await UserModel.findByEmail(email);
+    if (existingUser) {
+      throw { status: 400, message: 'Email already exists' };
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const userId = await UserModel.create(name, email, hashedPassword, role);
+
+    if (role === 'student' && rollNumber && classId) {
+      await StudentModel.create(userId, classId, rollNumber);
+    }
+
+    return { message: 'User registered successfully', userId };
+  },
+
+  async login(data) {
+    const { email, password } = data;
 
     if (!email || !password) {
-      return res.status(400).json({ message: 'Please provide email and password' });
+      throw { status: 400, message: 'Email and password are required' };
     }
 
-    const [users] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
-
-    if (users.length === 0) {
-      return res.status(401).json({ message: 'Invalid credentials' });
-    }
-
-    const user = users[0];
-
-    if (!user.is_active) {
-      return res.status(403).json({ message: 'Account is disabled' });
+    const user = await UserModel.findByEmail(email);
+    if (!user) {
+      throw { status: 401, message: 'Invalid credentials' };
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
-
     if (!isMatch) {
-      return res.status(401).json({ message: 'Invalid credentials' });
+      throw { status: 401, message: 'Invalid credentials' };
     }
 
     const token = jwt.sign(
@@ -34,19 +45,23 @@ const login = async (req, res) => {
       { expiresIn: process.env.JWT_EXPIRE }
     );
 
-    res.json({
+    let additionalData = {};
+    if (user.role === 'student') {
+      const studentInfo = await StudentModel.findByUserId(user.id);
+      additionalData = { studentId: studentInfo?.id, rollNumber: studentInfo?.rollNumber };
+    }
+
+    return {
       token,
       user: {
         id: user.id,
         name: user.name,
         email: user.email,
-        role: user.role
+        role: user.role,
+        ...additionalData
       }
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
+    };
   }
 };
 
-module.exports = { login };
+module.exports = AuthController;
