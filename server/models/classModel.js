@@ -1,20 +1,16 @@
 const db = require('../config/db');
 
 const ClassModel = {
-  async create(className, year, teacherId = null) {
+  async create(className, year) {
     const [result] = await db.query(
-      'INSERT INTO classes (className, year, teacherId) VALUES (?, ?, ?)',
-      [className, year, teacherId]
+      'INSERT INTO classes (className, year) VALUES (?, ?)',
+      [className, year]
     );
     return result.insertId;
   },
 
   async getAll() {
-    const [rows] = await db.query(`
-      SELECT c.*, u.name as teacherName 
-      FROM classes c 
-      LEFT JOIN users u ON c.teacherId = u.id
-    `);
+    const [rows] = await db.query('SELECT * FROM classes');
     return rows;
   },
 
@@ -23,15 +19,32 @@ const ClassModel = {
     return rows[0];
   },
 
-  async update(id, className, year, teacherId) {
+  async update(id, className, year) {
     await db.query(
-      'UPDATE classes SET className = ?, year = ?, teacherId = ? WHERE id = ?',
-      [className, year, teacherId, id]
+      'UPDATE classes SET className = ?, year = ? WHERE id = ?',
+      [className, year, id]
     );
   },
 
   async delete(id) {
     await db.query('DELETE FROM classes WHERE id = ?', [id]);
+  },
+
+  async getNextRollNumber(classId) {
+    const [rows] = await db.query(
+      'SELECT rollNumber FROM students WHERE classId = ? ORDER BY rollNumber DESC LIMIT 1',
+      [classId]
+    );
+    
+    if (rows.length === 0) {
+      const classInfo = await this.findById(classId);
+      return `${classInfo.className.substring(0, 3).toUpperCase()}001`;
+    }
+    
+    const lastRoll = rows[0].rollNumber;
+    const prefix = lastRoll.replace(/\d+$/, '');
+    const number = parseInt(lastRoll.match(/\d+$/)[0]) + 1;
+    return `${prefix}${String(number).padStart(3, '0')}`;
   }
 };
 

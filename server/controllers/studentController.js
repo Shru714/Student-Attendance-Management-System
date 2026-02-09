@@ -1,5 +1,6 @@
 const StudentModel = require('../models/studentModel');
 const AttendanceModel = require('../models/attendanceModel');
+const NotificationModel = require('../models/notificationModel');
 
 const StudentController = {
   async getProfile(userId) {
@@ -28,6 +29,15 @@ const StudentController = {
       absent,
       percentage: parseFloat(percentage)
     };
+  },
+
+  async getNotifications(userId) {
+    return await NotificationModel.getByUserId(userId);
+  },
+
+  async markNotificationRead(notificationId) {
+    await NotificationModel.markAsRead(notificationId);
+    return { message: 'Notification marked as read' };
   }
 };
 
