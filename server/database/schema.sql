@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Subjects table
+-- Subjects table (create before teachers)
 CREATE TABLE IF NOT EXISTS subjects (
     id INT PRIMARY KEY AUTO_INCREMENT,
     subjectName VARCHAR(100) NOT NULL,
@@ -21,12 +21,59 @@ CREATE TABLE IF NOT EXISTS subjects (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Classes table
+-- Classes table (enhanced with section and academic year)
 CREATE TABLE IF NOT EXISTS classes (
     id INT PRIMARY KEY AUTO_INCREMENT,
     className VARCHAR(100) NOT NULL,
+    class_section VARCHAR(50),
     year INT NOT NULL,
+    academic_year VARCHAR(20),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Teachers table (enhanced with unique teacher ID and contact)
+CREATE TABLE IF NOT EXISTS teachers (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    userId INT,
+    teacherId VARCHAR(20) UNIQUE NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(100),
+    contactNo VARCHAR(20) NOT NULL,
+    phone VARCHAR(20),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (userId) REFERENCES users(id) ON DELETE SET NULL
+);
+
+-- Teacher years (many-to-many: teachers can teach multiple years)
+CREATE TABLE IF NOT EXISTS teacher_years (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    teacherId INT NOT NULL,
+    year INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (teacherId) REFERENCES teachers(id) ON DELETE CASCADE,
+    UNIQUE KEY unique_teacher_year (teacherId, year)
+);
+
+-- Teacher classes (many-to-many: teachers can be assigned to multiple classes)
+CREATE TABLE IF NOT EXISTS teacher_classes (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    teacherId INT NOT NULL,
+    classId INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (teacherId) REFERENCES teachers(id) ON DELETE CASCADE,
+    FOREIGN KEY (classId) REFERENCES classes(id) ON DELETE CASCADE,
+    UNIQUE KEY unique_teacher_class (teacherId, classId)
+);
+
+-- Teacher subjects (many-to-many: teachers can teach multiple subjects)
+CREATE TABLE IF NOT EXISTS teacher_subjects (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    teacherId INT NOT NULL,
+    subjectId INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (teacherId) REFERENCES teachers(id) ON DELETE CASCADE,
+    FOREIGN KEY (subjectId) REFERENCES subjects(id) ON DELETE CASCADE,
+    UNIQUE KEY unique_teacher_subject (teacherId, subjectId)
 );
 
 -- Teacher assignments (many-to-many: teachers can teach multiple classes/subjects)
@@ -36,21 +83,26 @@ CREATE TABLE IF NOT EXISTS teacher_assignments (
     classId INT NOT NULL,
     subjectId INT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (teacherId) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (teacherId) REFERENCES teachers(id) ON DELETE CASCADE,
     FOREIGN KEY (classId) REFERENCES classes(id) ON DELETE CASCADE,
     FOREIGN KEY (subjectId) REFERENCES subjects(id) ON DELETE CASCADE,
     UNIQUE KEY unique_assignment (teacherId, classId, subjectId)
 );
 
--- Students table (enhanced)
+-- Students table (enhanced with all required fields)
 CREATE TABLE IF NOT EXISTS students (
     id INT PRIMARY KEY AUTO_INCREMENT,
-    userId INT NOT NULL,
+    userId INT,
     classId INT NOT NULL,
+    student_name VARCHAR(100) NOT NULL,
     rollNumber VARCHAR(20) UNIQUE NOT NULL,
-    parentPhone VARCHAR(20),
+    email VARCHAR(100),
+    address TEXT,
+    student_contact VARCHAR(20),
+    parent_contact VARCHAR(20),
+    password VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (userId) REFERENCES users(id) ON DELETE SET NULL,
     FOREIGN KEY (classId) REFERENCES classes(id) ON DELETE CASCADE
 );
 
@@ -104,6 +156,6 @@ INSERT INTO attendance_settings (attendanceWindow, lowAttendanceThreshold, autoL
 VALUES (30, 50.00, 30) ON DUPLICATE KEY UPDATE id=id;
 
 -- Insert default admin user (password: admin123)
-INSERT INTO users (name, email, password, role) VALUES 
-('Admin User', 'admin@example.com', '$2a$10$YourHashedPasswordHere', 'admin')
+INSERT INTO users (name, email, password, role) 
+VALUES ('Admin User', 'admin@example.com', '$2a$10$YourHashedPasswordHere', 'admin')
 ON DUPLICATE KEY UPDATE name=name;

@@ -3,6 +3,7 @@ const UserModel = require('../models/userModel');
 const StudentModel = require('../models/studentModel');
 const AttendanceModel = require('../models/attendanceModel');
 const SubjectModel = require('../models/subjectModel');
+const TeacherModel = require('../models/teacherModel');
 const TeacherAssignmentModel = require('../models/teacherAssignmentModel');
 const NotificationModel = require('../models/notificationModel');
 const bcrypt = require('bcryptjs');
@@ -57,11 +58,13 @@ const AdminController = {
 
   // Teachers with multi-assignment
   async getTeachers() {
-    const users = await UserModel.getAll();
-    const teachers = users.filter(u => u.role === 'teacher');
+    const teachers = await TeacherModel.getAll();
     
     // Get assignments for each teacher
     for (let teacher of teachers) {
+      teacher.subjects = await TeacherModel.getSubjects(teacher.id);
+      teacher.years = await TeacherModel.getYears(teacher.id);
+      teacher.classes = await TeacherModel.getClasses(teacher.id);
       teacher.assignments = await TeacherAssignmentModel.getByTeacherId(teacher.id);
     }
     
@@ -69,30 +72,98 @@ const AdminController = {
   },
 
   async createTeacher(data) {
-    const { name, email, password, phone, subjects, classes, isClassTeacher } = data;
+    const { name, email, password, phone, teacherId, contactNo, subjectIds, years, classIds } = data;
+    
+    // Validate unique teacher ID
+    const existingTeacher = await TeacherModel.findByTeacherId(teacherId);
+    if (existingTeacher) {
+      throw { status: 400, message: 'Teacher ID already exists' };
+    }
+    
     const hashedPassword = await bcrypt.hash(password || 'teacher123', 10);
     const userId = await UserModel.create(name, email, hashedPassword, 'teacher', phone);
     
-    // Assign multiple subjects and classes
-    if (subjects && classes && subjects.length > 0 && classes.length > 0) {
+    // Create teacher record with unique teacher ID and contact
+    const teacherRecordId = await TeacherModel.create(userId, teacherId, contactNo);
+    
+    // Assign multiple subjects
+    if (subjectIds && subjectIds.length > 0) {
+      await TeacherModel.assignSubjects(teacherRecordId, subjectIds);
+    }
+    
+    // Assign multiple years
+    if (years && years.length > 0) {
+      await TeacherModel.assignYears(teacherRecordId, years);
+    }
+    
+    // Assign multiple classes
+    if (classIds && classIds.length > 0) {
+      await TeacherModel.assignClasses(teacherRecordId, classIds);
+    }
+    
+    // Create teacher assignments (class-subject combinations)
+    if (subjectIds && classIds && subjectIds.length > 0 && classIds.length > 0) {
       const assignments = [];
-      for (let subjectId of subjects) {
-        for (let classId of classes) {
+      for (let subjectId of subjectIds) {
+        for (let classId of classIds) {
           assignments.push({ classId, subjectId });
         }
       }
-      await TeacherAssignmentModel.assignMultiple(userId, assignments);
+      await TeacherAssignmentModel.assignMultiple(teacherRecordId, assignments);
     }
     
     // Send notification
     const academicYear = this.getAcademicYear();
     await NotificationModel.create(
       userId,
-      `You have been assigned subjects and classes for the academic year ${academicYear}.`,
+      `Welcome! Your Teacher ID is ${teacherId}. You have been assigned subjects and classes for the academic year ${academicYear}.`,
       'info'
     );
     
-    return { message: 'Teacher created successfully', userId };
+    return { message: 'Teacher created successfully', userId, teacherId };
+  },
+
+  async updateTeacher(data) {
+    const { id, contactNo, subjectIds, years, classIds } = data;
+    
+    // Update contact number
+    if (contactNo) {
+      await TeacherModel.update(id, contactNo);
+    }
+    
+    // Update subjects
+    if (subjectIds) {
+      await TeacherModel.assignSubjects(id, subjectIds);
+    }
+    
+    // Update years
+    if (years) {
+      await TeacherModel.assignYears(id, years);
+    }
+    
+    // Update classes
+    if (classIds) {
+      await TeacherModel.assignClasses(id, classIds);
+    }
+    
+    // Update teacher assignments
+    if (subjectIds && classIds) {
+      await TeacherAssignmentModel.removeByTeacherId(id);
+      const assignments = [];
+      for (let subjectId of subjectIds) {
+        for (let classId of classIds) {
+          assignments.push({ classId, subjectId });
+        }
+      }
+      await TeacherAssignmentModel.assignMultiple(id, assignments);
+    }
+    
+    return { message: 'Teacher updated successfully' };
+  },
+
+  async deleteTeacher(id) {
+    await TeacherModel.delete(id);
+    return { message: 'Teacher deleted successfully' };
   },
 
   // Students with auto roll number and bulk creation

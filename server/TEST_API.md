@@ -49,7 +49,7 @@ curl -X POST http://localhost:5000/api/admin/classes \
 
 ---
 
-### 2️⃣ **Manage Teacher - Multi-Select & Notifications**
+### 2️⃣ **Manage Teacher - Enhanced with Unique ID, Contact & Multi-Select**
 
 **Create Subject First:**
 ```bash
@@ -62,7 +62,7 @@ curl -X POST http://localhost:5000/api/admin/subjects \
   }'
 ```
 
-**Create Teacher with Multi-Assignment:**
+**Create Teacher with Enhanced Fields:**
 ```bash
 curl -X POST http://localhost:5000/api/admin/teachers \
   -H "Content-Type: application/json" \
@@ -71,9 +71,11 @@ curl -X POST http://localhost:5000/api/admin/teachers \
     "name": "Dr. John Smith",
     "email": "john@example.com",
     "phone": "1234567890",
-    "subjects": [1, 2, 3],
-    "classes": [1, 2],
-    "isClassTeacher": true
+    "teacherId": "TCH001",
+    "contactNo": "9876543210",
+    "subjectIds": [1, 2, 3],
+    "years": [1, 2, 3],
+    "classIds": [1, 2]
   }'
 ```
 
@@ -81,12 +83,54 @@ curl -X POST http://localhost:5000/api/admin/teachers \
 ```json
 {
   "message": "Teacher created successfully",
-  "userId": 2
+  "userId": 2,
+  "teacherId": "TCH001"
 }
 ```
 
 **Notification sent to teacher:**
-> "You have been assigned subjects and classes for the academic year 2025-2026."
+> "Welcome! Your Teacher ID is TCH001. You have been assigned subjects and classes for the academic year 2025-2026."
+
+**Update Teacher:**
+```bash
+curl -X PUT http://localhost:5000/api/admin/teachers \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -d '{
+    "id": 1,
+    "contactNo": "9999999999",
+    "subjectIds": [1, 2],
+    "years": [1, 2],
+    "classIds": [1]
+  }'
+```
+
+**Get Teacher Profile:**
+```bash
+curl "http://localhost:5000/api/teacher/profile" \
+  -H "Authorization: Bearer TEACHER_JWT_TOKEN"
+```
+
+**Response:**
+```json
+{
+  "id": 1,
+  "userId": 2,
+  "teacherId": "TCH001",
+  "contactNo": "9876543210",
+  "name": "Dr. John Smith",
+  "email": "john@example.com",
+  "subjects": [
+    { "id": 1, "subjectName": "Mathematics", "subjectCode": "MATH101" },
+    { "id": 2, "subjectName": "Physics", "subjectCode": "PHY101" }
+  ],
+  "years": [1, 2, 3],
+  "classes": [
+    { "id": 1, "className": "BCA", "year": 1 },
+    { "id": 2, "className": "MCA", "year": 1 }
+  ]
+}
+```
 
 ---
 
@@ -327,7 +371,13 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 | Feature | Endpoint | Status |
 |---------|----------|--------|
 | Auto Academic Year | POST /api/admin/classes | ✅ |
+| Unique Teacher ID | POST /api/admin/teachers | ✅ |
+| Teacher Contact Number | POST /api/admin/teachers | ✅ |
 | Multi-Subject Teacher | POST /api/admin/teachers | ✅ |
+| Multi-Year Teacher | POST /api/admin/teachers | ✅ |
+| Multi-Class Teacher | POST /api/admin/teachers | ✅ |
+| Teacher Profile | GET /api/teacher/profile | ✅ |
+| Update Teacher | PUT /api/admin/teachers | ✅ |
 | Teacher Notification | POST /api/admin/teachers | ✅ |
 | Auto Roll Number | POST /api/admin/students | ✅ |
 | Auto Password | POST /api/admin/students | ✅ |
@@ -358,11 +408,21 @@ ORDER BY n.created_at DESC;
 
 **Check Teacher Assignments:**
 ```sql
-SELECT u.name as teacher, c.className, s.subjectName 
-FROM teacher_assignments ta
-JOIN users u ON ta.teacherId = u.id
-JOIN classes c ON ta.classId = c.id
-JOIN subjects s ON ta.subjectId = s.id;
+SELECT 
+  t.teacherId,
+  u.name as teacher,
+  t.contactNo,
+  GROUP_CONCAT(DISTINCT s.subjectName) as subjects,
+  GROUP_CONCAT(DISTINCT ty.year) as years,
+  GROUP_CONCAT(DISTINCT c.className) as classes
+FROM teachers t
+JOIN users u ON t.userId = u.id
+LEFT JOIN teacher_subjects ts ON t.id = ts.teacherId
+LEFT JOIN subjects s ON ts.subjectId = s.id
+LEFT JOIN teacher_years ty ON t.id = ty.teacherId
+LEFT JOIN teacher_classes tc ON t.id = tc.teacherId
+LEFT JOIN classes c ON tc.classId = c.id
+GROUP BY t.id, t.teacherId, u.name, t.contactNo;
 ```
 
 **Check Low Attendance:**
@@ -385,7 +445,11 @@ HAVING percentage < 50;
 
 All features are implemented and working:
 - ✅ Academic year auto-generates based on current month
-- ✅ Teachers can be assigned multiple subjects and classes
+- ✅ Teachers have unique teacher IDs (e.g., TCH001)
+- ✅ Teachers have dedicated contact numbers
+- ✅ Teachers can be assigned multiple subjects
+- ✅ Teachers can be assigned multiple years
+- ✅ Teachers can be assigned multiple classes
 - ✅ Roll numbers auto-generate in format: ClassCode + Year + Number
 - ✅ Passwords auto-generate for students
 - ✅ Attendance marking restricted to time windows

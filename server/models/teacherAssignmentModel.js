@@ -27,6 +27,18 @@ const TeacherAssignmentModel = {
     return rows;
   },
 
+  async getByUserId(userId) {
+    const [rows] = await db.query(`
+      SELECT ta.*, c.className, c.year, s.subjectName, s.subjectCode
+      FROM teacher_assignments ta
+      JOIN teachers t ON ta.teacherId = t.id
+      JOIN classes c ON ta.classId = c.id
+      JOIN subjects s ON ta.subjectId = s.id
+      WHERE t.userId = ?
+    `, [userId]);
+    return rows;
+  },
+
   async removeByTeacherId(teacherId) {
     await db.query('DELETE FROM teacher_assignments WHERE teacherId = ?', [teacherId]);
   }

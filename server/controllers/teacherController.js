@@ -1,11 +1,24 @@
 const ClassModel = require('../models/classModel');
 const StudentModel = require('../models/studentModel');
 const AttendanceModel = require('../models/attendanceModel');
+const TeacherModel = require('../models/teacherModel');
 const TeacherAssignmentModel = require('../models/teacherAssignmentModel');
 
 const TeacherController = {
-  async getMyClasses(teacherId) {
-    const assignments = await TeacherAssignmentModel.getByTeacherId(teacherId);
+  async getMyProfile(userId) {
+    const teacher = await TeacherModel.findByUserId(userId);
+    if (!teacher) {
+      throw { status: 404, message: 'Teacher profile not found' };
+    }
+    return await TeacherModel.getProfile(teacher.id);
+  },
+
+  async getMyClasses(userId) {
+    const teacher = await TeacherModel.findByUserId(userId);
+    if (!teacher) {
+      throw { status: 404, message: 'Teacher profile not found' };
+    }
+    const assignments = await TeacherAssignmentModel.getByTeacherId(teacher.id);
     return { assignments };
   },
 
@@ -71,13 +84,12 @@ const TeacherController = {
     return history;
   },
 
-  async getMySubjects(teacherId) {
-    const assignments = await TeacherAssignmentModel.getByTeacherId(teacherId);
-    const subjects = [...new Set(assignments.map(a => ({
-      id: a.subjectId,
-      name: a.subjectName,
-      code: a.subjectCode
-    })))];
+  async getMySubjects(userId) {
+    const teacher = await TeacherModel.findByUserId(userId);
+    if (!teacher) {
+      throw { status: 404, message: 'Teacher profile not found' };
+    }
+    const subjects = await TeacherModel.getSubjects(teacher.id);
     return subjects;
   }
 };

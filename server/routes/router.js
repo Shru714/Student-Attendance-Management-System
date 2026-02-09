@@ -94,6 +94,19 @@ const router = async (req, res) => {
       return { status: 201, data: result };
     }
 
+    if (path === '/api/admin/teachers' && method === 'PUT') {
+      await authorize(['admin'])(req);
+      const data = await parseBody(req);
+      const result = await AdminController.updateTeacher(data);
+      return { status: 200, data: result };
+    }
+
+    if (path === '/api/admin/teachers' && method === 'DELETE') {
+      await authorize(['admin'])(req);
+      const result = await AdminController.deleteTeacher(query.id);
+      return { status: 200, data: result };
+    }
+
     // Admin - Students
     if (path === '/api/admin/students' && method === 'GET') {
       await authorize(['admin'])(req);
@@ -142,6 +155,12 @@ const router = async (req, res) => {
     }
 
     // Teacher Routes
+    if (path === '/api/teacher/profile' && method === 'GET') {
+      const user = await authorize(['teacher'])(req);
+      const result = await TeacherController.getMyProfile(user.id);
+      return { status: 200, data: result };
+    }
+
     if (path === '/api/teacher/my-classes' && method === 'GET') {
       const user = await authorize(['teacher'])(req);
       const result = await TeacherController.getMyClasses(user.id);
