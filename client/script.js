@@ -25,39 +25,44 @@ function loadDemoData() {
     const demoClasses = [
         { 
             id: 1, 
-            name: 'BCA', 
-            section: '1st Year',
-            year: 1,
-            academicYear: '2025-2026',
-            fullName: 'BCA 1st Year',
+            className: 'PHP', 
+            class_section: 'B',
+            year: 3,
+            academic_year: '2025-2026',
             createdAt: new Date().toISOString()
         },
         { 
             id: 2, 
-            name: 'BCA', 
-            section: '2nd Year',
+            className: 'Java', 
+            class_section: 'B',
             year: 2,
-            academicYear: '2025-2026',
-            fullName: 'BCA 2nd Year',
+            academic_year: '2025-2026',
             createdAt: new Date().toISOString()
         },
         { 
             id: 3, 
-            name: 'MCA', 
-            section: '1st Year',
+            className: 'R programming', 
+            class_section: 'A',
             year: 1,
-            academicYear: '2025-2026',
-            fullName: 'MCA 1st Year',
+            academic_year: '2025-2026',
+            createdAt: new Date().toISOString()
+        },
+        { 
+            id: 4, 
+            className: 'C', 
+            class_section: 'A',
+            year: 1,
+            academic_year: '2025-2026',
+            createdAt: new Date().toISOString()
+        },
+        { 
+            id: 5, 
+            className: 'Python', 
+            class_section: 'A',
+            year: 3,
+            academic_year: '2025-2026',
             createdAt: new Date().toISOString()
         }
-    ];
-    
-    const demoSubjects = [
-        { id: 1, name: 'Mathematics', code: 'MATH101' },
-        { id: 2, name: 'Physics', code: 'PHY101' },
-        { id: 3, name: 'Computer Science', code: 'CS101' },
-        { id: 4, name: 'English', code: 'ENG101' },
-        { id: 5, name: 'Data Structures', code: 'CS201' }
     ];
     
     const demoTeachers = [
@@ -68,8 +73,8 @@ function loadDemoData() {
             teacherId: 'TCH001',
             contactNo: '9876543210',
             phone: '1234567890',
-            years: [1, 2],
-            classIds: [1, 2]
+            years: [1, 2, 3],
+            classIds: [1, 2, 3, 4, 5]
         },
         { 
             id: 2, 
@@ -78,7 +83,7 @@ function loadDemoData() {
             teacherId: 'TCH002',
             contactNo: '9876543211',
             phone: '1234567891',
-            years: [1, 2, 3],
+            years: [1, 2],
             classIds: [1, 2, 3]
         },
         { 
@@ -88,87 +93,105 @@ function loadDemoData() {
             teacherId: 'TCH003',
             contactNo: '9876543212',
             phone: '1234567892',
-            years: [1],
-            classIds: [3]
+            years: [1, 2, 3],
+            classIds: [4, 5]
         }
     ];
     
     const demoStudents = [
         { 
             id: 1, 
-            name: 'Rahul Verma', 
+            student_name: 'Rahul Verma', 
             email: 'rahul.verma@example.com',
-            rollNumber: 'BCA25001', 
+            rollNumber: 'PHP25001', 
             classId: 1,
-            class: 'BCA 1st Year',
             address: '123 Main Street, Mumbai',
-            studentContact: '9876543210',
-            parentContact: '9876543211',
+            student_contact: '9876543210',
+            parent_contact: '9876543211',
             password: 'Pass1234',
             createdAt: new Date().toISOString()
         },
         { 
             id: 2, 
-            name: 'Anita Singh', 
+            student_name: 'Anita Singh', 
             email: 'anita.singh@example.com',
-            rollNumber: 'BCA25002', 
+            rollNumber: 'PHP25002', 
             classId: 1,
-            class: 'BCA 1st Year',
             address: '456 Park Avenue, Delhi',
-            studentContact: '9876543212',
-            parentContact: '9876543213',
+            student_contact: '9876543212',
+            parent_contact: '9876543213',
             password: 'Pass5678',
             createdAt: new Date().toISOString()
         },
         { 
             id: 3, 
-            name: 'Vikram Joshi', 
+            student_name: 'Vikram Joshi', 
             email: 'vikram.joshi@example.com',
-            rollNumber: 'BCA25003', 
+            rollNumber: 'PHP25003', 
             classId: 1,
-            class: 'BCA 1st Year',
             address: '789 Lake Road, Bangalore',
-            studentContact: '9876543214',
-            parentContact: '9876543215',
+            student_contact: '9876543214',
+            parent_contact: '9876543215',
             password: 'Pass9012',
             createdAt: new Date().toISOString()
         },
         { 
             id: 4, 
-            name: 'Sneha Gupta', 
+            student_name: 'Sneha Gupta', 
             email: 'sneha.gupta@example.com',
-            rollNumber: 'BCA25021', 
+            rollNumber: 'Java25001', 
             classId: 2,
-            class: 'BCA 2nd Year',
             address: '321 Hill View, Pune',
-            studentContact: '9876543216',
-            parentContact: '9876543217',
+            student_contact: '9876543216',
+            parent_contact: '9876543217',
             password: 'Pass3456',
             createdAt: new Date().toISOString()
         },
         { 
             id: 5, 
-            name: 'Arjun Reddy', 
+            student_name: 'Arjun Reddy', 
             email: 'arjun.reddy@example.com',
-            rollNumber: 'BCA25022', 
+            rollNumber: 'Java25002', 
             classId: 2,
-            class: 'BCA 2nd Year',
             address: '654 Garden Street, Hyderabad',
-            studentContact: '9876543218',
-            parentContact: '9876543219',
+            student_contact: '9876543218',
+            parent_contact: '9876543219',
             password: 'Pass7890',
             createdAt: new Date().toISOString()
         },
         { 
             id: 6, 
-            name: 'Pooja Mehta', 
+            student_name: 'Pooja Mehta', 
             email: 'pooja.mehta@example.com',
-            rollNumber: 'MCA25001', 
+            rollNumber: 'Rprog25001', 
             classId: 3,
-            class: 'MCA 1st Year',
             address: '987 Beach Road, Chennai',
-            studentContact: '9876543220',
-            parentContact: '9876543221',
+            student_contact: '9876543220',
+            parent_contact: '9876543221',
+            password: 'Pass2468',
+            createdAt: new Date().toISOString()
+        },
+        { 
+            id: 7, 
+            student_name: 'Nikhil Kumar', 
+            email: 'nikhil.kumar@example.com',
+            rollNumber: 'C25001', 
+            classId: 4,
+            address: '111 River Road, Kolkata',
+            student_contact: '9876543222',
+            parent_contact: '9876543223',
+            password: 'Pass1357',
+            createdAt: new Date().toISOString()
+        },
+        { 
+            id: 8, 
+            student_name: 'Divya Nair', 
+            email: 'divya.nair@example.com',
+            rollNumber: 'Python25001', 
+            classId: 5,
+            address: '222 Forest Lane, Kochi',
+            student_contact: '9876543224',
+            parent_contact: '9876543225',
             password: 'Pass2468',
             createdAt: new Date().toISOString()
         }
@@ -181,31 +204,38 @@ function loadDemoData() {
     twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
     
     const demoAttendance = [
-        // Today's attendance
-        { id: 1, studentId: 1, studentName: 'Rahul Verma', className: 'BCA 1st Year', date: today.toISOString().split('T')[0], status: 'present' },
-        { id: 2, studentId: 2, studentName: 'Anita Singh', className: 'BCA 1st Year', date: today.toISOString().split('T')[0], status: 'present' },
-        { id: 3, studentId: 3, studentName: 'Vikram Joshi', className: 'BCA 1st Year', date: today.toISOString().split('T')[0], status: 'absent' },
-        { id: 4, studentId: 4, studentName: 'Sneha Gupta', className: 'BCA 2nd Year', date: today.toISOString().split('T')[0], status: 'present' },
-        { id: 5, studentId: 5, studentName: 'Arjun Reddy', className: 'BCA 2nd Year', date: today.toISOString().split('T')[0], status: 'present' },
+        // Today's attendance for PHP class
+        { id: 1, classId: 1, studentId: 1, studentName: 'Rahul Verma', rollNumber: 'PHP25001', date: today.toISOString().split('T')[0], time: '09:30', status: 'present', markedAt: new Date().toISOString() },
+        { id: 2, classId: 1, studentId: 2, studentName: 'Anita Singh', rollNumber: 'PHP25002', date: today.toISOString().split('T')[0], time: '09:30', status: 'present', markedAt: new Date().toISOString() },
+        { id: 3, classId: 1, studentId: 3, studentName: 'Vikram Joshi', rollNumber: 'PHP25003', date: today.toISOString().split('T')[0], time: '09:30', status: 'absent', markedAt: new Date().toISOString() },
+        
+        // Today's attendance for Java class
+        { id: 4, classId: 2, studentId: 4, studentName: 'Sneha Gupta', rollNumber: 'Java25001', date: today.toISOString().split('T')[0], time: '10:30', status: 'present', markedAt: new Date().toISOString() },
+        { id: 5, classId: 2, studentId: 5, studentName: 'Arjun Reddy', rollNumber: 'Java25002', date: today.toISOString().split('T')[0], time: '10:30', status: 'present', markedAt: new Date().toISOString() },
         
         // Yesterday's attendance
-        { id: 6, studentId: 1, studentName: 'Rahul Verma', className: 'BCA 1st Year', date: yesterday.toISOString().split('T')[0], status: 'present' },
-        { id: 7, studentId: 2, studentName: 'Anita Singh', className: 'BCA 1st Year', date: yesterday.toISOString().split('T')[0], status: 'absent' },
-        { id: 8, studentId: 3, studentName: 'Vikram Joshi', className: 'BCA 1st Year', date: yesterday.toISOString().split('T')[0], status: 'present' },
+        { id: 6, classId: 1, studentId: 1, studentName: 'Rahul Verma', rollNumber: 'PHP25001', date: yesterday.toISOString().split('T')[0], time: '09:30', status: 'present', markedAt: new Date().toISOString() },
+        { id: 7, classId: 1, studentId: 2, studentName: 'Anita Singh', rollNumber: 'PHP25002', date: yesterday.toISOString().split('T')[0], time: '09:30', status: 'absent', markedAt: new Date().toISOString() },
+        { id: 8, classId: 1, studentId: 3, studentName: 'Vikram Joshi', rollNumber: 'PHP25003', date: yesterday.toISOString().split('T')[0], time: '09:30', status: 'present', markedAt: new Date().toISOString() },
         
         // Two days ago
-        { id: 9, studentId: 1, studentName: 'Rahul Verma', className: 'BCA 1st Year', date: twoDaysAgo.toISOString().split('T')[0], status: 'present' },
-        { id: 10, studentId: 2, studentName: 'Anita Singh', className: 'BCA 1st Year', date: twoDaysAgo.toISOString().split('T')[0], status: 'present' },
-        { id: 11, studentId: 3, studentName: 'Vikram Joshi', className: 'BCA 1st Year', date: twoDaysAgo.toISOString().split('T')[0], status: 'present' }
+        { id: 9, classId: 1, studentId: 1, studentName: 'Rahul Verma', rollNumber: 'PHP25001', date: twoDaysAgo.toISOString().split('T')[0], time: '09:30', status: 'present', markedAt: new Date().toISOString() },
+        { id: 10, classId: 1, studentId: 2, studentName: 'Anita Singh', rollNumber: 'PHP25002', date: twoDaysAgo.toISOString().split('T')[0], time: '09:30', status: 'present', markedAt: new Date().toISOString() },
+        { id: 11, classId: 1, studentId: 3, studentName: 'Vikram Joshi', rollNumber: 'PHP25003', date: twoDaysAgo.toISOString().split('T')[0], time: '09:30', status: 'present', markedAt: new Date().toISOString() }
     ];
     
     saveData('classes', demoClasses);
-    saveData('subjects', demoSubjects);
     saveData('teachers', demoTeachers);
     saveData('students', demoStudents);
     saveData('attendance', demoAttendance);
     
-    alert('Demo data loaded successfully! You can now test all features.');
+    console.log('Demo data loaded successfully!');
+    console.log('Classes:', demoClasses);
+    console.log('Teachers:', demoTeachers);
+    console.log('Students:', demoStudents);
+    console.log('Attendance:', demoAttendance);
+    
+    alert('✅ Demo data loaded successfully!\n\nClasses: 5\nTeachers: 3\nStudents: 8\nAttendance Records: 11\n\nYou can now test all features!');
     location.reload();
 }
 
@@ -352,10 +382,10 @@ function showEditClassModal(id) {
     if (cls) {
         document.getElementById('classModalTitle').textContent = 'Edit Class';
         document.getElementById('classId').value = cls.id;
-        document.getElementById('className').value = cls.name;
-        document.getElementById('classSection').value = cls.section || '';
+        document.getElementById('className').value = cls.className;
+        document.getElementById('classSection').value = cls.class_section || '';
         document.getElementById('classYear').value = cls.year;
-        document.getElementById('classAcademicYear').value = cls.academicYear || getAcademicYear();
+        document.getElementById('classAcademicYear').value = cls.academic_year || getAcademicYear();
         document.getElementById('classInfoBox').style.display = 'none';
         
         document.getElementById('modalOverlay').classList.add('active');
@@ -380,11 +410,10 @@ function saveClass(event) {
     
     const classData = {
         id: id ? parseInt(id) : Date.now(),
-        name: className,
-        section: section,
+        className: className,
+        class_section: section,
         year: parseInt(year),
-        academicYear: academicYear,
-        fullName: `${className} ${section}`,
+        academic_year: academicYear,
         createdAt: new Date().toISOString()
     };
     
@@ -413,7 +442,69 @@ function saveClass(event) {
     setTimeout(() => {
         closeModal();
         loadClassesTable();
+        // Refresh all class dropdowns
+        refreshAllClassDropdowns();
     }, id ? 0 : 2000);
+}
+
+function refreshAllClassDropdowns() {
+    // Refresh Mark Attendance class dropdown
+    if (document.getElementById('teacherClassSelect')) {
+        loadTeacherMarkSection();
+    }
+    
+    // Refresh Teacher modal class checkboxes
+    if (document.getElementById('teacherClassesCheckboxes')) {
+        const classes = getData('classes') || [];
+        const classesContainer = document.getElementById('teacherClassesCheckboxes');
+        classesContainer.innerHTML = '';
+        classes.forEach(cls => {
+            if (cls && cls.id && cls.className) {
+                classesContainer.innerHTML += `
+                    <label>
+                        <input type="checkbox" name="teacherClasses" value="${cls.id}" onchange="updateClassTimes()">
+                        ${cls.className} - ${cls.class_section || 'N/A'}
+                    </label>
+                `;
+            }
+        });
+    }
+    
+    // Refresh Student modal class dropdown
+    if (document.getElementById('studentClass')) {
+        const classes = getData('classes') || [];
+        const select = document.getElementById('studentClass');
+        select.innerHTML = '<option value="">Select Class</option>';
+        classes.forEach(cls => {
+            if (cls && cls.id && cls.className) {
+                select.innerHTML += `<option value="${cls.id}" data-name="${cls.className}">${cls.className} - ${cls.class_section || 'N/A'}</option>`;
+            }
+        });
+    }
+}
+
+function autoPopulateClassTime() {
+    const classSelect = document.getElementById('studentClass');
+    const classId = parseInt(classSelect.value);
+    const teachers = getData('teachers') || [];
+    
+    if (!classId) {
+        document.getElementById('studentClassTime').value = '';
+        return;
+    }
+    
+    // Find a teacher assigned to this class and get their class time
+    let classTime = '';
+    for (let teacher of teachers) {
+        if (teacher.classIds && teacher.classIds.includes(classId)) {
+            if (teacher.classTimes && teacher.classTimes[classId]) {
+                classTime = teacher.classTimes[classId];
+                break;
+            }
+        }
+    }
+    
+    document.getElementById('studentClassTime').value = classTime;
 }
 
 function loadClassesTable() {
@@ -424,10 +515,10 @@ function loadClassesTable() {
     classes.forEach(cls => {
         const row = `
             <tr>
-                <td><strong>${cls.name}</strong></td>
-                <td>${cls.section || 'N/A'}</td>
+                <td><strong>${cls.className}</strong></td>
+                <td>${cls.class_section || 'N/A'}</td>
                 <td>${cls.year}</td>
-                <td>${cls.academicYear || 'N/A'}</td>
+                <td>${cls.academic_year || 'N/A'}</td>
                 <td>
                     <button class="btn btn-edit" onclick="showEditClassModal(${cls.id})">Edit</button>
                     <button class="btn btn-danger" onclick="deleteClass(${cls.id})">Delete</button>
@@ -468,12 +559,14 @@ function showAddTeacherModal() {
                 classesContainer.innerHTML = '<p style="color: #e74c3c; padding: 10px;">No classes available. Please load demo data or create classes first.</p>';
             } else {
                 classes.forEach(cls => {
-                    classesContainer.innerHTML += `
-                        <label>
-                            <input type="checkbox" name="teacherClasses" value="${cls.id}">
-                            ${cls.name}
-                        </label>
-                    `;
+                    if (cls && cls.id && cls.className) {
+                        classesContainer.innerHTML += `
+                            <label>
+                                <input type="checkbox" name="teacherClasses" value="${cls.id}" onchange="updateClassTimes()">
+                                ${cls.className} - ${cls.class_section || 'N/A'}
+                            </label>
+                        `;
+                    }
                 });
             }
         }
@@ -481,12 +574,43 @@ function showAddTeacherModal() {
         // Uncheck all years
         document.querySelectorAll('input[name="teacherYears"]').forEach(cb => cb.checked = false);
         
+        // Clear class times
+        updateClassTimes();
+        
         document.getElementById('modalOverlay').classList.add('active');
         document.getElementById('addTeacherModal').classList.add('active');
     } catch (error) {
         console.error('Error opening teacher modal:', error);
         alert('Error opening teacher form. Please check the console for details.');
     }
+}
+
+function updateClassTimes() {
+    const classes = getData('classes') || [];
+    const selectedClassIds = Array.from(document.querySelectorAll('input[name="teacherClasses"]:checked')).map(cb => parseInt(cb.value));
+    const timesContainer = document.getElementById('teacherClassTimes');
+    
+    if (!timesContainer) return;
+    
+    if (selectedClassIds.length === 0) {
+        timesContainer.innerHTML = '<p style="color: #7f8c8d; font-size: 0.9rem;">Select classes above to set times</p>';
+        return;
+    }
+    
+    let timesHtml = '';
+    selectedClassIds.forEach(classId => {
+        const cls = classes.find(c => c.id === classId);
+        if (cls) {
+            timesHtml += `
+                <div class="class-time-input">
+                    <label>${cls.className} - ${cls.class_section || 'N/A'}</label>
+                    <input type="time" class="class-time-field" data-class-id="${classId}" placeholder="Set time (optional)">
+                </div>
+            `;
+        }
+    });
+    
+    timesContainer.innerHTML = timesHtml;
 }
 
 function showEditTeacherModal(id) {
@@ -550,6 +674,16 @@ function saveTeacher(event) {
         const classIds = Array.from(document.querySelectorAll('input[name="teacherClasses"]:checked'))
             .map(cb => parseInt(cb.value));
         
+        // Get class times
+        const classTimes = {};
+        document.querySelectorAll('.class-time-field').forEach(input => {
+            const classId = parseInt(input.dataset.classId);
+            const time = input.value;
+            if (time) {
+                classTimes[classId] = time;
+            }
+        });
+        
         const teacherId = document.getElementById('teacherUniqueId').value;
         
         // Validate unique teacher ID (only for new teachers)
@@ -587,7 +721,8 @@ function saveTeacher(event) {
             contactNo: contactNo,
             phone: document.getElementById('teacherPhone').value,
             years: years,
-            classIds: classIds
+            classIds: classIds,
+            classTimes: classTimes
         };
         
         if (id) {
@@ -666,17 +801,22 @@ function showAddStudentModal() {
     document.getElementById('studentAddress').value = '';
     document.getElementById('studentContact').value = '';
     document.getElementById('parentContact').value = '';
+    document.getElementById('studentClassTime').value = '';
     document.getElementById('studentInfoBox').style.display = 'none';
     
     // Generate password in background (hidden field)
     generatePassword();
     
-    const classes = getData('classes');
+    const classes = getData('classes') || [];
     const select = document.getElementById('studentClass');
     select.innerHTML = '<option value="">Select Class</option>';
+    
     classes.forEach(cls => {
-        select.innerHTML += `<option value="${cls.id}" data-name="${cls.name}">${cls.name}</option>`;
+        if (cls && cls.id && cls.className) {
+            select.innerHTML += `<option value="${cls.id}" data-name="${cls.className}">${cls.className} - ${cls.class_section || 'N/A'}</option>`;
+        }
     });
+    
     document.getElementById('modalOverlay').classList.add('active');
     document.getElementById('addStudentModal').classList.add('active');
 }
@@ -726,28 +866,32 @@ function generatePassword() {
 }
 
 function showEditStudentModal(id) {
-    const students = getData('students');
+    const students = getData('students') || [];
     const student = students.find(s => s.id === id);
     if (student) {
         document.getElementById('studentModalTitle').textContent = 'Edit Student';
         document.getElementById('studentId').value = student.id;
-        document.getElementById('studentName').value = student.name;
+        document.getElementById('studentName').value = student.student_name || '';
         document.getElementById('studentEmail').value = student.email || '';
         document.getElementById('studentRoll').value = student.rollNumber;
         document.getElementById('studentAddress').value = student.address || '';
-        document.getElementById('studentContact').value = student.studentContact || '';
-        document.getElementById('parentContact').value = student.parentContact || '';
+        document.getElementById('studentContact').value = student.student_contact || '';
+        document.getElementById('parentContact').value = student.parent_contact || '';
+        document.getElementById('studentClassTime').value = student.classTime || '';
         document.getElementById('studentInfoBox').style.display = 'none';
         
         // Keep existing password (hidden)
         document.getElementById('studentPassword').value = student.password || '';
         
-        const classes = getData('classes');
+        const classes = getData('classes') || [];
         const select = document.getElementById('studentClass');
         select.innerHTML = '<option value="">Select Class</option>';
+        
         classes.forEach(cls => {
-            const selected = cls.id === student.classId ? 'selected' : '';
-            select.innerHTML += `<option value="${cls.id}" data-name="${cls.name}" ${selected}>${cls.name}</option>`;
+            if (cls && cls.id && cls.className) {
+                const selected = cls.id === student.classId ? 'selected' : '';
+                select.innerHTML += `<option value="${cls.id}" data-name="${cls.className}" ${selected}>${cls.className} - ${cls.class_section || 'N/A'}</option>`;
+            }
         });
         
         document.getElementById('modalOverlay').classList.add('active');
@@ -757,13 +901,14 @@ function showEditStudentModal(id) {
 
 function saveStudent(event) {
     event.preventDefault();
-    const students = getData('students');
+    const students = getData('students') || [];
     const id = document.getElementById('studentId').value;
     const classSelect = document.getElementById('studentClass');
     const selectedOption = classSelect.options[classSelect.selectedIndex];
     const className = selectedOption.getAttribute('data-name');
     const rollNumber = document.getElementById('studentRoll').value;
     const password = document.getElementById('studentPassword').value;
+    const classTime = document.getElementById('studentClassTime').value;
     
     // Check if roll number already exists (for new students)
     if (!id) {
@@ -776,15 +921,15 @@ function saveStudent(event) {
     
     const studentData = {
         id: id ? parseInt(id) : Date.now(),
-        name: document.getElementById('studentName').value,
+        student_name: document.getElementById('studentName').value,
         email: document.getElementById('studentEmail').value,
         rollNumber: rollNumber,
         classId: parseInt(classSelect.value),
-        class: className,
         address: document.getElementById('studentAddress').value,
-        studentContact: document.getElementById('studentContact').value,
-        parentContact: document.getElementById('parentContact').value,
-        password: password, // In real app, this should be hashed
+        student_contact: document.getElementById('studentContact').value,
+        parent_contact: document.getElementById('parentContact').value,
+        classTime: classTime,
+        password: password,
         createdAt: new Date().toISOString()
     };
     
@@ -819,7 +964,7 @@ function saveStudent(event) {
     setTimeout(() => {
         closeModal();
         loadStudentsTable();
-    }, id ? 0 : 2000); // Delay for new students to see credentials
+    }, id ? 0 : 2000);
 }
 
 // Create notification for student
@@ -840,19 +985,25 @@ function createStudentNotification(student) {
 }
 
 function loadStudentsTable() {
-    const students = getData('students');
+    const students = getData('students') || [];
+    const classes = getData('classes') || [];
     const tbody = document.getElementById('studentsTableBody');
     tbody.innerHTML = '';
     
     students.forEach(student => {
+        const classObj = classes.find(c => c.id === student.classId);
+        const className = classObj ? `${classObj.className} - ${classObj.class_section || 'N/A'}` : 'N/A';
+        const classTime = student.classTime ? student.classTime : 'Not set';
+        
         const row = `
             <tr>
                 <td><strong>${student.rollNumber}</strong></td>
-                <td>${student.name}</td>
+                <td>${student.student_name || 'N/A'}</td>
                 <td>${student.email || 'N/A'}</td>
-                <td>${student.class}</td>
-                <td>${student.studentContact || 'N/A'}</td>
-                <td>${student.parentContact || 'N/A'}</td>
+                <td>${className}</td>
+                <td><span style="color: #3498db; font-weight: bold;">${classTime}</span></td>
+                <td>${student.student_contact || 'N/A'}</td>
+                <td>${student.parent_contact || 'N/A'}</td>
                 <td>
                     <button class="btn btn-edit" onclick="showEditStudentModal(${student.id})">Edit</button>
                     <button class="btn btn-danger" onclick="deleteStudent(${student.id})">Delete</button>
@@ -987,8 +1138,12 @@ function loadDateReport() {
     const classes = getData('classes') || [];
     const select = document.getElementById('dateReportClassFilter');
     select.innerHTML = '<option value="">All Classes</option>';
+    
+    // Filter out undefined classes and add valid ones
     classes.forEach(cls => {
-        select.innerHTML += `<option value="${cls.id}">${cls.className} - ${cls.class_section || 'N/A'}</option>`;
+        if (cls && cls.id && cls.className) {
+            select.innerHTML += `<option value="${cls.id}">${cls.className} - ${cls.class_section || 'N/A'}</option>`;
+        }
     });
     
     const date = document.getElementById('dateReportDate').value;
@@ -1314,22 +1469,65 @@ function showTeacherSection(section) {
 }
 
 function loadTeacherDashboard() {
-    const teachers = getData('teachers');
-    const students = getData('students');
+    const teachers = getData('teachers') || [];
+    const classes = getData('classes') || [];
+    const students = getData('students') || [];
+    
+    console.log('Loading teacher dashboard - teachers:', teachers.length);
     
     // For demo, assume first teacher
     const teacher = teachers[0];
     
-    if (teacher) {
-        const classStudents = students.filter(s => s.class === teacher.assignedClass);
-        document.getElementById('teacherClasses').textContent = '1';
-        document.getElementById('teacherStudents').textContent = classStudents.length;
-        document.getElementById('assignedClassInfo').innerHTML = `
-            <h3>Assigned Class</h3>
-            <p><strong>Class:</strong> ${teacher.assignedClass}</p>
-            <p><strong>Total Students:</strong> ${classStudents.length}</p>
-        `;
+    if (!teacher) {
+        document.getElementById('assignedClassInfo').innerHTML = '<p style="color: #e74c3c;">No teacher data found</p>';
+        return;
     }
+    
+    console.log('Current teacher:', teacher);
+    
+    // Get assigned classes
+    const assignedClassIds = teacher.classIds || [];
+    const assignedClasses = classes.filter(c => assignedClassIds.includes(c.id));
+    
+    console.log('Assigned class IDs:', assignedClassIds);
+    console.log('Assigned classes:', assignedClasses);
+    
+    // Count total students in assigned classes
+    const classStudents = students.filter(s => assignedClassIds.includes(s.classId));
+    
+    document.getElementById('teacherClasses').textContent = assignedClasses.length;
+    document.getElementById('teacherStudents').textContent = classStudents.length;
+    
+    // Display assigned classes with details and times
+    let classesHtml = '<h3>📚 My Classes</h3>';
+    
+    if (assignedClasses.length === 0) {
+        classesHtml += '<p style="color: #7f8c8d;">No classes assigned</p>';
+    } else {
+        classesHtml += '<div class="teacher-classes-list">';
+        assignedClasses.forEach(cls => {
+            const classStudentCount = students.filter(s => s.classId === cls.id).length;
+            const classTime = teacher.classTimes && teacher.classTimes[cls.id] ? teacher.classTimes[cls.id] : 'Not set';
+            
+            classesHtml += `
+                <div class="teacher-class-card">
+                    <div class="class-header">
+                        <h4>${cls.className}</h4>
+                        <span class="section-badge">${cls.class_section || 'N/A'}</span>
+                    </div>
+                    <div class="class-details">
+                        <p><strong>Year:</strong> ${cls.year}</p>
+                        <p><strong>Academic Year:</strong> ${cls.academic_year || 'N/A'}</p>
+                        <p><strong>Students:</strong> ${classStudentCount}</p>
+                        <p><strong>Class Time:</strong> <span style="color: #3498db; font-weight: bold;">${classTime}</span></p>
+                    </div>
+                </div>
+            `;
+        });
+        classesHtml += '</div>';
+    }
+    
+    document.getElementById('assignedClassInfo').innerHTML = classesHtml;
 }
 
 function loadTeacherMarkSection() {
@@ -1337,8 +1535,11 @@ function loadTeacherMarkSection() {
     const select = document.getElementById('teacherClassSelect');
     select.innerHTML = '<option value="">Select a class</option>';
     
+    // Filter out undefined classes and add valid ones
     classes.forEach(cls => {
-        select.innerHTML += `<option value="${cls.id}">${cls.className} - ${cls.class_section || 'N/A'}</option>`;
+        if (cls && cls.id && cls.className) {
+            select.innerHTML += `<option value="${cls.id}">${cls.className} - ${cls.class_section || 'N/A'}</option>`;
+        }
     });
     
     // Set today's date
@@ -1416,6 +1617,8 @@ function checkTimeRestriction() {
 
 function loadStudentsForAttendance() {
     const classId = document.getElementById('teacherClassSelect').value;
+    console.log('loadStudentsForAttendance - classId:', classId);
+    
     if (!classId) {
         document.getElementById('attendanceStudentsList').innerHTML = '';
         document.getElementById('saveAttendanceBtn').style.display = 'none';
@@ -1426,24 +1629,34 @@ function loadStudentsForAttendance() {
         return;
     }
     
-    const students = getData('students').filter(s => s.classId === parseInt(classId));
+    const students = getData('students') || [];
+    console.log('All students:', students);
+    
+    const classStudents = students.filter(s => s.classId === parseInt(classId));
+    console.log('Students for classId', classId, ':', classStudents);
+    
     const container = document.getElementById('attendanceStudentsList');
     
-    if (students.length === 0) {
+    if (classStudents.length === 0) {
         container.innerHTML = '<p style="padding: 20px; text-align: center; color: #7f8c8d;">No students in this class</p>';
+        document.getElementById('saveAttendanceBtn').style.display = 'none';
+        document.getElementById('markAllPresentBtn').style.display = 'none';
+        document.getElementById('markAllAbsentBtn').style.display = 'none';
+        document.getElementById('clearAllBtn').style.display = 'none';
+        document.getElementById('exportCSVBtn').style.display = 'none';
         return;
     }
     
-    container.innerHTML = '<h3>📚 Students (' + students.length + ')</h3>';
+    container.innerHTML = '<h3>📚 Students (' + classStudents.length + ')</h3>';
     
-    students.forEach(student => {
+    classStudents.forEach(student => {
         const item = document.createElement('div');
         item.className = 'attendance-item';
         item.id = `student-${student.id}`;
         item.innerHTML = `
             <div class="student-info">
-                <div class="student-name">${student.student_name}</div>
-                <div class="student-roll">${student.rollNumber}</div>
+                <div class="student-name">${student.student_name || 'Unknown'}</div>
+                <div class="student-roll">${student.rollNumber || 'N/A'}</div>
             </div>
             <div class="attendance-toggle">
                 <button class="toggle-btn" onclick="markStatus(${student.id}, 'present', this)">✓ Present</button>
@@ -1467,13 +1680,23 @@ function loadStudentsForAttendance() {
 let attendanceData = {};
 
 function markStatus(studentId, status, btn) {
+    console.log('markStatus called - studentId:', studentId, 'status:', status);
+    
+    if (!btn || !btn.parentElement) {
+        console.error('Button element not found');
+        return;
+    }
+    
     const buttons = btn.parentElement.querySelectorAll('.toggle-btn');
     buttons.forEach(b => {
         b.classList.remove('present', 'absent');
     });
     btn.classList.add(status);
     attendanceData[studentId] = status;
-    console.log('Marked student', studentId, 'as', status, 'Current data:', attendanceData);
+    
+    console.log('Marked student', studentId, 'as', status);
+    console.log('Current attendanceData:', attendanceData);
+    
     updateAttendanceCounter();
 }
 
@@ -1523,30 +1746,36 @@ function saveAttendance() {
     const date = document.getElementById('attendanceDate').value;
     const time = document.getElementById('attendanceTime').value;
     
-    console.log('Save Attendance - classId:', classId, 'date:', date, 'time:', time);
-    console.log('Attendance Data:', attendanceData);
+    console.log('=== SAVE ATTENDANCE ===');
+    console.log('classId:', classId, 'date:', date, 'time:', time);
+    console.log('attendanceData:', attendanceData);
     
     if (!classId || !date || !time) {
         showNotification('❌ Please select class, date, and time', 'error');
+        console.error('Missing required fields');
         return;
     }
     
     if (Object.keys(attendanceData).length === 0) {
         showNotification('❌ Please mark attendance for at least one student', 'error');
+        console.error('No students marked');
         return;
     }
     
     try {
-        const students = getData('students');
-        console.log('Students loaded:', students.length);
+        const students = getData('students') || [];
+        console.log('Total students in system:', students.length);
         
         let attendance = getData('attendance') || [];
         console.log('Existing attendance records:', attendance.length);
         
         // Check for duplicates
-        const existingRecord = attendance.find(a => a.classId === parseInt(classId) && a.date === date);
-        if (existingRecord) {
+        const existingRecords = attendance.filter(a => a.classId === parseInt(classId) && a.date === date);
+        console.log('Existing records for this class/date:', existingRecords.length);
+        
+        if (existingRecords.length > 0) {
             if (!confirm('Attendance already exists for this date. Do you want to update it?')) {
+                console.log('User cancelled update');
                 return;
             }
             // Remove old records for this class and date
@@ -1572,7 +1801,7 @@ function saveAttendance() {
                 };
                 attendance.push(record);
                 savedCount++;
-                console.log('Saved record for student:', student.student_name);
+                console.log('Saved record for student:', student.student_name, 'Status:', attendanceData[studentId]);
             } else {
                 console.warn('Student not found for ID:', studentId);
             }
@@ -1581,6 +1810,7 @@ function saveAttendance() {
         console.log('Total records saved:', savedCount);
         saveData('attendance', attendance);
         console.log('Attendance data saved to localStorage');
+        console.log('Total attendance records now:', attendance.length);
         
         showNotification(`✅ Attendance saved successfully! (${savedCount} students)`, 'success');
         attendanceData = {};

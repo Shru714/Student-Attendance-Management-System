@@ -155,7 +155,64 @@ CREATE TABLE IF NOT EXISTS attendance_settings (
 INSERT INTO attendance_settings (attendanceWindow, lowAttendanceThreshold, autoLockAfterMinutes) 
 VALUES (30, 50.00, 30) ON DUPLICATE KEY UPDATE id=id;
 
+-- Insert default settings
+INSERT INTO attendance_settings (attendanceWindow, lowAttendanceThreshold, autoLockAfterMinutes) 
+VALUES (30, 50.00, 30) ON DUPLICATE KEY UPDATE id=id;
+
 -- Insert default admin user (password: admin123)
 INSERT INTO users (name, email, password, role) 
 VALUES ('Admin User', 'admin@example.com', '$2a$10$YourHashedPasswordHere', 'admin')
 ON DUPLICATE KEY UPDATE name=name;
+
+-- ALTER STATEMENTS FOR SCHEMA MODIFICATIONS
+-- These ensure all necessary columns and constraints exist
+
+-- Add missing columns to teachers table if they don't exist
+ALTER TABLE teachers 
+ADD COLUMN IF NOT EXISTS name VARCHAR(100) NOT NULL DEFAULT 'Unknown',
+ADD COLUMN IF NOT EXISTS email VARCHAR(100),
+ADD COLUMN IF NOT EXISTS phone VARCHAR(20);
+
+-- Add missing columns to students table if they don't exist
+ALTER TABLE students 
+ADD COLUMN IF NOT EXISTS student_name VARCHAR(100) NOT NULL DEFAULT 'Unknown',
+ADD COLUMN IF NOT EXISTS email VARCHAR(100),
+ADD COLUMN IF NOT EXISTS address TEXT,
+ADD COLUMN IF NOT EXISTS student_contact VARCHAR(20),
+ADD COLUMN IF NOT EXISTS parent_contact VARCHAR(20),
+ADD COLUMN IF NOT EXISTS password VARCHAR(255);
+
+-- Add missing columns to classes table if they don't exist
+ALTER TABLE classes 
+ADD COLUMN IF NOT EXISTS class_section VARCHAR(50),
+ADD COLUMN IF NOT EXISTS academic_year VARCHAR(20);
+
+-- Ensure unique constraints on key fields
+ALTER TABLE teachers 
+ADD UNIQUE KEY IF NOT EXISTS unique_teacher_id (teacherId);
+
+ALTER TABLE students 
+ADD UNIQUE KEY IF NOT EXISTS unique_roll_number (rollNumber);
+
+-- Add indexes for better query performance
+ALTER TABLE attendance_records 
+ADD INDEX IF NOT EXISTS idx_student_id (studentId),
+ADD INDEX IF NOT EXISTS idx_attendance_id (attendanceId),
+ADD INDEX IF NOT EXISTS idx_date (markedAt);
+
+ALTER TABLE attendance 
+ADD INDEX IF NOT EXISTS idx_class_id (classId),
+ADD INDEX IF NOT EXISTS idx_subject_id (subjectId),
+ADD INDEX IF NOT EXISTS idx_date (date);
+
+ALTER TABLE teacher_classes 
+ADD INDEX IF NOT EXISTS idx_teacher_id (teacherId),
+ADD INDEX IF NOT EXISTS idx_class_id (classId);
+
+ALTER TABLE teacher_subjects 
+ADD INDEX IF NOT EXISTS idx_teacher_id (teacherId),
+ADD INDEX IF NOT EXISTS idx_subject_id (subjectId);
+
+ALTER TABLE students 
+ADD INDEX IF NOT EXISTS idx_class_id (classId),
+ADD INDEX IF NOT EXISTS idx_user_id (userId);

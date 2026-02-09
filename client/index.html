@@ -158,6 +158,7 @@
                                         <th>Name</th>
                                         <th>Email</th>
                                         <th>Class</th>
+                                        <th>Class Time</th>
                                         <th>Student Contact</th>
                                         <th>Parent Contact</th>
                                         <th>Actions</th>
@@ -530,6 +531,13 @@
                     </div>
                     <small>Select one or more classes</small>
                 </div>
+                <div class="form-group">
+                    <label>Class Times: <span class="required">*</span></label>
+                    <div id="teacherClassTimes" class="class-times-group">
+                        <!-- Dynamically populated with time inputs for each selected class -->
+                    </div>
+                    <small>Set time for each class (optional)</small>
+                </div>
                 <div class="modal-actions">
                     <button type="submit" class="btn btn-primary">Save Teacher</button>
                     <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
@@ -557,10 +565,17 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label>Class: <span class="required">*</span></label>
-                        <select id="studentClass" required onchange="generateRollNumber()">
+                        <select id="studentClass" required onchange="generateRollNumber(); autoPopulateClassTime()">
                             <option value="">Select Class</option>
                         </select>
                     </div>
+                    <div class="form-group">
+                        <label>Class Time:</label>
+                        <input type="time" id="studentClassTime" placeholder="Class time (optional)">
+                        <small>Time for this class</small>
+                    </div>
+                </div>
+                <div class="form-row">
                     <div class="form-group">
                         <label>Roll Number: <span class="badge badge-auto">AUTO</span></label>
                         <input type="text" id="studentRoll" readonly placeholder="Auto-generated">
@@ -625,6 +640,6 @@
         </div>
     </div>
 
-    <script src="script.js?v=13"></script>
+    <script src="script.js?v=21"></script>
 </body>
 </html>

@@ -1267,3 +1267,119 @@ input[readonly] {
 .report-actions .btn {
     margin: 0;
 }
+
+
+/* Teacher Classes List */
+.teacher-classes-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.teacher-class-card {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    border-left: 5px solid #3498db;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.teacher-class-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.12);
+}
+
+.class-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    border-bottom: 2px solid #ecf0f1;
+    padding-bottom: 10px;
+}
+
+.class-header h4 {
+    font-size: 1.3rem;
+    color: #2c3e50;
+    margin: 0;
+}
+
+.section-badge {
+    background: #3498db;
+    color: white;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: bold;
+}
+
+.class-details {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.class-details p {
+    margin: 0;
+    color: #555;
+    font-size: 0.95rem;
+}
+
+.class-details strong {
+    color: #2c3e50;
+}
+
+.assigned-class-info h3 {
+    color: #2c3e50;
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+}
+
+.assigned-class-info p {
+    color: #7f8c8d;
+    text-align: center;
+    padding: 20px;
+}
+
+
+/* Class Times Group */
+.class-times-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.class-time-input {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    border: 1px solid #e0e0e0;
+}
+
+.class-time-input label {
+    flex: 1;
+    margin: 0;
+    font-weight: 500;
+    color: #2c3e50;
+    font-size: 0.95rem;
+}
+
+.class-time-field {
+    padding: 8px 12px;
+    border: 1px solid #bdc3c7;
+    border-radius: 4px;
+    font-size: 0.95rem;
+    width: 120px;
+}
+
+.class-time-field:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+}
