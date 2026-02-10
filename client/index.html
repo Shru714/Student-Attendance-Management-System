@@ -14,11 +14,11 @@
                 <h1>Student Attendance System</h1>
                 <p>Select your role to continue</p>
                 <div class="role-buttons">
-                    <button class="role-btn admin-btn" onclick="login('admin')">
+                    <button class="role-btn admin-btn" onclick="showLoginForm('admin')">
                         <span class="icon">👨‍💼</span>
                         Login as Admin
                     </button>
-                    <button class="role-btn teacher-btn" onclick="login('teacher')">
+                    <button class="role-btn teacher-btn" onclick="showLoginForm('teacher')">
                         <span class="icon">👨‍🏫</span>
                         Login as Teacher
                     </button>
@@ -30,15 +30,49 @@
             </div>
         </div>
 
+        <!-- Admin/Teacher Login Form -->
+        <div id="credentialLoginPage" class="page">
+            <div class="login-container">
+                <h1 id="loginFormTitle">Login</h1>
+                <form onsubmit="credentialLogin(event)" class="login-form">
+                    <div class="form-group">
+                        <label for="loginEmail">Email Address</label>
+                        <input type="email" id="loginEmail" placeholder="Enter your email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">Password</label>
+                        <input type="password" id="loginPassword" placeholder="Enter your password" required>
+                    </div>
+                    <div class="login-hint">
+                        <small id="loginHint"></small>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Login</button>
+                    <button type="button" class="btn btn-secondary" onclick="backToLogin()">Back</button>
+                </form>
+            </div>
+        </div>
+
         <!-- Student Login Page -->
         <div id="studentLoginPage" class="page">
             <div class="login-container">
                 <h1>Student Login</h1>
-                <p>Enter your roll number to continue</p>
+                <p>Enter your credentials to continue</p>
                 <div class="student-login-form">
                     <form onsubmit="studentLogin(event)">
                         <div class="form-group">
+                            <label for="studentNameLogin">Student Name</label>
+                            <input type="text" id="studentNameLogin" placeholder="Enter your name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="studentRollLogin">Roll Number</label>
                             <input type="text" id="studentRollLogin" placeholder="Enter Roll Number" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="studentPasswordLogin">Password</label>
+                            <input type="password" id="studentPasswordLogin" placeholder="Enter Password (same as your name)" required>
+                        </div>
+                        <div class="login-hint">
+                            <small>Hint: Your password is the same as your student name</small>
                         </div>
                         <button type="submit" class="btn btn-primary">Login</button>
                         <button type="button" class="btn btn-secondary" onclick="backToLogin()">Back</button>
@@ -640,6 +674,6 @@
         </div>
     </div>
 
-    <script src="script.js?v=21"></script>
+    <script src="script.js?v=23"></script>
 </body>
 </html>

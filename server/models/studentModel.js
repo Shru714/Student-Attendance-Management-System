@@ -40,6 +40,16 @@ const StudentModel = {
     return rows[0];
   },
 
+  async findByRollNumber(rollNumber) {
+    const [rows] = await db.query(`
+      SELECT s.*, c.className 
+      FROM students s
+      JOIN classes c ON s.classId = c.id
+      WHERE s.rollNumber = ?
+    `, [rollNumber]);
+    return rows[0];
+  },
+
   async getByClassId(classId) {
     const [rows] = await db.query(`
       SELECT s.*, u.name 

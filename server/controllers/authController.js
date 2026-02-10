@@ -61,6 +61,49 @@ const AuthController = {
         ...additionalData
       }
     };
+  },
+
+  async studentLogin(data) {
+    const { studentName, rollNumber, password } = data;
+
+    if (!studentName || !rollNumber || !password) {
+      throw { status: 400, message: 'Student name, roll number, and password are required' };
+    }
+
+    // Find student by roll number
+    const student = await StudentModel.findByRollNumber(rollNumber);
+    if (!student) {
+      throw { status: 401, message: 'Invalid roll number' };
+    }
+
+    // Check if student name matches (case-insensitive)
+    if (student.student_name.toLowerCase() !== studentName.toLowerCase()) {
+      throw { status: 401, message: 'Student name does not match the roll number' };
+    }
+
+    // Check if password matches student name (password should be same as student name)
+    if (password.toLowerCase() !== student.student_name.toLowerCase()) {
+      throw { status: 401, message: 'Invalid password. Hint: Your password is the same as your student name' };
+    }
+
+    // Generate token
+    const token = jwt.sign(
+      { id: student.id, studentName: student.student_name, rollNumber: student.rollNumber, role: 'student' },
+      process.env.JWT_SECRET,
+      { expiresIn: process.env.JWT_EXPIRE }
+    );
+
+    return {
+      token,
+      student: {
+        id: student.id,
+        student_name: student.student_name,
+        rollNumber: student.rollNumber,
+        email: student.email,
+        classId: student.classId,
+        className: student.className
+      }
+    };
   }
 };
 

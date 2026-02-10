@@ -108,7 +108,7 @@ function loadDemoData() {
             address: '123 Main Street, Mumbai',
             student_contact: '9876543210',
             parent_contact: '9876543211',
-            password: 'Pass1234',
+            password: 'Rahul Verma',
             createdAt: new Date().toISOString()
         },
         { 
@@ -120,7 +120,7 @@ function loadDemoData() {
             address: '456 Park Avenue, Delhi',
             student_contact: '9876543212',
             parent_contact: '9876543213',
-            password: 'Pass5678',
+            password: 'Anita Singh',
             createdAt: new Date().toISOString()
         },
         { 
@@ -132,7 +132,7 @@ function loadDemoData() {
             address: '789 Lake Road, Bangalore',
             student_contact: '9876543214',
             parent_contact: '9876543215',
-            password: 'Pass9012',
+            password: 'Vikram Joshi',
             createdAt: new Date().toISOString()
         },
         { 
@@ -144,7 +144,7 @@ function loadDemoData() {
             address: '321 Hill View, Pune',
             student_contact: '9876543216',
             parent_contact: '9876543217',
-            password: 'Pass3456',
+            password: 'Sneha Gupta',
             createdAt: new Date().toISOString()
         },
         { 
@@ -156,7 +156,7 @@ function loadDemoData() {
             address: '654 Garden Street, Hyderabad',
             student_contact: '9876543218',
             parent_contact: '9876543219',
-            password: 'Pass7890',
+            password: 'Arjun Reddy',
             createdAt: new Date().toISOString()
         },
         { 
@@ -168,7 +168,7 @@ function loadDemoData() {
             address: '987 Beach Road, Chennai',
             student_contact: '9876543220',
             parent_contact: '9876543221',
-            password: 'Pass2468',
+            password: 'Pooja Mehta',
             createdAt: new Date().toISOString()
         },
         { 
@@ -180,7 +180,7 @@ function loadDemoData() {
             address: '111 River Road, Kolkata',
             student_contact: '9876543222',
             parent_contact: '9876543223',
-            password: 'Pass1357',
+            password: 'Nikhil Kumar',
             createdAt: new Date().toISOString()
         },
         { 
@@ -192,7 +192,7 @@ function loadDemoData() {
             address: '222 Forest Lane, Kochi',
             student_contact: '9876543224',
             parent_contact: '9876543225',
-            password: 'Pass2468',
+            password: 'Divya Nair',
             createdAt: new Date().toISOString()
         }
     ];
@@ -250,17 +250,111 @@ function saveData(key, data) {
 }
 
 // Login function
-function login(role) {
-    localStorage.setItem('currentRole', role);
-    document.getElementById('loginPage').classList.remove('active');
-    
-    if (role === 'admin') {
-        document.getElementById('adminDashboard').classList.add('active');
-        loadAdminDashboard();
-    } else if (role === 'teacher') {
-        document.getElementById('teacherDashboard').classList.add('active');
-        loadTeacherDashboard();
+let selectedRole = '';
+
+function showLoginForm(role) {
+    try {
+        console.log('showLoginForm called with role:', role);
+        selectedRole = role;
+        
+        const loginPage = document.getElementById('loginPage');
+        const credentialPage = document.getElementById('credentialLoginPage');
+        
+        if (!loginPage || !credentialPage) {
+            console.error('Login pages not found!');
+            alert('Error: Login pages not found. Please refresh the page.');
+            return;
+        }
+        
+        loginPage.classList.remove('active');
+        credentialPage.classList.add('active');
+        
+        // Update form title and hint based on role
+        const titleElement = document.getElementById('loginFormTitle');
+        const hintElement = document.getElementById('loginHint');
+        
+        if (!titleElement || !hintElement) {
+            console.error('Form elements not found!');
+            return;
+        }
+        
+        if (role === 'admin') {
+            titleElement.textContent = 'Admin Login';
+            hintElement.innerHTML = 'Default: <strong>admin@example.com</strong> / <strong>admin123</strong>';
+        } else if (role === 'teacher') {
+            titleElement.textContent = 'Teacher Login';
+            hintElement.innerHTML = 'Demo: <strong>rajesh@example.com</strong> / <strong>teacher123</strong>';
+        }
+        
+        // Clear previous inputs
+        const emailInput = document.getElementById('loginEmail');
+        const passwordInput = document.getElementById('loginPassword');
+        
+        if (emailInput) emailInput.value = '';
+        if (passwordInput) passwordInput.value = '';
+        
+        console.log('Login form displayed successfully');
+    } catch (error) {
+        console.error('Error in showLoginForm:', error);
+        alert('An error occurred. Please refresh the page and try again.');
     }
+}
+
+function credentialLogin(event) {
+    event.preventDefault();
+    
+    try {
+        console.log('credentialLogin called');
+        
+        const email = document.getElementById('loginEmail').value.trim();
+        const password = document.getElementById('loginPassword').value;
+        
+        console.log('Attempting login for role:', selectedRole, 'email:', email);
+        
+        // Demo credentials (in production, this would be validated against backend)
+        const credentials = {
+            admin: {
+                'admin@example.com': 'admin123'
+            },
+            teacher: {
+                'rajesh@example.com': 'teacher123',
+                'priya@example.com': 'teacher123',
+                'amit@example.com': 'teacher123'
+            }
+        };
+        
+        // Validate credentials
+        if (credentials[selectedRole] && credentials[selectedRole][email] === password) {
+            console.log('Login successful!');
+            
+            // Store login info
+            localStorage.setItem('currentRole', selectedRole);
+            localStorage.setItem('currentUser', email);
+            
+            // Hide login form
+            document.getElementById('credentialLoginPage').classList.remove('active');
+            
+            // Show appropriate dashboard
+            if (selectedRole === 'admin') {
+                document.getElementById('adminDashboard').classList.add('active');
+                loadAdminDashboard();
+            } else if (selectedRole === 'teacher') {
+                document.getElementById('teacherDashboard').classList.add('active');
+                loadTeacherDashboard();
+            }
+        } else {
+            console.log('Login failed - invalid credentials');
+            alert('❌ Invalid email or password!\n\nPlease check your credentials and try again.');
+        }
+    } catch (error) {
+        console.error('Error in credentialLogin:', error);
+        alert('An error occurred during login. Please try again.');
+    }
+}
+
+function login(role) {
+    // Legacy function - redirects to new login form
+    showLoginForm(role);
 }
 
 // Show student login form
@@ -275,27 +369,46 @@ function backToLogin() {
     document.getElementById('loginPage').classList.add('active');
 }
 
-// Student login with roll number
+// Student login with name, roll number, and password
 function studentLogin(event) {
     event.preventDefault();
+    const studentName = document.getElementById('studentNameLogin').value.trim();
     const rollNumber = document.getElementById('studentRollLogin').value.trim();
+    const password = document.getElementById('studentPasswordLogin').value.trim();
     const students = getData('students');
+    
+    // Find student by roll number
     const student = students.find(s => s.rollNumber.toLowerCase() === rollNumber.toLowerCase());
     
-    if (student) {
-        localStorage.setItem('currentRole', 'student');
-        localStorage.setItem('currentStudentId', student.id);
-        document.getElementById('studentLoginPage').classList.remove('active');
-        document.getElementById('studentDashboard').classList.add('active');
-        loadStudentDashboard();
-    } else {
-        alert('Invalid roll number! Please try again.');
+    if (!student) {
+        alert('❌ Invalid roll number! Please try again.');
+        return;
     }
+    
+    // Check if student name matches
+    if (student.student_name.toLowerCase() !== studentName.toLowerCase()) {
+        alert('❌ Student name does not match the roll number! Please try again.');
+        return;
+    }
+    
+    // Check if password matches student name (password should be same as student name)
+    if (password.toLowerCase() !== student.student_name.toLowerCase()) {
+        alert('❌ Invalid password! Hint: Your password is the same as your student name.');
+        return;
+    }
+    
+    // Login successful
+    localStorage.setItem('currentRole', 'student');
+    localStorage.setItem('currentStudentId', student.id);
+    document.getElementById('studentLoginPage').classList.remove('active');
+    document.getElementById('studentDashboard').classList.add('active');
+    loadStudentDashboard();
 }
 
 // Logout function
 function logout() {
     localStorage.removeItem('currentRole');
+    localStorage.removeItem('currentUser');
     localStorage.removeItem('currentStudentId');
     document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
     document.getElementById('loginPage').classList.add('active');
@@ -636,7 +749,7 @@ function showEditTeacherModal(id) {
             classesContainer.innerHTML += `
                 <label>
                     <input type="checkbox" name="teacherClasses" value="${cls.id}" ${checked}>
-                    ${cls.name}
+                    ${cls.className}
                 </label>
             `;
         });
@@ -760,7 +873,7 @@ function loadTeachersTable() {
         const teacherClasses = teacher.classIds 
             ? teacher.classIds.map(id => {
                 const cls = classes.find(c => c.id === id);
-                return cls ? `<span class="badge badge-class">${cls.name}</span>` : '';
+                return cls ? `<span class="badge badge-class">${cls.className}</span>` : '';
               }).join(' ')
             : '<span class="badge">None</span>';
         
@@ -1046,10 +1159,14 @@ function loadStudentReport() {
     const students = getData('students') || [];
     const classes = getData('classes') || [];
     const select = document.getElementById('studentReportFilter');
-    select.innerHTML = '<option value="">Select Student</option>';
-    students.forEach(student => {
-        select.innerHTML += `<option value="${student.id}">${student.student_name} (${student.rollNumber})</option>`;
-    });
+    
+    // Only populate dropdown if it's empty
+    if (select.options.length <= 1) {
+        select.innerHTML = '<option value="">Select Student</option>';
+        students.forEach(student => {
+            select.innerHTML += `<option value="${student.id}">${student.student_name} (${student.rollNumber})</option>`;
+        });
+    }
     
     const studentId = parseInt(document.getElementById('studentReportFilter').value);
     if (!studentId) {
@@ -1059,24 +1176,39 @@ function loadStudentReport() {
     }
     
     const student = students.find(s => s.id === studentId);
+    if (!student) {
+        console.error('Student not found:', studentId);
+        return;
+    }
+    
     const attendance = getData('attendance') || [];
     const startDate = document.getElementById('studentReportStartDate').value;
     const endDate = document.getElementById('studentReportEndDate').value;
     
-    console.log('Loading student report for:', student.student_name);
+    console.log('=== STUDENT REPORT ===');
+    console.log('Student:', student.student_name, 'ID:', studentId);
     console.log('Total attendance records:', attendance.length);
+    console.log('Date range:', startDate, 'to', endDate);
     
-    let filtered = attendance.filter(a => a.studentId === studentId);
+    // Filter by student ID
+    let filtered = attendance.filter(a => {
+        const match = parseInt(a.studentId) === studentId;
+        if (match) {
+            console.log('Matched record:', a);
+        }
+        return match;
+    });
     console.log('Filtered by student:', filtered.length);
     
+    // Filter by date range
     if (startDate) {
         filtered = filtered.filter(a => a.date >= startDate);
+        console.log('After start date filter:', filtered.length);
     }
     if (endDate) {
         filtered = filtered.filter(a => a.date <= endDate);
+        console.log('After end date filter:', filtered.length);
     }
-    
-    console.log('After date filter:', filtered.length);
     
     // Calculate stats
     const total = filtered.length;
@@ -1084,7 +1216,7 @@ function loadStudentReport() {
     const absent = total - present;
     const percentage = total > 0 ? ((present / total) * 100).toFixed(2) : 0;
     
-    console.log('Stats - Total:', total, 'Present:', present, 'Absent:', absent);
+    console.log('Stats - Total:', total, 'Present:', present, 'Absent:', absent, 'Percentage:', percentage);
     
     // Display stats
     const statsHtml = `
@@ -1112,25 +1244,41 @@ function loadStudentReport() {
     tbody.innerHTML = '';
     
     if (filtered.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: #7f8c8d;">No attendance records found for this student</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 40px;"><div style="color: #95a5a6; font-size: 16px;"><span style="font-size: 48px;">📋</span><br><br><strong>No Attendance Records Found</strong><br><small>This student has no attendance records for the selected date range.</small></div></td></tr>';
         return;
     }
     
+    // Sort by date (newest first)
+    filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+    
     filtered.forEach(record => {
+        console.log('Processing record:', record);
+        
         // Get class name from classes array
-        const classObj = classes.find(c => c.id === record.classId);
-        const className = classObj ? `${classObj.className} - ${classObj.class_section || 'N/A'}` : 'N/A';
+        const classObj = classes.find(c => c.id === parseInt(record.classId));
+        const className = classObj ? `${classObj.className} - ${classObj.class_section || 'N/A'}` : 'Unknown Class';
+        
+        console.log('Class for record:', className, 'ClassID:', record.classId);
+        
+        // Format date
+        const formattedDate = record.date || 'N/A';
+        
+        // Format status
+        const statusText = record.status === 'present' ? '✓ PRESENT' : '✗ ABSENT';
+        const statusColor = record.status === 'present' ? '#27ae60' : '#e74c3c';
         
         const row = `
             <tr>
-                <td><strong>${record.date}</strong></td>
+                <td><strong>${formattedDate}</strong></td>
                 <td><strong>${className}</strong></td>
-                <td><span style="color: ${record.status === 'present' ? '#27ae60' : '#e74c3c'}; font-weight: bold;">${record.status === 'present' ? '✓ PRESENT' : '✗ ABSENT'}</span></td>
+                <td><span style="color: ${statusColor}; font-weight: bold;">${statusText}</span></td>
             </tr>
         `;
         tbody.innerHTML += row;
-        console.log('Added record:', record.date, record.status);
+        console.log('Added row:', formattedDate, className, statusText);
     });
+    
+    console.log('=== REPORT COMPLETE ===');
 }
 
 // Date Report
@@ -1201,7 +1349,7 @@ function loadDateReport() {
     tbody.innerHTML = '';
     
     if (filtered.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #7f8c8d;">No attendance records found for this date</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 40px;"><div style="color: #95a5a6; font-size: 16px;"><span style="font-size: 48px;">📅</span><br><br><strong>No Attendance Records Found</strong><br><small>No attendance was marked for this date.</small></div></td></tr>';
         return;
     }
     
@@ -1834,7 +1982,7 @@ function exportAttendanceCSV() {
     const records = attendance.filter(a => a.classId === parseInt(classId) && a.date === date);
     
     if (records.length === 0) {
-        showNotification('❌ No attendance records found', 'error');
+        showNotification('📋 No attendance records found for the selected filters', 'info');
         return;
     }
     
@@ -1910,7 +2058,7 @@ function loadTeacherHistory() {
     tbody.innerHTML = '';
     
     if (attendance.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #7f8c8d;">No attendance records found</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 40px;"><div style="color: #95a5a6; font-size: 16px;"><span style="font-size: 48px;">📜</span><br><br><strong>No Attendance History</strong><br><small>No attendance records found for the selected class and date.</small></div></td></tr>';
         return;
     }
     
@@ -1963,7 +2111,7 @@ function downloadHistoryReport() {
     }
     
     if (attendance.length === 0) {
-        showNotification('❌ No attendance records found', 'error');
+        showNotification('📋 No attendance records found for the selected filters', 'info');
         return;
     }
     
@@ -2008,20 +2156,25 @@ function showStudentSection(section) {
 
 function loadStudentDashboard() {
     const students = getData('students');
+    const classes = getData('classes');
     const attendance = getData('attendance');
     const studentId = parseInt(localStorage.getItem('currentStudentId'));
     
     const student = students.find(s => s.id === studentId);
     
     if (student) {
+        // Get class name from classes array
+        const studentClass = classes.find(c => c.id === student.classId);
+        const className = studentClass ? `${studentClass.className} - ${studentClass.class_section || 'N/A'}` : 'N/A';
+        
         // Update header with student name
-        document.getElementById('studentUserInfo').textContent = student.name;
+        document.getElementById('studentUserInfo').textContent = student.student_name;
         
         // Display personal details
         document.getElementById('studentDetails').innerHTML = `
-            <p><strong>Name:</strong> ${student.name}</p>
+            <p><strong>Name:</strong> ${student.student_name}</p>
             <p><strong>Roll Number:</strong> ${student.rollNumber}</p>
-            <p><strong>Class:</strong> ${student.class}</p>
+            <p><strong>Class:</strong> ${className}</p>
         `;
         
         // Calculate attendance statistics
@@ -2066,7 +2219,7 @@ function loadStudentAttendance() {
     tbody.innerHTML = '';
     
     if (studentAttendance.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="2" style="text-align: center;">No attendance records found</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="2" style="text-align: center; padding: 40px;"><div style="color: #95a5a6; font-size: 16px;"><span style="font-size: 48px;">📊</span><br><br><strong>No Attendance Records Yet</strong><br><small>You don\'t have any attendance records for the selected month.<br>Attendance will appear here once your teacher marks it.</small></div></td></tr>';
         return;
     }
     

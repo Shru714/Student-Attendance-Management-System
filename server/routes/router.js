@@ -1,4 +1,5 @@
 const url = require('url');
+const db = require('../config/db');
 const AuthController = require('../controllers/authController');
 const AdminController = require('../controllers/adminController');
 const TeacherController = require('../controllers/teacherController');
@@ -26,6 +27,81 @@ const router = async (req, res) => {
   const query = parsedUrl.query;
 
   try {
+    // Health Check Route (for testing database connection)
+    if (path === '/api/health' && method === 'GET') {
+      try {
+        const [result] = await db.query('SELECT 1 as test');
+        const [dbName] = await db.query('SELECT DATABASE() as db_name');
+        const [tables] = await db.query('SHOW TABLES');
+        
+        return { 
+          status: 200, 
+          data: { 
+            status: 'ok',
+            message: 'Server and database are running',
+            database: {
+              connected: true,
+              name: dbName[0].db_name,
+              tables: tables.length
+            },
+            timestamp: new Date().toISOString()
+          } 
+        };
+      } catch (error) {
+        return { 
+          status: 500, 
+          data: { 
+            status: 'error',
+            message: 'Database connection failed',
+            database: {
+              connected: false,
+              error: error.message
+            },
+            timestamp: new Date().toISOString()
+          } 
+        };
+      }
+    }
+
+    // Root Route
+    if (path === '/' && method === 'GET') {
+      return {
+        status: 200,
+        data: {
+          message: 'Attendance Management System API',
+          version: '1.0.0',
+          endpoints: {
+            health: '/api/health',
+            auth: {
+              register: 'POST /api/register',
+              login: 'POST /api/login',
+              studentLogin: 'POST /api/student/login'
+            },
+            admin: {
+              classes: '/api/admin/classes',
+              subjects: '/api/admin/subjects',
+              teachers: '/api/admin/teachers',
+              students: '/api/admin/students',
+              attendance: '/api/admin/attendance'
+            },
+            teacher: {
+              profile: '/api/teacher/profile',
+              classes: '/api/teacher/my-classes',
+              subjects: '/api/teacher/my-subjects',
+              markAttendance: '/api/teacher/mark-attendance',
+              history: '/api/teacher/history'
+            },
+            student: {
+              profile: '/api/student/profile',
+              attendance: '/api/student/attendance',
+              percentage: '/api/student/percentage',
+              notifications: '/api/student/notifications'
+            }
+          }
+        }
+      };
+    }
+
     // Auth Routes
     if (path === '/api/register' && method === 'POST') {
       const data = await parseBody(req);
@@ -36,6 +112,12 @@ const router = async (req, res) => {
     if (path === '/api/login' && method === 'POST') {
       const data = await parseBody(req);
       const result = await AuthController.login(data);
+      return { status: 200, data: result };
+    }
+
+    if (path === '/api/student/login' && method === 'POST') {
+      const data = await parseBody(req);
+      const result = await AuthController.studentLogin(data);
       return { status: 200, data: result };
     }
 
