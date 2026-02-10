@@ -1136,6 +1136,25 @@ function deleteStudent(id) {
     }
 }
 
+// Load Attendance Reports (missing function)
+function loadAttendanceReports() {
+    console.log('Loading attendance reports...');
+    
+    // Initialize the student report tab (default active tab)
+    loadStudentReport();
+    
+    // Also initialize the date report tab
+    loadDateReport();
+    
+    // Show refresh button
+    const refreshBtn = document.querySelector('#adminReportsSection .btn-info');
+    if (refreshBtn) {
+        refreshBtn.style.display = 'inline-block';
+    }
+    
+    console.log('Attendance reports loaded successfully');
+}
+
 // Attendance Reports
 function switchReportTab(tab) {
     // Hide all tabs
