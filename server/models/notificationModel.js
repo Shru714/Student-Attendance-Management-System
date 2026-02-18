@@ -3,7 +3,7 @@ const db = require('../config/db');
 const NotificationModel = {
   async create(userId, message, type = 'info') {
     const [result] = await db.query(
-      'INSERT INTO notifications (userId, message, type) VALUES (?, ?, ?)',
+      'INSERT INTO notifications (user_id, message, type) VALUES (?, ?, ?)',
       [userId, message, type]
     );
     return result.insertId;
@@ -11,14 +11,14 @@ const NotificationModel = {
 
   async getByUserId(userId) {
     const [rows] = await db.query(
-      'SELECT * FROM notifications WHERE userId = ? ORDER BY created_at DESC',
+      'SELECT * FROM notifications WHERE user_id = ? ORDER BY created_at DESC',
       [userId]
     );
     return rows;
   },
 
   async markAsRead(id) {
-    await db.query('UPDATE notifications SET isRead = TRUE WHERE id = ?', [id]);
+    await db.query('UPDATE notifications SET is_read = TRUE WHERE id = ?', [id]);
   },
 
   async sendToMultiple(userIds, message, type = 'info') {

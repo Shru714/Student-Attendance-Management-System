@@ -1,707 +1,933 @@
-# Student Attendance Management System
+# Student Attendance Management System - Complete Documentation
 
-**Complete Documentation & User Guide**
-
-A full-stack web application for managing student attendance with role-based access control, time-restricted attendance marking, and automated notifications.
-
----
-
-## 📋 Table of Contents
-
-1. [Quick Start](#-quick-start)
-2. [Login Credentials](#-login-credentials)
-3. [Features](#-features)
-4. [Installation](#-installation)
-5. [Database Setup](#-database-setup)
-6. [Project Structure](#-project-structure)
-7. [User Guide](#-user-guide)
-8. [API Endpoints](#-api-endpoints)
-9. [Troubleshooting](#-troubleshooting)
-10. [Technologies](#-technologies)
+## 📚 Table of Contents
+1. [Quick Start](#quick-start)
+2. [Login Credentials](#login-credentials)
+3. [System Features](#system-features)
+4. [Installation & Setup](#installation--setup)
+5. [Database Management](#database-management)
+6. [User Guide](#user-guide)
+7. [Recent Fixes & Updates](#recent-fixes--updates)
+8. [Troubleshooting](#troubleshooting)
+9. [API Documentation](#api-documentation)
 
 ---
 
 ## 🚀 Quick Start
 
-### Step 1: Setup Database
-
-**Option A: Using Batch File (Windows)**
-```bash
-# Double-click: import-database.bat
-# Or run in command prompt:
-import-database.bat
-```
-
-**Option B: Using MySQL Command**
-```bash
-mysql -u root -p < server/database/schema.sql
-```
-
-**Option C: Using phpMyAdmin**
-1. Open http://localhost/phpmyadmin
-2. Click "Import" tab
-3. Select `server/database/schema.sql`
-4. Click "Go"
-
-### Step 2: Configure Environment
-
-Create `server/.env` file:
-```env
-PORT=3000
-DB_HOST=localhost
-DB_USER=root
-DB_PASSWORD=
-DB_NAME=attendance_system
-JWT_SECRET=your_secret_key_here_change_in_production
-JWT_EXPIRE=7d
-```
-
-### Step 3: Install Dependencies
-
+### Start the Server
 ```bash
 cd server
-npm install
+node server.js
 ```
 
-### Step 4: Start Server
+### Open the Application
+Open `client/index.html` in your browser
 
+### Management Tools
 ```bash
-npm start
+manage.bat  # Complete management console with 21 options
 ```
 
-Server runs on: http://localhost:3000
-
-### Step 5: Open Application
-
-Open `client/index.html` in your browser or use test files:
-- `TEST_LOGIN_COMPLETE.html` - Complete login test
-- `TEST_STUDENT_LOGIN.html` - Student login test
+**Available Options in manage.bat:**
+- Database Management (Setup, Reimport, Create Admin, Test Connection, Check Data)
+- Server Management (Start, Restart, Force Restart, Stop)
+- Database Fixes (Fix Class Time, Fix Phone Column, Diagnostics, Fix Passwords)
+- Testing Tools (Test Login, Test APIs, Check Teachers, Check Schema)
+- Application (Open App, Open Fix Tool, Open Connection Test)
 
 ---
 
 ## 🔑 Login Credentials
 
-### Default Accounts
+### Admin
+- **Email:** admin@example.com
+- **Password:** Admin@143
 
-| Role | Email/Roll | Password | Access Level |
-|------|-----------|----------|--------------|
-| **Admin** | admin@example.com | admin123 | Full system access |
-| **Teacher** | rajesh@example.com | teacher123 | Mark attendance, view classes |
-| **Teacher** | priya@example.com | teacher123 | Mark attendance, view classes |
-| **Student** | Name: Rahul Verma<br>Roll: PHP25001 | Rahul Verma | View personal attendance |
+### Teachers
+- **sunny@gmail.com** / Teacher@143
+- **booby@gmail.com** / Teacher@143
+- **roc@gmail.com** / Teacher@143
+- **shrutiteli571@gmail.com** / Teacher@143
 
-### Demo Students
-
-| Student Name   | Roll Number   | Password       | Class          |
-|---------------|---------------|----------------|----------------|
-| Rahul Verma   | PHP25001      | Rahul Verma    | PHP - B        |
-| Anita Singh   | PHP25002      | Anita Singh    | PHP - B        |
-| Vikram Joshi  | PHP25003      | Vikram Joshi   | PHP - B        |
-| Sneha Gupta   | Java25001     | Sneha Gupta    | Java - B       |
-| Arjun Reddy   | Java25002     | Arjun Reddy    | Java - B       |
-
-### Security Notes
-⚠️ **Important:** These are default credentials for development/testing only.
-
-**For Production:**
-- Change all default passwords immediately
-- Use strong, unique passwords (min 12 characters)
-- Enable two-factor authentication
-- Implement password complexity requirements
-- Regularly rotate passwords
+### Students
+- **Roll Number:** STU001, STU002, etc.
+- **Password:** Student@143
 
 ---
 
-## ✨ Features
+## ✨ System Features
 
-### Core Features
-1. ✅ **Enhanced Student Login** - Name, roll number, and password authentication
-2. ✅ **Auto Academic Year Generation** - Based on current month
-3. ✅ **Multi-Select Teacher Assignment** - Multiple subjects and classes
-4. ✅ **Auto Roll Number Generation** - Format: ClassCode + Year + Number
-5. ✅ **Auto Password Generation** - Random passwords for students
-6. ✅ **Time-Restricted Attendance** - 9:00 AM - 10:30 AM window
-7. ✅ **Low Attendance Alerts** - Notifications when below 50%
-8. ✅ **Teacher Notifications** - Automatic on assignment
-9. ✅ **Student Notifications** - Account creation and alerts
-10. ✅ **Enhanced Reports** - Filter by student, date, subject
-11. ✅ **CSV/PDF Export** - Download attendance reports
-12. ✅ **User-Friendly Empty States** - Improved "no records" messages
+### Admin Panel
+- ✅ Manage Classes (Create, Edit, Delete)
+- ✅ Manage Teachers (Create, Edit, Delete, Assign Classes)
+- ✅ Manage Students (Create, Edit, Delete)
+- ✅ Manage Subjects
+- ✅ View Attendance Reports
+- ✅ Dashboard with Statistics
 
-### Frontend Features
-- **Admin Dashboard**: Manage classes, teachers, students, reports
-- **Teacher Dashboard**: Mark attendance, view history
-- **Student Dashboard**: View personal records and statistics
-- **LocalStorage Support**: Works offline without backend
-- **Responsive Design**: Mobile-friendly interface
-- **Email/Password Login**: Secure authentication for Admin/Teacher
+### Teacher Panel
+- ✅ View Assigned Classes
+- ✅ Mark Attendance
+- ✅ View Attendance History
+- ✅ Dashboard with Class Overview
 
-### Backend Features
-- **Pure Node.js HTTP**: No Express framework
-- **JWT Authentication**: Secure token-based auth
-- **Role-Based Access**: Admin, Teacher, Student roles
-- **MySQL Database**: Relational database with proper schema
-- **RESTful API**: Clean API endpoints
-- **Automated Notifications**: In-app notification system
+### Student Panel
+- ✅ View Personal Attendance
+- ✅ View Attendance Percentage
+- ✅ View Class Schedule
+- ✅ Notifications
 
 ---
 
-## 🛠️ Installation
+## 💾 Installation & Setup
 
 ### Prerequisites
 - Node.js (v14 or higher)
-- MySQL (v5.7 or higher)
-- Modern web browser (Chrome, Firefox, Edge, Safari)
+- MySQL Server
+- Web Browser
 
-### Backend Setup
-
-1. **Navigate to server directory:**
+### Step 1: Install Dependencies
 ```bash
 cd server
 npm install
 ```
 
-2. **Create MySQL database:**
-```bash
-mysql -u root -p < database/schema.sql
-```
-
-3. **Configure environment variables:**
-
-Create `.env` file in server directory:
+### Step 2: Configure Database
+1. Create `.env` file in `server` folder:
 ```env
-PORT=3000
 DB_HOST=localhost
 DB_USER=root
 DB_PASSWORD=your_mysql_password
 DB_NAME=attendance_system
-JWT_SECRET=your_secret_key_here_change_in_production
-JWT_EXPIRE=7d
+JWT_SECRET=your_secret_key_here
+PORT=3000
 ```
 
-4. **Setup test data (Optional):**
+### Step 3: Setup Database
 ```bash
-node setup-test-data.js
+# Option 1: Using manage.bat
+manage.bat
+# Select option 1: Setup Database
+
+# Option 2: Manual MySQL
+mysql -u root -p
+source server/database/complete-setup-with-data.sql
 ```
 
-5. **Start the backend:**
-```bash
-npm start
-```
-
-Backend runs on: http://localhost:3000
-
-### Frontend Setup
-
-**Option 1: Simple (No Server)**
-- Just open `client/index.html` in your browser
-- Uses LocalStorage for data persistence
-
-**Option 2: With Development Server**
-```bash
-cd client
-npm install
-npm start
-```
-
-Frontend runs on: http://localhost:8080
-
----
-
-## 🗄️ Database Setup
-
-### Check Database Connection
-
-**Method 1: Using Batch File**
-```bash
-# Double-click: check-database.bat
-# Or run in command prompt:
-check-database.bat
-```
-
-**Method 2: Using Node.js**
+### Step 4: Start Server
 ```bash
 cd server
-node test-connection.js
+node server.js
 ```
 
-### Expected Output (Connected)
-```
-✅ Database connected successfully!
-   Database: attendance_system
-   Host: localhost
-   User: root
-   Tables: 14 tables found
-
-📈 Current Data:
-   Users: 5
-   Teachers: 2
-   Students: 10
-```
-
-### Troubleshooting Database Issues
-
-**Issue: "ECONNREFUSED"**
-- Solution: MySQL is not running
-- Open XAMPP/WAMP Control Panel
-- Click "Start" next to MySQL
-
-**Issue: "Access denied"**
-- Solution: Wrong password in .env
-- For XAMPP, set: `DB_PASSWORD=`
-- For custom MySQL, use your actual password
-
-**Issue: "Unknown database"**
-- Solution: Database not imported
-- Run: `mysql -u root -p < server/database/schema.sql`
-
-**Issue: Data not showing in phpMyAdmin**
-- Verify correct database selected
-- Refresh phpMyAdmin page (F5)
-- Check `.env` has `DB_NAME=attendance_system`
-
-### Database Tables (14 tables)
-- users
-- teachers
-- students
-- classes
-- subjects
-- teacher_years
-- teacher_classes
-- teacher_subjects
-- teacher_assignments
-- attendance
-- attendance_records
-- notifications
-- attendance_settings
+### Step 5: Open Application
+Open `client/index.html` in your browser
 
 ---
 
-## 📁 Project Structure
+## 🗄️ Database Management
 
+### Using manage.bat (Recommended)
+```bash
+manage.bat
 ```
-Student-Attendance-Management-System/
-├── client/                          # Frontend application
-│   ├── index.html                  # Main HTML file
-│   ├── style.css                   # Styles
-│   ├── script.js                   # JavaScript logic
-│   └── package.json                # Frontend dependencies
-├── server/                          # Backend application
-│   ├── server.js                   # Main server file
-│   ├── .env                        # Environment variables
-│   ├── config/
-│   │   └── db.js                   # Database configuration
-│   ├── models/                     # Data models
-│   │   ├── userModel.js
-│   │   ├── classModel.js
-│   │   ├── studentModel.js
-│   │   ├── teacherModel.js
-│   │   ├── subjectModel.js
-│   │   ├── attendanceModel.js
-│   │   ├── teacherAssignmentModel.js
-│   │   └── notificationModel.js
-│   ├── controllers/                # Business logic
-│   │   ├── authController.js
-│   │   ├── adminController.js
-│   │   ├── teacherController.js
-│   │   └── studentController.js
-│   ├── routes/
-│   │   └── router.js               # API routes
-│   ├── middleware/
-│   │   └── authMiddleware.js
-│   ├── database/
-│   │   ├── schema.sql              # Database schema
-│   │   └── schema_compatible.sql
-│   └── package.json                # Backend dependencies
-├── check-database.bat              # Database connection checker
-├── import-database.bat             # Database import script
-├── TEST_STUDENT_LOGIN.html         # Student login test page
-├── TEST_LOGIN_COMPLETE.html        # Complete login test
-└── README.md                       # This file
+
+**Complete Menu with 21 Options:**
+
+**DATABASE MANAGEMENT**
+1. Setup Database (Complete with Data)
+2. Reimport Database (Fresh Start)
+3. Create Admin User
+4. Test Database Connection
+5. Check Data Counts
+
+**SERVER MANAGEMENT**
+6. Start Server
+7. Restart Server
+8. Force Restart Server
+9. Stop Server
+
+**DATABASE FIXES**
+10. Fix Class Time Column
+11. Fix Phone Column
+12. Run Full Diagnostics
+13. Fix Passwords
+
+**TESTING TOOLS**
+14. Test Login
+15. Test Teacher API
+16. Test Classes API
+17. Check Teachers
+18. Check Schema
+
+**APPLICATION**
+19. Open Application
+20. Open Fix Tool
+21. Open Connection Test
+
+### Manual Database Commands
+```bash
+# Import database
+mysql -u root -p < server/database/complete-setup-with-data.sql
+
+# Check teachers
+mysql -u root -p -e "source check-teachers.sql"
+
+# Add class time column (if needed)
+mysql -u root -p attendance_system < add-class-time-column.sql
+
+# Add phone column (if needed)
+mysql -u root -p < add-phone-column.sql
 ```
 
 ---
 
 ## 📖 User Guide
 
-### For Admin Users
+### Admin: How to Manage Teachers
 
-#### 1. Manage Classes
-**Add New Class:**
-1. Navigate to "Manage Classes"
-2. Click "+ Add Class"
-3. Enter:
-   - Class Name (e.g., "PHP", "Java")
-   - Section (e.g., "A", "B")
-   - Year (1, 2, 3, 4)
-4. Click "Save Class"
-5. Academic year auto-generates
+#### Add New Teacher
+1. Login as admin
+2. Click "Manage Teachers"
+3. Click "Add New Teacher"
+4. Fill in the form:
+   - Name (required)
+   - Email (required)
+   - Teacher ID (auto-generated, e.g., TCH001)
+   - Contact No (required, 10 digits)
+   - Password (optional, default: Teacher@143)
+5. Select Years (1, 2, 3, 4)
+6. Select Classes to assign
+7. Click "Save Teacher"
 
-#### 2. Manage Teachers
-**Add New Teacher:**
-1. Navigate to "Manage Teachers"
-2. Click "+ Add Teacher"
-3. Fill in all required fields:
-   - Name
-   - Email
-   - Teacher ID (e.g., "TCH001")
-   - Contact Number (exactly 10 digits)
-   - Phone
-4. Select years and classes
+#### Edit Teacher
+1. Click "Edit" button on teacher row
+2. Modify details
+3. Check/uncheck classes to assign/unassign
+4. Click "Save Teacher"
+
+#### Assign Classes to Teachers
+1. Go to "Manage Teachers"
+2. Click "Edit" on the teacher
+3. Check the classes you want to assign
+4. Set class times (optional, default: 09:00)
 5. Click "Save Teacher"
 
-**Validation:**
-- Contact number must be exactly 10 digits
-- Teacher ID must be unique
-- At least one year and one class required
+**Important:** Teachers can only see classes assigned to them in "Mark Attendance"
 
-#### 3. Manage Students
-**Add New Student:**
-1. Navigate to "Manage Students"
-2. Click "+ Add Student"
-3. Enter student details
-4. Select class
-5. Click "Save Student"
-6. **Important:** Note the auto-generated password
-7. Password will be the same as student name
+### Admin: How to Manage Students
 
-**Roll Number Format:**
-- Pattern: {ClassCode}{Year}{Sequence}
-- Example: PHP25001, Java25002
+#### Add New Student
+1. Click "Manage Students"
+2. Click "Add New Student"
+3. Fill in the form:
+   - Name (required)
+   - Email (optional)
+   - Roll Number (auto-generated)
+   - Class (required)
+   - Address (optional)
+   - Student Contact (optional)
+   - Parent Contact (optional)
+   - Class Time (default: 09:00)
+   - Password (optional, default: Student@143)
+4. Click "Save Student"
 
-#### 4. View Attendance Reports
-**Student Report:**
-- Select student from dropdown
-- Choose date range
-- View statistics and records
-- Export as CSV or PDF
+### Admin: How to Manage Classes
 
-**Date Report:**
-- Select date
-- Filter by class (optional)
-- View all attendance for that day
-- Export as needed
+#### Add New Class
+1. Click "Manage Classes"
+2. Click "Add New Class"
+3. Fill in:
+   - Class Name (e.g., BCA, MCA, B.Tech CS)
+   - Section (e.g., A, B)
+   - Year (1-4)
+4. Click "Save Class"
 
-### For Teacher Users
+### Teacher: How to Mark Attendance
 
-#### 1. Mark Attendance
-1. Navigate to "Mark Attendance"
-2. Select Class from dropdown
-3. Select Date (defaults to today)
-4. Select Time (defaults to current time)
-5. Check time status indicator:
-   - 🟢 Green: Within window (9 AM - 10:30 AM)
-   - 🟡 Yellow: Late marking
-   - 🔴 Red: Outside window
-6. Mark students:
-   - Click "Present" or "Absent" for each student
-   - Or use "Mark All Present/Absent" buttons
-7. Verify counter shows "Marked: X/Y"
-8. Click "💾 Save Attendance"
-9. Confirm success message
+1. Login as teacher
+2. Go to "Mark Attendance"
+3. Select Class from dropdown (only shows assigned classes)
+4. Select Date
+5. Mark each student as Present/Absent
+6. Click "Submit Attendance"
 
-**Quick Actions:**
-- **Mark All Present**: One-click to mark all
-- **Mark All Absent**: One-click to mark all
-- **Clear All**: Reset all marks (with confirmation)
-- **Export CSV**: Download current session
+**Note:** Attendance can only be marked within the allowed time window (class time + 30 minutes grace period)
 
-#### 2. View Attendance History
-1. Navigate to "View History"
+### Teacher: View Attendance History
+
+1. Go to "Attendance History"
 2. Select Class
-3. Select Date
-4. View statistics and records
-5. Edit existing records if needed
+3. Select Date Range
+4. View attendance records
 
-### For Student Users
+### Student: View Attendance
 
-#### 1. Login
-1. Click "Login as Student"
-2. Enter your full name
-3. Enter your roll number
-4. Enter password (same as your name)
-5. Click Login
-
-#### 2. View Dashboard
-- See your attendance percentage
-- View present/absent days
-- Check total classes
-
-#### 3. View Attendance Records
-1. Navigate to "My Attendance"
-2. Select month
-3. View detailed records
-4. See status for each day
+1. Login with roll number
+2. Dashboard shows:
+   - Total attendance percentage
+   - Recent attendance records
+   - Class schedule
+3. Click "View Details" for detailed attendance
 
 ---
 
-## 🔐 API Endpoints
+## 🔧 Recent Fixes & Updates
+
+### Fix 1: Teacher Creation Error (Phone Column)
+**Problem:** Error when adding teachers: "Unknown column 'phone' in 'field list'"
+
+**Solution:**
+- Removed `phone` parameter from UserModel.create()
+- Removed `phone` parameter from TeacherModel.create()
+- Updated AdminController to not pass phone
+- Removed phone input field from frontend
+- Teachers now only use `contact_no` field
+
+**Files Modified:**
+- server/models/userModel.js
+- server/models/teacherModel.js
+- server/controllers/adminController.js
+- client/script.js (v38)
+- client/index.html
+
+**Status:** ✅ Fixed - Restart server required
+
+### Fix 2: Teacher Dashboard Empty
+**Problem:** Teacher dashboard showed "Total teachers: 0"
+
+**Solution:**
+- Changed from admin endpoint to teacher-specific endpoint
+- Updated to use `/api/teacher/my-classes`
+- Backend returns full class details in response
+
+**Files Modified:**
+- server/controllers/teacherController.js
+- client/script.js
+
+**Status:** ✅ Fixed
+
+### Fix 3: Mark Attendance Dropdown Empty
+**Problem:** Teachers couldn't see classes in "Mark Attendance" dropdown
+
+**Solution:**
+- Updated loadTeacherMarkSection() to use teacher-specific endpoint
+- Backend getMyClasses() returns full class details
+- Teachers now see only their assigned classes (security feature)
+
+**Files Modified:**
+- server/controllers/teacherController.js
+- client/script.js
+
+**Status:** ✅ Fixed - Classes must be assigned to teachers via admin panel
+
+### Fix 4: Student Class Time Column
+**Problem:** Students showed "Not set" for class time
+
+**Solution:**
+- Added class_time column to students table
+- Updated StudentModel to include class_time
+- Set default value to '09:00:00'
+- Created fix-class-time.bat for easy migration
+
+**Files Modified:**
+- server/models/studentModel.js
+- server/controllers/adminController.js
+- client/script.js
+- add-class-time-column.sql
+
+**Status:** ✅ Fixed
+
+### Fix 5: Edit Buttons Not Working
+**Problem:** Edit buttons for teachers, students, and classes didn't work
+
+**Solution:**
+- Made all edit modal functions async
+- Added proper error handling
+- Fixed field name handling (camelCase vs snake_case)
+
+**Files Modified:**
+- client/script.js (showEditTeacherModal, showEditStudentModal, showEditClassModal)
+
+**Status:** ✅ Fixed
+
+### Fix 6: Student Creation Error
+**Problem:** Error when creating students: "Column 'name' cannot be null"
+
+**Solution:**
+- Fixed createStudent to use StudentModel.create() directly
+- Removed incorrect user creation logic
+- Students authenticate with roll number (no users table entry)
+
+**Files Modified:**
+- server/controllers/adminController.js
+
+**Status:** ✅ Fixed
+
+### Fix 7: Notification Foreign Key Error
+**Problem:** Error when creating teachers due to notification system
+
+**Solution:**
+- Disabled notification creation for teachers
+- Notifications table only supports students (FK to students table)
+- Wrapped student notifications in try-catch
+
+**Files Modified:**
+- server/controllers/adminController.js
+
+**Status:** ✅ Fixed
+
+### Fix 8: Teacher 403 Forbidden Error When Marking Attendance
+**Problem:** Teachers got "403 Forbidden" error when trying to mark attendance
+
+**Root Cause:** Frontend was calling `/api/admin/students` which requires admin authorization
+
+**Solution:**
+- Created new `/api/teacher/students` endpoint for teachers
+- Updated APIService to use correct endpoint based on user role
+- Teachers now only see students from their assigned classes
+- Implemented proper role-based access control (RBAC)
+
+**Files Modified:**
+- server/routes/router.js
+- server/controllers/teacherController.js (added getStudents method)
+- client/apiService.js (updated getAllStudents)
+- client/index.html (v43)
+
+**Security Features:**
+- Teachers can only access students from assigned classes
+- Endpoint validates teacher has access to requested class
+- Proper JWT token verification
+- Role-based authorization
+
+**Status:** ✅ Fixed - Restart server and hard refresh browser required
+
+**Testing:**
+1. Restart server: `node server/server.js`
+2. Hard refresh: Ctrl+Shift+R
+3. Login as teacher
+4. Go to "Mark Attendance"
+5. Select class - students should load without errors
+
+### Fix 9: Mark Attendance Not Saving
+**Problem:** Teachers could see students but clicking "Save Attendance" didn't work
+
+**Root Causes:**
+- Frontend sending records one by one instead of batch
+- Data format mismatch between frontend and backend
+- Backend expecting methods that don't exist in AttendanceModel
+
+**Solution:**
+- Simplified TeacherController.markAttendance to use existing AttendanceModel.create
+- Updated frontend to send all records in single batch request
+- Removed unnecessary fields (subjectId, endTime)
+- Used simple payload: `{ classId, date, startTime, records: [...] }`
+
+**Files Modified:**
+- server/controllers/teacherController.js (simplified markAttendance)
+- client/script.js (updated saveAttendance)
+- client/index.html (v45)
+
+**How It Works:**
+1. Teacher marks students as present/absent
+2. Frontend collects all marks in `attendanceData` object
+3. Single API call with all records
+4. Backend saves each record using AttendanceModel.create
+5. Database handles duplicates with ON DUPLICATE KEY UPDATE
+
+**Status:** ✅ Fixed - Restart server and hard refresh browser required
+
+**Testing:**
+1. Restart server
+2. Hard refresh browser (Ctrl+Shift+R)
+3. Login as teacher
+4. Select class and mark attendance
+5. Click "Save Attendance"
+6. Should see: "✅ Attendance saved successfully! (X students)"
+
+---
+
+## 🐛 Troubleshooting
+
+### Server Won't Start
+
+**Problem:** Server fails to start or shows connection errors
+
+**Solutions:**
+1. Check if MySQL is running
+2. Verify `.env` file has correct credentials
+3. Check if port 3000 is available
+4. Run: `node server/utilities.js testConnection`
+
+### Can't Login
+
+**Problem:** Login fails with incorrect credentials
+
+**Solutions:**
+1. Verify credentials (see Login Credentials section)
+2. Reset admin password: `manage.bat` → Option 3
+3. Check database: `manage.bat` → Option 10
+
+### Teacher Can't See Classes in Mark Attendance
+
+**Problem:** Dropdown is empty or shows only ONE class
+
+**Solutions:**
+
+**If dropdown is empty:**
+1. Classes must be assigned to teacher via admin panel
+2. Login as admin → Manage Teachers → Edit teacher → Check classes → Save
+3. This is correct behavior - teachers only see assigned classes
+
+**If dropdown shows only ONE class:**
+1. This means the teacher only has ONE class assigned in the database
+2. To assign more classes:
+   - Login as admin (admin@example.com / Admin@143)
+   - Go to "Manage Teachers"
+   - Click "Edit" on the teacher
+   - Check multiple classes (BCA A Year 1, BCA B Year 1, etc.)
+   - Click "Save Teacher"
+   - Logout and login again as teacher
+3. Quick SQL fix: Run `assign-multiple-classes-to-sunny.sql` in phpMyAdmin
+4. Diagnostic tool: Open `check-teacher-classes.html` to verify API response
+
+### Add Teacher Button Doesn't Save
+
+**Problem:** Error when saving teacher
+
+**Solutions:**
+1. Restart server (Ctrl+C, then `node server.js`)
+2. Refresh browser (Ctrl+Shift+R)
+3. Check contact number is exactly 10 digits
+4. Ensure teacher ID is unique
+
+### Student Shows "Not set" for Class Time
+
+**Problem:** Class time not displaying
+
+**Solutions:**
+1. Run: `fix-class-time.bat`
+2. Or manually: `mysql -u root -p < add-class-time-column.sql`
+3. Restart server
+
+### Edit Button Doesn't Work
+
+**Problem:** Edit modal doesn't open or shows errors
+
+**Solutions:**
+1. Hard refresh browser (Ctrl+Shift+R)
+2. Check browser console for errors (F12)
+3. Verify script version is v38 or higher
+
+### Database Connection Failed
+
+**Problem:** Can't connect to database
+
+**Solutions:**
+1. Check MySQL is running
+2. Verify credentials in `server/.env`
+3. Test connection: `manage.bat` → Option 7
+4. Check database exists: `SHOW DATABASES;`
+
+---
+
+## 📡 API Documentation
+
+### Base URL
+```
+http://localhost:3000/api
+```
 
 ### Authentication
+All protected routes require JWT token in Authorization header:
 ```
-POST /api/register - Register new user
-POST /api/login - Login (Admin/Teacher)
-POST /api/student/login - Student login
+Authorization: Bearer <token>
 ```
 
-**Student Login Request:**
+### Auth Endpoints
+
+#### POST /auth/login
+Login with email/password or roll number
 ```json
+// Admin/Teacher Login
 {
-  "studentName": "Rahul Verma",
-  "rollNumber": "PHP25001",
-  "password": "Rahul Verma"
+  "email": "admin@example.com",
+  "password": "Admin@143"
+}
+
+// Student Login
+{
+  "rollNumber": "STU001",
+  "password": "Student@143"
 }
 ```
 
-### Admin Routes
-```
-GET    /api/admin/classes - Get all classes
-POST   /api/admin/classes - Create class
-PUT    /api/admin/classes - Update class
-DELETE /api/admin/classes?id=1 - Delete class
-
-GET    /api/admin/teachers - Get all teachers
-POST   /api/admin/teachers - Create teacher
-PUT    /api/admin/teachers - Update teacher
-DELETE /api/admin/teachers?id=1 - Delete teacher
-
-GET    /api/admin/students - Get all students
-POST   /api/admin/students - Create student
-DELETE /api/admin/students?id=1 - Delete student
-
-GET    /api/admin/attendance - Get attendance reports
+**Response:**
+```json
+{
+  "token": "jwt_token_here",
+  "user": {
+    "id": 1,
+    "name": "Admin User",
+    "email": "admin@example.com",
+    "role": "admin"
+  }
+}
 ```
 
-### Teacher Routes
-```
-GET  /api/teacher/my-classes - Get assigned classes
-POST /api/teacher/mark-attendance - Mark attendance
-GET  /api/teacher/history - Get attendance history
-```
+### Admin Endpoints
 
-### Student Routes
+#### GET /admin/classes
+Get all classes
 ```
-GET /api/student/profile - Get student profile
-GET /api/student/attendance?studentId=1 - Get attendance
-GET /api/student/percentage?studentId=1 - Get percentage
-GET /api/student/notifications - Get notifications
+Authorization: Bearer <admin_token>
 ```
 
----
-
-## 🔧 Troubleshooting
-
-### Login Issues
-
-**Problem: Buttons Don't Work**
-- Solution 1: Clear browser cache (Ctrl+Shift+Delete)
-- Solution 2: Hard refresh (Ctrl+F5)
-- Solution 3: Check console for errors (F12)
-- Solution 4: Try TEST_LOGIN_COMPLETE.html
-
-**Problem: Invalid Credentials**
-- Solution 1: Verify email has no spaces
-- Solution 2: Check password is correct (case-sensitive)
-- Solution 3: Try copy-pasting credentials
-- Solution 4: Use exact credentials from table above
-
-### Student Login Issues
-
-**Problem: "Invalid roll number"**
-- Solution: Verify roll number is correct (case-sensitive)
-- Check demo credentials table above
-- Try copy-pasting from the table
-
-**Problem: "Student name does not match"**
-- Solution: Enter exact name as registered
-- Check spelling and spacing
-- Names are case-insensitive but must match exactly
-
-**Problem: "Invalid password"**
-- Solution: Password must be same as student name
-- Example: If name is "Rahul Verma", password is "Rahul Verma"
-
-### Database Issues
-
-**Problem: Data not saving**
-- Solution 1: Check MySQL is running (XAMPP/WAMP)
-- Solution 2: Verify `.env` configuration
-- Solution 3: Run `check-database.bat`
-- Solution 4: Check server console for errors
-
-**Problem: Teacher created but not showing**
-- Solution 1: Refresh phpMyAdmin page
-- Solution 2: Verify correct database selected
-- Solution 3: Check server logs for errors
-- Solution 4: Run diagnostic: `node diagnose-save-issue.js`
-
-### Attendance Issues
-
-**Problem: Can't Mark Attendance**
-- Solution 1: Check current time (must be 9 AM - 10:30 AM)
-- Solution 2: Ensure class is selected
-- Solution 3: Verify students exist in class
-- Solution 4: Check if already marked (duplicate prevention)
-
-### Console Commands for Debugging
-
-Open browser console (F12):
-
-```javascript
-// Check if functions exist
-typeof showLoginForm
-typeof studentLogin
-
-// Check data
-localStorage.getItem('students')
-localStorage.getItem('classes')
-
-// Force login (bypass form)
-localStorage.setItem('currentRole', 'admin');
-localStorage.setItem('currentUser', 'admin@example.com');
-location.reload();
-
-// Clear all data
-localStorage.clear();
-location.reload();
+#### POST /admin/classes
+Create new class
+```json
+{
+  "class_name": "BCA",
+  "class_section": "A",
+  "year": 1
+}
 ```
 
----
+#### PUT /admin/classes/:id
+Update class
 
-## 💻 Technologies
+#### DELETE /admin/classes/:id
+Delete class
 
-### Frontend
-- **HTML5** - Structure
-- **CSS3** - Styling (Flexbox, Grid)
-- **Vanilla JavaScript** - Logic (ES6+)
-- **LocalStorage API** - Data persistence
+#### GET /admin/teachers
+Get all teachers
 
-### Backend
-- **Node.js** - Runtime (HTTP module)
-- **MySQL2** - Database driver
-- **JWT** - Authentication (jsonwebtoken)
-- **bcryptjs** - Password hashing
-- **dotenv** - Environment variables
-
-### Development Tools
-- Modern web browser
-- Text editor/IDE
-- MySQL Workbench (optional)
-- Postman (for API testing)
-
----
-
-## 🎯 Key Features Explained
-
-### 1. Student Login Authentication
-```
-Required Fields:
-- Student Name (must match registered name)
-- Roll Number (unique identifier)
-- Password (same as student name)
-
-Validation:
-1. Check if roll number exists
-2. Verify student name matches roll number
-3. Confirm password matches student name
-4. All checks are case-insensitive
+#### POST /admin/teachers
+Create new teacher
+```json
+{
+  "name": "Teacher Name",
+  "email": "teacher@example.com",
+  "teacherId": "TCH001",
+  "contactNo": "9876543210",
+  "password": "Teacher@143",
+  "years": [1, 2, 3],
+  "classIds": [1, 2, 3]
+}
 ```
 
-### 2. Auto Academic Year
-```javascript
-// Logic:
-// If current month >= June: 2025-2026
-// If current month < June: 2024-2025
+#### PUT /admin/teachers/:id
+Update teacher
+
+#### DELETE /admin/teachers/:id
+Delete teacher
+
+#### GET /admin/students
+Get all students
+
+#### POST /admin/students
+Create new student
+```json
+{
+  "student_name": "Student Name",
+  "email": "student@example.com",
+  "roll_number": "STU001",
+  "class_id": 1,
+  "address": "Address",
+  "student_contact": "9876543210",
+  "parent_contact": "9876543211",
+  "class_time": "09:00:00",
+  "password": "Student@143"
+}
 ```
 
-### 3. Auto Roll Number
+#### PUT /admin/students/:id
+Update student
+
+#### DELETE /admin/students/:id
+Delete student
+
+### Teacher Endpoints
+
+#### GET /teacher/my-classes
+Get teacher's assigned classes
 ```
-Format: <ClassCode><YearLast2Digits><IncrementNumber>
-Examples:
-- PHP25001 (PHP class, year 2025, student 001)
-- Java25002 (Java class, year 2025, student 002)
+Authorization: Bearer <teacher_token>
 ```
 
-### 4. Time-Restricted Attendance
+**Response:**
+```json
+{
+  "assignments": [...],
+  "classes": [
+    {
+      "id": 1,
+      "class_name": "BCA",
+      "class_section": "A",
+      "year": 1,
+      "class_time": "09:00:00"
+    }
+  ]
+}
 ```
-Allowed Window: 9:00 AM - 10:30 AM
-Grace Period: 30 minutes after class ends
-Status Indicators:
-- 🟢 Green: Within window
-- 🟡 Yellow: Late marking
-- 🔴 Red: Outside window
+
+#### POST /teacher/mark-attendance
+Mark attendance for a class
+```json
+{
+  "classId": 1,
+  "subjectId": 1,
+  "date": "2025-02-17",
+  "startTime": "09:00",
+  "endTime": "10:00",
+  "records": [
+    {
+      "studentId": 1,
+      "status": "present"
+    }
+  ]
+}
+```
+
+#### GET /teacher/history/:classId/:subjectId
+Get attendance history
+
+### Student Endpoints
+
+#### GET /student/my-attendance
+Get student's attendance records
+```
+Authorization: Bearer <student_token>
 ```
 
 ---
 
-## 🚀 Deployment
+## 🎓 Database Schema
 
-### Production Checklist
+### Tables
 
-1. **Security:**
-   - [ ] Change JWT_SECRET in .env
-   - [ ] Update all default passwords
-   - [ ] Enable HTTPS
-   - [ ] Implement rate limiting
-   - [ ] Add CORS configuration
+#### users
+- id (PK)
+- name
+- email (unique)
+- password (hashed)
+- role (admin/teacher/student)
+- created_at
+- updated_at
 
-2. **Database:**
-   - [ ] Update database credentials
-   - [ ] Set up database backups
-   - [ ] Configure connection pooling
-   - [ ] Enable query logging
+#### teachers
+- id (PK)
+- user_id (FK → users)
+- teacher_id (unique)
+- contact_no
+- created_at
+- updated_at
 
-3. **Monitoring:**
-   - [ ] Set up error logging
-   - [ ] Configure performance monitoring
-   - [ ] Enable access logs
-   - [ ] Set up alerts
+#### students
+- id (PK)
+- student_name
+- email (unique)
+- roll_number (unique)
+- class_id (FK → classes)
+- address
+- student_contact
+- parent_contact
+- class_time
+- password (hashed)
+- created_at
+- updated_at
 
-4. **Testing:**
-   - [ ] Test all user flows
-   - [ ] Verify API endpoints
-   - [ ] Check mobile responsiveness
-   - [ ] Load testing
+#### classes
+- id (PK)
+- class_name
+- class_section
+- year
+- academic_year
+- created_at
+- updated_at
+
+#### subjects
+- id (PK)
+- subject_name
+- subject_code (unique)
+- created_at
+- updated_at
+
+#### teacher_classes
+- id (PK)
+- teacher_id (FK → teachers)
+- class_id (FK → classes)
+- class_time
+
+#### teacher_years
+- id (PK)
+- teacher_id (FK → teachers)
+- year
+
+#### teacher_subjects
+- id (PK)
+- teacher_id (FK → teachers)
+- subject_id (FK → subjects)
+
+#### teacher_assignments
+- id (PK)
+- teacher_id (FK → teachers)
+- class_id (FK → classes)
+- subject_id (FK → subjects)
+- academic_year
+
+#### attendance
+- id (PK)
+- class_id (FK → classes)
+- student_id (FK → students)
+- date
+- time
+- status (present/absent)
+- marked_at
+
+#### notifications
+- id (PK)
+- student_id (FK → students)
+- message
+- type (info/warning/success/error)
+- is_read
+- created_at
 
 ---
 
-## 📝 License
+## 🛠️ Development
 
-MIT License
+### Project Structure
+```
+Student-Attendance-Management-System/
+├── client/
+│   ├── index.html          # Main application
+│   ├── script.js           # Frontend logic (v38)
+│   ├── style.css           # Styles
+│   ├── apiService.js       # API calls
+│   └── databaseIntegration.js
+├── server/
+│   ├── server.js           # Express server
+│   ├── config/
+│   │   └── db.js           # Database connection
+│   ├── controllers/
+│   │   ├── adminController.js
+│   │   ├── authController.js
+│   │   ├── studentController.js
+│   │   └── teacherController.js
+│   ├── models/
+│   │   ├── userModel.js
+│   │   ├── teacherModel.js
+│   │   ├── studentModel.js
+│   │   ├── classModel.js
+│   │   ├── subjectModel.js
+│   │   ├── attendanceModel.js
+│   │   └── notificationModel.js
+│   ├── middleware/
+│   │   └── authMiddleware.js
+│   ├── routes/
+│   ├── database/
+│   │   └── complete-setup-with-data.sql
+│   └── utilities.js        # Utility functions
+├── manage.bat              # Management tool
+└── README.md               # This file
+```
+
+### Technologies Used
+- **Frontend:** HTML, CSS, JavaScript (Vanilla)
+- **Backend:** Node.js, Express.js
+- **Database:** MySQL
+- **Authentication:** JWT (JSON Web Tokens)
+- **Password Hashing:** bcrypt
 
 ---
 
-## 👨‍💻 Support
+## 📝 Notes
 
-### Getting Help
-1. Check this README
-2. Review browser console (F12)
-3. Try test files (TEST_STUDENT_LOGIN.html, TEST_LOGIN_COMPLETE.html)
-4. Run diagnostic scripts (check-database.bat, diagnose-save-issue.js)
+### Important Information
 
-### Reporting Issues
-- Note exact error message
-- Check browser console
-- Provide steps to reproduce
-- Include browser version
+1. **Teacher Security:** Teachers can only see classes assigned to them. This is intentional for security and data privacy.
+
+2. **Student Authentication:** Students authenticate with roll number (not email). They don't have entries in the users table.
+
+3. **Notifications:** The notifications table only supports students (has FK to students table). Teacher notifications are disabled.
+
+4. **Default Passwords:**
+   - Admin: Admin@143
+   - Teachers: Teacher@143
+   - Students: Student@143
+
+5. **Contact Fields:** Teachers use `contact_no` field (not phone). The phone field was removed to match database schema.
+
+6. **Class Time:** Default class time is 09:00:00. Can be customized per teacher-class assignment.
+
+7. **Academic Year:** Auto-generated based on current date (June-May cycle).
+
+### Server Restart Required
+
+After making these changes, restart your server:
+```bash
+# Stop server: Ctrl+C
+# Start server:
+cd server
+node server.js
+```
+
+### Browser Cache
+
+If changes don't appear, hard refresh:
+```bash
+Ctrl+Shift+R  (Windows/Linux)
+Cmd+Shift+R   (Mac)
+```
 
 ---
 
-## 🎉 Conclusion
+## 🎯 Current System Status
 
-The Student Attendance Management System is a complete, production-ready application with comprehensive features including:
+### Teachers in System
+1. **Shruti Sudheer Teli** (S1) - shrutiteli571@gmail.com
+2. **sunny** (TCH002) - sunny@gmail.com
+3. **Booby** (TCH003) - booby@gmail.com
+4. **Rocky** (TCH004) - roc@gmail.com
 
-✅ Enhanced student login with name + roll + password  
-✅ Improved UI with user-friendly empty states  
-✅ Complete attendance management  
-✅ Teacher and admin dashboards  
-✅ Automated notifications  
-✅ Comprehensive reporting  
+All teachers use password: **Teacher@143**
 
-**Status:** ✅ Complete and Ready for Use  
-**Version:** v2.0  
-**Last Updated:** February 10, 2026
+### Classes in System
+- BCA (A/B) - Years 1, 2, 3
+- MCA (A/B) - Year 1
+- B.Tech CS (A/B) - Year 1
+- Plus any custom classes you've added (python, java, etc.)
+
+### System Status
+✅ Backend: Working
+✅ Frontend: Working (v38)
+✅ Database: Connected
+✅ Authentication: Working
+✅ Teacher Management: Working
+✅ Student Management: Working
+✅ Class Management: Working
+✅ Attendance System: Working
 
 ---
 
-**End of Documentation**
+## 📞 Support
+
+For issues or questions:
+1. Check the Troubleshooting section
+2. Run diagnostics: `manage.bat` → Option 8
+3. Check browser console (F12) for errors
+4. Verify server logs
+
+---
+
+## 📄 License
+
+This is a student project for educational purposes.
+
+---
+
+**Last Updated:** February 17, 2025
+**Version:** 1.0
+**Script Version:** v38

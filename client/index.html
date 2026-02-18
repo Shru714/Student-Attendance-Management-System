@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Attendance Management System</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -358,8 +359,8 @@
                         <div id="attendanceStudentsList" class="students-list"></div>
 
                         <div class="attendance-footer">
-                            <button class="btn btn-primary" onclick="saveAttendance()" id="saveAttendanceBtn" style="display:none;">💾 Save Attendance</button>
-                            <button class="btn btn-secondary" onclick="viewAttendanceHistory()" id="viewHistoryBtn" style="display:none;">📜 View History</button>
+                            <button type="button" class="btn btn-primary" onclick="saveAttendance(); return false;" id="saveAttendanceBtn" style="display:none;">💾 Save Attendance</button>
+                            <button type="button" class="btn btn-secondary" onclick="viewAttendanceHistory()" id="viewHistoryBtn" style="display:none;">📜 View History</button>
                         </div>
                     </div>
 
@@ -539,13 +540,9 @@
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label>Phone:</label>
-                        <input type="tel" id="teacherPhone" placeholder="Optional">
-                    </div>
-                    <div class="form-group">
                         <label>Password:</label>
                         <input type="password" id="teacherPassword" placeholder="Leave empty for default">
-                        <small>Default: teacher123</small>
+                        <small>Default: Teacher@143</small>
                     </div>
                 </div>
                 <div class="form-group">
@@ -603,7 +600,8 @@
                             <option value="">Select Class</option>
                         </select>
                     </div>
-                    <div class="form-group">
+                    <!-- Class Time field hidden until database column is added -->
+                    <div class="form-group" style="display: none;">
                         <label>Class Time:</label>
                         <input type="time" id="studentClassTime" placeholder="Class time (optional)">
                         <small>Time for this class</small>
@@ -674,6 +672,11 @@
         </div>
     </div>
 
-    <script src="script.js?v=23"></script>
+    <!-- Database Integration Scripts -->
+    <script src="apiService.js?v=62"></script>
+    <script src="databaseIntegration.js"></script>
+    
+    <!-- Main Application Script -->
+    <script src="script.js?v=62"></script>
 </body>
 </html>

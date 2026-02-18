@@ -1,49 +1,78 @@
 const db = require('../config/db');
 
 const TeacherModel = {
-  async create(userId, teacherId, contactNo) {
-    const [result] = await db.query(
-      'INSERT INTO teachers (userId, teacherId, contactNo) VALUES (?, ?, ?)',
-      [userId, teacherId, contactNo]
-    );
+  async create(teacherData) {
+    console.log('TeacherModel.create called with:', teacherData);
+    const { user_id, teacher_id, contact_no } = teacherData;
+    console.log('Extracted values:', { user_id, teacher_id, contact_no });
+    
+    const query = 'INSERT INTO teachers (user_id, teacher_id, contact_no) VALUES (?, ?, ?)';
+    const values = [user_id, teacher_id, contact_no];
+    console.log('Executing query:', query);
+    console.log('With values:', values);
+    
+    const [result] = await db.query(query, values);
+    console.log('Insert successful, insertId:', result.insertId);
     return result.insertId;
   },
 
   async findByUserId(userId) {
     const [rows] = await db.query(
-      'SELECT * FROM teachers WHERE userId = ?',
+      'SELECT * FROM teachers WHERE user_id = ?',
       [userId]
     );
     return rows[0];
   },
 
   async findByTeacherId(teacherId) {
-    const [rows] = await db.query(
-      'SELECT t.*, u.name, u.email, u.phone, u.address FROM teachers t JOIN users u ON t.userId = u.id WHERE t.teacherId = ?',
-      [teacherId]
-    );
+    const [rows] = await db.query(`
+      SELECT t.*, u.name, u.email 
+      FROM teachers t 
+      JOIN users u ON t.user_id = u.id 
+      WHERE t.teacher_id = ?
+    `, [teacherId]);
     return rows[0];
   },
 
   async findById(id) {
-    const [rows] = await db.query(
-      'SELECT t.*, u.name, u.email, u.phone, u.address FROM teachers t JOIN users u ON t.userId = u.id WHERE t.id = ?',
-      [id]
-    );
+    const [rows] = await db.query(`
+      SELECT t.*, u.name, u.email 
+      FROM teachers t 
+      JOIN users u ON t.user_id = u.id 
+      WHERE t.id = ?
+    `, [id]);
     return rows[0];
   },
 
   async getAll() {
-    const [rows] = await db.query(
-      'SELECT t.*, u.name, u.email, u.phone, u.address FROM teachers t JOIN users u ON t.userId = u.id'
-    );
+    const [rows] = await db.query(`
+      SELECT t.*, u.name, u.email 
+      FROM teachers t 
+      JOIN users u ON t.user_id = u.id
+      ORDER BY t.created_at DESC
+    `);
     return rows;
   },
 
-  async update(id, contactNo) {
+  async update(id, data) {
+    const { contact_no } = data;
+    
+    const updateFields = [];
+    const updateValues = [];
+    
+    if (contact_no !== undefined) {
+      updateFields.push('contact_no = ?');
+      updateValues.push(contact_no);
+    }
+    
+    if (updateFields.length === 0) {
+      throw new Error('No fields to update');
+    }
+    
+    updateValues.push(id);
     await db.query(
-      'UPDATE teachers SET contactNo = ? WHERE id = ?',
-      [contactNo, id]
+      `UPDATE teachers SET ${updateFields.join(', ')} WHERE id = ?`,
+      updateValues
     );
   },
 
@@ -53,11 +82,11 @@ const TeacherModel = {
 
   // Subject assignments
   async assignSubjects(teacherId, subjectIds) {
-    await db.query('DELETE FROM teacher_subjects WHERE teacherId = ?', [teacherId]);
+    await db.query('DELETE FROM teacher_subjects WHERE teacher_id = ?', [teacherId]);
     if (subjectIds && subjectIds.length > 0) {
       const values = subjectIds.map(subjectId => [teacherId, subjectId]);
       await db.query(
-        'INSERT INTO teacher_subjects (teacherId, subjectId) VALUES ?',
+        'INSERT INTO teacher_subjects (teacher_id, subject_id) VALUES ?',
         [values]
       );
     }
@@ -66,19 +95,19 @@ const TeacherModel = {
   async getSubjects(teacherId) {
     const [rows] = await db.query(`
       SELECT s.* FROM subjects s
-      JOIN teacher_subjects ts ON s.id = ts.subjectId
-      WHERE ts.teacherId = ?
+      JOIN teacher_subjects ts ON s.id = ts.subject_id
+      WHERE ts.teacher_id = ?
     `, [teacherId]);
     return rows;
   },
 
   // Year assignments
   async assignYears(teacherId, years) {
-    await db.query('DELETE FROM teacher_years WHERE teacherId = ?', [teacherId]);
+    await db.query('DELETE FROM teacher_years WHERE teacher_id = ?', [teacherId]);
     if (years && years.length > 0) {
       const values = years.map(year => [teacherId, year]);
       await db.query(
-        'INSERT INTO teacher_years (teacherId, year) VALUES ?',
+        'INSERT INTO teacher_years (teacher_id, year) VALUES ?',
         [values]
       );
     }
@@ -86,7 +115,7 @@ const TeacherModel = {
 
   async getYears(teacherId) {
     const [rows] = await db.query(
-      'SELECT year FROM teacher_years WHERE teacherId = ? ORDER BY year',
+      'SELECT year FROM teacher_years WHERE teacher_id = ? ORDER BY year',
       [teacherId]
     );
     return rows.map(r => r.year);
@@ -94,11 +123,11 @@ const TeacherModel = {
 
   // Class assignments
   async assignClasses(teacherId, classIds) {
-    await db.query('DELETE FROM teacher_classes WHERE teacherId = ?', [teacherId]);
+    await db.query('DELETE FROM teacher_classes WHERE teacher_id = ?', [teacherId]);
     if (classIds && classIds.length > 0) {
       const values = classIds.map(classId => [teacherId, classId]);
       await db.query(
-        'INSERT INTO teacher_classes (teacherId, classId) VALUES ?',
+        'INSERT INTO teacher_classes (teacher_id, class_id) VALUES ?',
         [values]
       );
     }
@@ -107,8 +136,8 @@ const TeacherModel = {
   async getClasses(teacherId) {
     const [rows] = await db.query(`
       SELECT c.* FROM classes c
-      JOIN teacher_classes tc ON c.id = tc.classId
-      WHERE tc.teacherId = ?
+      JOIN teacher_classes tc ON c.id = tc.class_id
+      WHERE tc.teacher_id = ?
     `, [teacherId]);
     return rows;
   },

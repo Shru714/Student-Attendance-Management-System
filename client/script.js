@@ -1,27 +1,22 @@
-// Initialize LocalStorage
-function initStorage() {
-    if (!localStorage.getItem('classes')) {
-        localStorage.setItem('classes', JSON.stringify([]));
-    }
-    if (!localStorage.getItem('subjects')) {
-        localStorage.setItem('subjects', JSON.stringify([]));
-    }
-    if (!localStorage.getItem('teachers')) {
-        localStorage.setItem('teachers', JSON.stringify([]));
-    }
-    if (!localStorage.getItem('students')) {
-        localStorage.setItem('students', JSON.stringify([]));
-    }
-    if (!localStorage.getItem('attendance')) {
-        localStorage.setItem('attendance', JSON.stringify([]));
-    }
-    if (!localStorage.getItem('notifications')) {
-        localStorage.setItem('notifications', JSON.stringify([]));
+// Initialize Database Connection
+async function initStorage() {
+    console.log('🔄 Initializing database connection...');
+    try {
+        // Wait for database integration to initialize
+        await db.initPromise;
+        
+        if (db.useAPI) {
+            console.log('✅ Using MySQL Database');
+        } else {
+            console.log('⚠️ Using localStorage (API not available)');
+        }
+    } catch (error) {
+        console.warn('⚠️ Database initialization warning:', error);
     }
 }
 
 // Load Demo Data
-function loadDemoData() {
+async function loadDemoData() {
     const demoClasses = [
         { 
             id: 1, 
@@ -224,29 +219,57 @@ function loadDemoData() {
         { id: 11, classId: 1, studentId: 3, studentName: 'Vikram Joshi', rollNumber: 'PHP25003', date: twoDaysAgo.toISOString().split('T')[0], time: '09:30', status: 'present', markedAt: new Date().toISOString() }
     ];
     
-    saveData('classes', demoClasses);
-    saveData('teachers', demoTeachers);
-    saveData('students', demoStudents);
-    saveData('attendance', demoAttendance);
-    
-    console.log('Demo data loaded successfully!');
-    console.log('Classes:', demoClasses);
-    console.log('Teachers:', demoTeachers);
-    console.log('Students:', demoStudents);
-    console.log('Attendance:', demoAttendance);
-    
-    alert('✅ Demo data loaded successfully!\n\nClasses: 5\nTeachers: 3\nStudents: 8\nAttendance Records: 11\n\nYou can now test all features!');
-    location.reload();
+    try {
+        // Save to database via API
+        console.log('📤 Uploading demo data to database...');
+        
+        // Create classes
+        for (const cls of demoClasses) {
+            await ClassesDB.create(cls);
+        }
+        
+        // Create teachers
+        for (const teacher of demoTeachers) {
+            await TeachersDB.create(teacher);
+        }
+        
+        // Create students
+        for (const student of demoStudents) {
+            await StudentsDB.create(student);
+        }
+        
+        // Create attendance records
+        for (const record of demoAttendance) {
+            await AttendanceDB.create(record);
+        }
+        
+        console.log('✅ Demo data loaded successfully!');
+        alert('✅ Demo data loaded successfully!\n\nClasses: 5\nTeachers: 3\nStudents: 8\nAttendance Records: 11\n\nYou can now test all features!');
+        location.reload();
+    } catch (error) {
+        console.error('❌ Error loading demo data:', error);
+        alert('❌ Error loading demo data: ' + error.message);
+    }
 }
 
-// Get data from LocalStorage
-function getData(key) {
-    return JSON.parse(localStorage.getItem(key) || '[]');
+// Get data from Database
+async function getData(key) {
+    try {
+        return await db.getData(key);
+    } catch (error) {
+        console.error(`Error getting ${key}:`, error);
+        return [];
+    }
 }
 
-// Save data to LocalStorage
-function saveData(key, data) {
-    localStorage.setItem(key, JSON.stringify(data));
+// Save data to Database
+async function saveData(key, data) {
+    try {
+        return await db.saveData(key, data);
+    } catch (error) {
+        console.error(`Error saving ${key}:`, error);
+        return { success: false, error: error.message };
+    }
 }
 
 // Login function
@@ -280,27 +303,42 @@ function showLoginForm(role) {
         
         if (role === 'admin') {
             titleElement.textContent = 'Admin Login';
-            hintElement.innerHTML = 'Default: <strong>admin@example.com</strong> / <strong>admin123</strong>';
+            hintElement.innerHTML = 'Default: <strong>admin@example.com</strong> / <strong>Admin@143</strong>';
         } else if (role === 'teacher') {
             titleElement.textContent = 'Teacher Login';
-            hintElement.innerHTML = 'Demo: <strong>rajesh@example.com</strong> / <strong>teacher123</strong>';
+            hintElement.innerHTML = 'Demo: <strong>sunny@gmail.com</strong> / <strong>Teacher@143</strong>';
         }
         
-        // Clear previous inputs
+        // Clear previous inputs and ensure they're enabled
         const emailInput = document.getElementById('loginEmail');
         const passwordInput = document.getElementById('loginPassword');
         
-        if (emailInput) emailInput.value = '';
-        if (passwordInput) passwordInput.value = '';
+        if (emailInput) {
+            emailInput.value = '';
+            emailInput.disabled = false;
+            emailInput.readOnly = false;
+            emailInput.removeAttribute('disabled');
+            emailInput.removeAttribute('readonly');
+            // Focus on email field after a short delay
+            setTimeout(() => emailInput.focus(), 100);
+        }
+        if (passwordInput) {
+            passwordInput.value = '';
+            passwordInput.disabled = false;
+            passwordInput.readOnly = false;
+            passwordInput.removeAttribute('disabled');
+            passwordInput.removeAttribute('readonly');
+        }
         
         console.log('Login form displayed successfully');
+        console.log('Email input enabled:', emailInput && !emailInput.disabled);
     } catch (error) {
         console.error('Error in showLoginForm:', error);
         alert('An error occurred. Please refresh the page and try again.');
     }
 }
 
-function credentialLogin(event) {
+async function credentialLogin(event) {
     event.preventDefault();
     
     try {
@@ -311,44 +349,31 @@ function credentialLogin(event) {
         
         console.log('Attempting login for role:', selectedRole, 'email:', email);
         
-        // Demo credentials (in production, this would be validated against backend)
-        const credentials = {
-            admin: {
-                'admin@example.com': 'admin123'
-            },
-            teacher: {
-                'rajesh@example.com': 'teacher123',
-                'priya@example.com': 'teacher123',
-                'amit@example.com': 'teacher123'
-            }
-        };
+        // Login via API
+        const response = await APIService.login(email, password);
         
-        // Validate credentials
-        if (credentials[selectedRole] && credentials[selectedRole][email] === password) {
-            console.log('Login successful!');
+        if (response && response.user) {
+            console.log('Login successful!', response.user);
             
             // Store login info
-            localStorage.setItem('currentRole', selectedRole);
-            localStorage.setItem('currentUser', email);
+            localStorage.setItem('currentRole', response.user.role);
+            localStorage.setItem('currentUser', response.user.email);
             
             // Hide login form
             document.getElementById('credentialLoginPage').classList.remove('active');
             
             // Show appropriate dashboard
-            if (selectedRole === 'admin') {
+            if (response.user.role === 'admin') {
                 document.getElementById('adminDashboard').classList.add('active');
-                loadAdminDashboard();
-            } else if (selectedRole === 'teacher') {
+                await loadAdminDashboard();
+            } else if (response.user.role === 'teacher') {
                 document.getElementById('teacherDashboard').classList.add('active');
-                loadTeacherDashboard();
+                await loadTeacherDashboard();
             }
-        } else {
-            console.log('Login failed - invalid credentials');
-            alert('❌ Invalid email or password!\n\nPlease check your credentials and try again.');
         }
     } catch (error) {
         console.error('Error in credentialLogin:', error);
-        alert('An error occurred during login. Please try again.');
+        alert('❌ Invalid email or password!\n\nPlease check your credentials and try again.');
     }
 }
 
@@ -370,39 +395,30 @@ function backToLogin() {
 }
 
 // Student login with name, roll number, and password
-function studentLogin(event) {
+async function studentLogin(event) {
     event.preventDefault();
     const studentName = document.getElementById('studentNameLogin').value.trim();
     const rollNumber = document.getElementById('studentRollLogin').value.trim();
     const password = document.getElementById('studentPasswordLogin').value.trim();
-    const students = getData('students');
     
-    // Find student by roll number
-    const student = students.find(s => s.rollNumber.toLowerCase() === rollNumber.toLowerCase());
-    
-    if (!student) {
-        alert('❌ Invalid roll number! Please try again.');
-        return;
+    try {
+        // Login via API
+        const response = await APIService.studentLogin(rollNumber, studentName, password);
+        
+        if (response && response.student) {
+            console.log('Student login successful!', response.student);
+            
+            // Login successful
+            localStorage.setItem('currentRole', 'student');
+            localStorage.setItem('currentStudentId', response.student.id);
+            document.getElementById('studentLoginPage').classList.remove('active');
+            document.getElementById('studentDashboard').classList.add('active');
+            await loadStudentDashboard();
+        }
+    } catch (error) {
+        console.error('Student login error:', error);
+        alert('❌ Invalid credentials! Please check your roll number, name, and password.');
     }
-    
-    // Check if student name matches
-    if (student.student_name.toLowerCase() !== studentName.toLowerCase()) {
-        alert('❌ Student name does not match the roll number! Please try again.');
-        return;
-    }
-    
-    // Check if password matches student name (password should be same as student name)
-    if (password.toLowerCase() !== student.student_name.toLowerCase()) {
-        alert('❌ Invalid password! Hint: Your password is the same as your student name.');
-        return;
-    }
-    
-    // Login successful
-    localStorage.setItem('currentRole', 'student');
-    localStorage.setItem('currentStudentId', student.id);
-    document.getElementById('studentLoginPage').classList.remove('active');
-    document.getElementById('studentDashboard').classList.add('active');
-    loadStudentDashboard();
 }
 
 // Logout function
@@ -445,19 +461,23 @@ function showAdminSection(section) {
     if (section === 'reports') loadAttendanceReports();
 }
 
-function loadAdminDashboard() {
-    const classes = getData('classes');
-    const teachers = getData('teachers');
-    const students = getData('students');
-    const attendance = getData('attendance');
-    
-    const today = new Date().toISOString().split('T')[0];
-    const todayAttendance = attendance.filter(a => a.date === today);
-    
-    document.getElementById('totalClasses').textContent = classes.length;
-    document.getElementById('totalTeachers').textContent = teachers.length;
-    document.getElementById('totalStudents').textContent = students.length;
-    document.getElementById('todayAttendance').textContent = todayAttendance.length;
+async function loadAdminDashboard() {
+    try {
+        const classes = await getData('classes');
+        const teachers = await getData('teachers');
+        const students = await getData('students');
+        const attendance = await getData('attendance');
+        
+        const today = new Date().toISOString().split('T')[0];
+        const todayAttendance = attendance.filter(a => a.date === today);
+        
+        document.getElementById('totalClasses').textContent = classes.length;
+        document.getElementById('totalTeachers').textContent = teachers.length;
+        document.getElementById('totalStudents').textContent = students.length;
+        document.getElementById('todayAttendance').textContent = todayAttendance.length;
+    } catch (error) {
+        console.error('Error loading admin dashboard:', error);
+    }
 }
 
 // Classes Management
@@ -489,26 +509,43 @@ function showAddClassModal() {
     document.getElementById('addClassModal').classList.add('active');
 }
 
-function showEditClassModal(id) {
-    const classes = getData('classes');
-    const cls = classes.find(c => c.id === id);
-    if (cls) {
+async function showEditClassModal(id) {
+    try {
+        const classes = await getData('classes');
+        const cls = classes.find(c => c.id === id);
+        
+        if (!cls) {
+            alert('Class not found!');
+            return;
+        }
+        
+        console.log('Editing class:', cls);
+        
         document.getElementById('classModalTitle').textContent = 'Edit Class';
         document.getElementById('classId').value = cls.id;
-        document.getElementById('className').value = cls.className;
-        document.getElementById('classSection').value = cls.class_section || '';
-        document.getElementById('classYear').value = cls.year;
-        document.getElementById('classAcademicYear').value = cls.academic_year || getAcademicYear();
+        
+        // Handle both field name formats
+        const className = cls.className || cls.class_name || '';
+        const classSection = cls.class_section || cls.classSection || '';
+        const year = cls.year || '';
+        const academicYear = cls.academic_year || cls.academicYear || getAcademicYear();
+        
+        document.getElementById('className').value = className;
+        document.getElementById('classSection').value = classSection;
+        document.getElementById('classYear').value = year;
+        document.getElementById('classAcademicYear').value = academicYear;
         document.getElementById('classInfoBox').style.display = 'none';
         
         document.getElementById('modalOverlay').classList.add('active');
         document.getElementById('addClassModal').classList.add('active');
+    } catch (error) {
+        console.error('Error loading class for edit:', error);
+        alert('Error loading class data. Please try again.');
     }
 }
 
-function saveClass(event) {
+async function saveClass(event) {
     event.preventDefault();
-    const classes = getData('classes');
     const id = document.getElementById('classId').value;
     const className = document.getElementById('className').value;
     const section = document.getElementById('classSection').value;
@@ -522,42 +559,41 @@ function saveClass(event) {
     }
     
     const classData = {
-        id: id ? parseInt(id) : Date.now(),
-        className: className,
+        class_name: className,
         class_section: section,
         year: parseInt(year),
-        academic_year: academicYear,
-        createdAt: new Date().toISOString()
+        academic_year: academicYear
     };
     
-    if (id) {
-        const index = classes.findIndex(c => c.id === parseInt(id));
-        if (index !== -1) {
-            classes[index] = classData;
+    try {
+        if (id) {
+            // Update existing class
+            await ClassesDB.update(parseInt(id), classData);
+        } else {
+            // Create new class
+            await ClassesDB.create(classData);
+            
+            // Show class info
+            document.getElementById('displayClassName').textContent = className;
+            document.getElementById('displaySection').textContent = section;
+            document.getElementById('displayYear').textContent = year;
+            document.getElementById('displayAcademicYear').textContent = academicYear;
+            document.getElementById('classInfoBox').style.display = 'block';
         }
-    } else {
-        classes.push(classData);
         
-        // Show class info
-        document.getElementById('displayClassName').textContent = className;
-        document.getElementById('displaySection').textContent = section;
-        document.getElementById('displayYear').textContent = year;
-        document.getElementById('displayAcademicYear').textContent = academicYear;
-        document.getElementById('classInfoBox').style.display = 'block';
+        if (!id) {
+            alert(`Class created successfully!\n\nClass: ${className}\nSection: ${section}\nYear: ${year}\nAcademic Year: ${academicYear}`);
+        }
+        
+        setTimeout(() => {
+            closeModal();
+            loadClassesTable();
+            refreshAllClassDropdowns();
+        }, id ? 0 : 2000);
+    } catch (error) {
+        console.error('Error saving class:', error);
+        alert('❌ Error saving class: ' + error.message);
     }
-    
-    saveData('classes', classes);
-    
-    if (!id) {
-        alert(`Class created successfully!\n\nClass: ${className}\nSection: ${section}\nYear: ${year}\nAcademic Year: ${academicYear}`);
-    }
-    
-    setTimeout(() => {
-        closeModal();
-        loadClassesTable();
-        // Refresh all class dropdowns
-        refreshAllClassDropdowns();
-    }, id ? 0 : 2000);
 }
 
 function refreshAllClassDropdowns() {
@@ -596,87 +632,149 @@ function refreshAllClassDropdowns() {
     }
 }
 
-function autoPopulateClassTime() {
+async function autoPopulateClassTime() {
     const classSelect = document.getElementById('studentClass');
     const classId = parseInt(classSelect.value);
-    const teachers = getData('teachers') || [];
     
     if (!classId) {
         document.getElementById('studentClassTime').value = '';
         return;
     }
     
-    // Find a teacher assigned to this class and get their class time
-    let classTime = '';
-    for (let teacher of teachers) {
-        if (teacher.classIds && teacher.classIds.includes(classId)) {
-            if (teacher.classTimes && teacher.classTimes[classId]) {
-                classTime = teacher.classTimes[classId];
-                break;
+    // Set default class time to 9:00 AM (standard class start time)
+    const defaultClassTime = '09:00';
+    
+    try {
+        // Try to get class time from teachers assigned to this class
+        const teachers = await getData('teachers') || [];
+        let classTime = defaultClassTime;
+        
+        for (let teacher of teachers) {
+            const teacherClasses = teacher.classes || [];
+            const teacherClassIds = teacher.classIds || [];
+            
+            // Check if teacher is assigned to this class
+            if (teacherClassIds.includes(classId) || teacherClasses.some(c => c.id === classId)) {
+                if (teacher.classTimes && teacher.classTimes[classId]) {
+                    classTime = teacher.classTimes[classId];
+                    break;
+                }
             }
         }
+        
+        document.getElementById('studentClassTime').value = classTime;
+    } catch (error) {
+        console.error('Error auto-populating class time:', error);
+        // Set default time if error occurs
+        document.getElementById('studentClassTime').value = defaultClassTime;
     }
-    
-    document.getElementById('studentClassTime').value = classTime;
 }
 
-function loadClassesTable() {
-    const classes = getData('classes');
-    const tbody = document.getElementById('classesTableBody');
-    tbody.innerHTML = '';
-    
-    classes.forEach(cls => {
-        const row = `
-            <tr>
-                <td><strong>${cls.className}</strong></td>
-                <td>${cls.class_section || 'N/A'}</td>
-                <td>${cls.year}</td>
-                <td>${cls.academic_year || 'N/A'}</td>
-                <td>
-                    <button class="btn btn-edit" onclick="showEditClassModal(${cls.id})">Edit</button>
-                    <button class="btn btn-danger" onclick="deleteClass(${cls.id})">Delete</button>
-                </td>
-            </tr>
-        `;
-        tbody.innerHTML += row;
-    });
+async function loadClassesTable() {
+    try {
+        const classes = await getData('classes');
+        const tbody = document.getElementById('classesTableBody');
+        tbody.innerHTML = '';
+        
+        classes.forEach(cls => {
+            const row = `
+                <tr>
+                    <td><strong>${cls.className}</strong></td>
+                    <td>${cls.class_section || 'N/A'}</td>
+                    <td>${cls.year}</td>
+                    <td>${cls.academic_year || 'N/A'}</td>
+                    <td>
+                        <button class="btn btn-edit" onclick="showEditClassModal(${cls.id})">Edit</button>
+                        <button class="btn btn-danger" onclick="deleteClass(${cls.id})">Delete</button>
+                    </td>
+                </tr>
+            `;
+            tbody.innerHTML += row;
+        });
+    } catch (error) {
+        console.error('Error loading classes table:', error);
+    }
 }
 
-function deleteClass(id) {
+async function deleteClass(id) {
     if (confirm('Are you sure you want to delete this class?')) {
-        let classes = getData('classes');
-        classes = classes.filter(c => c.id !== id);
-        saveData('classes', classes);
-        loadClassesTable();
+        try {
+            await ClassesDB.delete(id);
+            await loadClassesTable();
+        } catch (error) {
+            console.error('Error deleting class:', error);
+            alert('❌ Error deleting class: ' + error.message);
+        }
     }
 }
 
 // Teachers Management
-function showAddTeacherModal() {
+async function showAddTeacherModal() {
     try {
         document.getElementById('teacherModalTitle').textContent = 'Add Teacher';
         document.getElementById('teacherRecordId').value = '';
         document.getElementById('teacherName').value = '';
         document.getElementById('teacherEmail').value = '';
-        document.getElementById('teacherUniqueId').value = '';
+        
+        // Auto-generate next teacher ID by fetching from API
+        try {
+            const response = await fetch('http://localhost:3000/api/admin/teachers', {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
+            });
+            
+            let nextId = 1;
+            if (response.ok) {
+                const teachers = await response.json();
+                if (teachers && teachers.length > 0) {
+                    // Find the highest teacher ID number
+                    const teacherIds = teachers
+                        .map(t => t.teacherId || t.teacher_id)
+                        .filter(id => id && id.startsWith('TCH'))
+                        .map(id => parseInt(id.replace('TCH', '')))
+                        .filter(num => !isNaN(num));
+                    
+                    if (teacherIds.length > 0) {
+                        nextId = Math.max(...teacherIds) + 1;
+                    }
+                }
+            }
+            const suggestedTeacherId = 'TCH' + String(nextId).padStart(3, '0');
+            document.getElementById('teacherUniqueId').value = suggestedTeacherId;
+        } catch (err) {
+            console.error('Error generating teacher ID:', err);
+            document.getElementById('teacherUniqueId').value = 'TCH001';
+        }
+        
         document.getElementById('teacherContactNo').value = '';
-        document.getElementById('teacherPhone').value = '';
         document.getElementById('teacherPassword').value = '';
         
         // Load classes checkboxes
-        const classes = getData('classes') || [];
+        const classes = await getData('classes') || [];
+        console.log('Classes loaded:', classes, 'IsArray:', Array.isArray(classes));
+        
         const classesContainer = document.getElementById('teacherClassesCheckboxes');
         if (classesContainer) {
             classesContainer.innerHTML = '';
+            
+            // Ensure classes is an array
+            if (!Array.isArray(classes)) {
+                console.error('Classes is not an array:', classes);
+                classesContainer.innerHTML = '<p style="color: #e74c3c; padding: 10px;">Error loading classes. Please refresh the page.</p>';
+                return;
+            }
+            
             if (classes.length === 0) {
                 classesContainer.innerHTML = '<p style="color: #e74c3c; padding: 10px;">No classes available. Please load demo data or create classes first.</p>';
             } else {
                 classes.forEach(cls => {
-                    if (cls && cls.id && cls.className) {
+                    if (cls && cls.id && (cls.className || cls.class_name)) {
+                        const className = cls.className || cls.class_name;
                         classesContainer.innerHTML += `
                             <label>
                                 <input type="checkbox" name="teacherClasses" value="${cls.id}" onchange="updateClassTimes()">
-                                ${cls.className} - ${cls.class_section || 'N/A'}
+                                ${className} - ${cls.class_section || 'N/A'}
                             </label>
                         `;
                     }
@@ -698,8 +796,8 @@ function showAddTeacherModal() {
     }
 }
 
-function updateClassTimes() {
-    const classes = getData('classes') || [];
+async function updateClassTimes() {
+    const classes = await getData('classes') || [];
     const selectedClassIds = Array.from(document.querySelectorAll('input[name="teacherClasses"]:checked')).map(cb => parseInt(cb.value));
     const timesContainer = document.getElementById('teacherClassTimes');
     
@@ -714,9 +812,10 @@ function updateClassTimes() {
     selectedClassIds.forEach(classId => {
         const cls = classes.find(c => c.id === classId);
         if (cls) {
+            const className = cls.className || cls.class_name;
             timesHtml += `
                 <div class="class-time-input">
-                    <label>${cls.className} - ${cls.class_section || 'N/A'}</label>
+                    <label>${className} - ${cls.class_section || 'N/A'}</label>
                     <input type="time" class="class-time-field" data-class-id="${classId}" placeholder="Set time (optional)">
                 </div>
             `;
@@ -726,30 +825,51 @@ function updateClassTimes() {
     timesContainer.innerHTML = timesHtml;
 }
 
-function showEditTeacherModal(id) {
-    const teachers = getData('teachers');
-    const teacher = teachers.find(t => t.id === id);
-    if (teacher) {
+async function showEditTeacherModal(id) {
+    try {
+        const teachers = await getData('teachers');
+        const teacher = teachers.find(t => t.id === id);
+        
+        if (!teacher) {
+            alert('Teacher not found!');
+            return;
+        }
+        
         document.getElementById('teacherModalTitle').textContent = 'Edit Teacher';
         document.getElementById('teacherRecordId').value = teacher.id;
         document.getElementById('teacherName').value = teacher.name;
         document.getElementById('teacherEmail').value = teacher.email;
-        document.getElementById('teacherUniqueId').value = teacher.teacherId || '';
+        
+        // Handle both camelCase and snake_case
+        const teacherId = teacher.teacherId || teacher.teacher_id || '';
+        const contactNo = teacher.contactNo || teacher.contact_no || '';
+        
+        document.getElementById('teacherUniqueId').value = teacherId;
         document.getElementById('teacherUniqueId').disabled = true; // Can't change teacher ID
-        document.getElementById('teacherContactNo').value = teacher.contactNo || '';
-        document.getElementById('teacherPhone').value = teacher.phone || '';
+        document.getElementById('teacherContactNo').value = contactNo;
         document.getElementById('teacherPassword').value = '';
         
         // Load and check classes
-        const classes = getData('classes');
+        const classes = await getData('classes');
         const classesContainer = document.getElementById('teacherClassesCheckboxes');
         classesContainer.innerHTML = '';
+        
         classes.forEach(cls => {
-            const checked = teacher.classIds && teacher.classIds.includes(cls.id) ? 'checked' : '';
+            const className = cls.className || cls.class_name;
+            const classSection = cls.class_section || cls.classSection || 'N/A';
+            
+            // Check if this class is assigned to the teacher
+            let checked = false;
+            if (teacher.classIds && teacher.classIds.includes(cls.id)) {
+                checked = true;
+            } else if (teacher.classes && teacher.classes.some(c => c.id === cls.id)) {
+                checked = true;
+            }
+            
             classesContainer.innerHTML += `
                 <label>
-                    <input type="checkbox" name="teacherClasses" value="${cls.id}" ${checked}>
-                    ${cls.className}
+                    <input type="checkbox" name="teacherClasses" value="${cls.id}" ${checked ? 'checked' : ''} onchange="updateClassTimes()">
+                    ${className} - ${classSection}
                 </label>
             `;
         });
@@ -759,16 +879,21 @@ function showEditTeacherModal(id) {
             cb.checked = teacher.years && teacher.years.includes(parseInt(cb.value));
         });
         
+        // Update class times
+        updateClassTimes();
+        
         document.getElementById('modalOverlay').classList.add('active');
         document.getElementById('addTeacherModal').classList.add('active');
+    } catch (error) {
+        console.error('Error opening edit modal:', error);
+        alert('Error loading teacher data. Please try again.');
     }
 }
 
-function saveTeacher(event) {
+async function saveTeacher(event) {
     event.preventDefault();
     
     try {
-        const teachers = getData('teachers');
         const id = document.getElementById('teacherRecordId').value;
         const contactNo = document.getElementById('teacherContactNo').value;
         
@@ -799,17 +924,41 @@ function saveTeacher(event) {
         
         const teacherId = document.getElementById('teacherUniqueId').value;
         
-        // Validate unique teacher ID (only for new teachers)
+        // Validate teacher ID is not empty
+        if (!teacherId || teacherId.trim() === '') {
+            alert('❌ Teacher ID is required!');
+            document.getElementById('teacherUniqueId').focus();
+            return;
+        }
+        
+        // Check if teacher ID already exists (only for new teachers)
         if (!id) {
-            const existingTeacher = teachers.find(t => t.teacherId === teacherId);
-            if (existingTeacher) {
-                alert('Teacher ID already exists! Please use a unique ID.');
-                return;
+            try {
+                const response = await fetch('http://localhost:3000/api/admin/teachers', {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+                
+                if (response.ok) {
+                    const existingTeachers = await response.json();
+                    const duplicate = existingTeachers.find(t => 
+                        (t.teacherId || t.teacher_id) === teacherId
+                    );
+                    
+                    if (duplicate) {
+                        alert(`❌ Teacher ID "${teacherId}" already exists!\n\nPlease use a different ID.`);
+                        document.getElementById('teacherUniqueId').focus();
+                        return;
+                    }
+                }
+            } catch (err) {
+                console.error('Error checking teacher ID:', err);
             }
         }
         
         // Check if classes exist
-        const classes = getData('classes') || [];
+        const classes = await getData('classes') || [];
         
         if (classes.length === 0) {
             alert('No classes available. Please load demo data or create classes first.');
@@ -827,85 +976,111 @@ function saveTeacher(event) {
         }
         
         const teacherData = {
-            id: id ? parseInt(id) : Date.now(),
             name: document.getElementById('teacherName').value,
             email: document.getElementById('teacherEmail').value,
             teacherId: teacherId,
             contactNo: contactNo,
-            phone: document.getElementById('teacherPhone').value,
+            password: document.getElementById('teacherPassword').value || undefined,
             years: years,
             classIds: classIds,
             classTimes: classTimes
         };
         
         if (id) {
-            const index = teachers.findIndex(t => t.id === parseInt(id));
-            if (index !== -1) {
-                teachers[index] = teacherData;
-            }
+            await TeachersDB.update(parseInt(id), teacherData);
         } else {
-            teachers.push(teacherData);
+            await TeachersDB.create(teacherData);
         }
         
-        saveData('teachers', teachers);
         closeModal();
-        loadTeachersTable();
+        await loadTeachersTable();
         alert('✅ Teacher saved successfully!');
     } catch (error) {
         console.error('Error saving teacher:', error);
-        alert('Error saving teacher. Please check the console for details.');
+        
+        // Show more specific error message
+        let errorMsg = 'Error saving teacher';
+        if (error.message) {
+            if (error.message.includes('Teacher ID already exists')) {
+                errorMsg = 'Teacher ID already exists! Please use a different Teacher ID.\n\nExisting IDs: TCH001-TCH005 are already taken.\nTry: TCH006, TCH007, etc.';
+            } else if (error.message.includes('email')) {
+                errorMsg = 'Email already exists or is invalid!';
+            } else {
+                errorMsg = error.message;
+            }
+        }
+        
+        alert('❌ ' + errorMsg);
     }
 }
 
-function loadTeachersTable() {
-    const teachers = getData('teachers');
-    const classes = getData('classes');
-    const tbody = document.getElementById('teachersTableBody');
-    tbody.innerHTML = '';
-    
-    teachers.forEach(teacher => {
-        // Get year badges
-        const teacherYears = teacher.years 
-            ? teacher.years.map(year => `<span class="badge badge-year">Year ${year}</span>`).join(' ')
-            : '<span class="badge">None</span>';
+async function loadTeachersTable() {
+    try {
+        const teachers = await getData('teachers');
+        const classes = await getData('classes');
+        const tbody = document.getElementById('teachersTableBody');
+        tbody.innerHTML = '';
         
-        // Get class names
-        const teacherClasses = teacher.classIds 
-            ? teacher.classIds.map(id => {
-                const cls = classes.find(c => c.id === id);
-                return cls ? `<span class="badge badge-class">${cls.className}</span>` : '';
-              }).join(' ')
-            : '<span class="badge">None</span>';
-        
-        const row = `
-            <tr>
-                <td><strong>${teacher.teacherId || 'N/A'}</strong></td>
-                <td>${teacher.name}</td>
-                <td>${teacher.email}</td>
-                <td>${teacher.contactNo || 'N/A'}</td>
-                <td class="teacher-years">${teacherYears}</td>
-                <td class="teacher-classes">${teacherClasses}</td>
-                <td>
-                    <button class="btn btn-edit" onclick="showEditTeacherModal(${teacher.id})">Edit</button>
-                    <button class="btn btn-danger" onclick="deleteTeacher(${teacher.id})">Delete</button>
-                </td>
-            </tr>
-        `;
-        tbody.innerHTML += row;
-    });
+        teachers.forEach(teacher => {
+            // Handle both camelCase and snake_case field names
+            const teacherId = teacher.teacherId || teacher.teacher_id || 'N/A';
+            const contactNo = teacher.contactNo || teacher.contact_no || 'N/A';
+            const teacherName = teacher.name || 'N/A';
+            const teacherEmail = teacher.email || 'N/A';
+            
+            // Get year badges
+            const teacherYears = teacher.years 
+                ? teacher.years.map(year => `<span class="badge badge-year">Year ${year}</span>`).join(' ')
+                : '<span class="badge">None</span>';
+            
+            // Get class names - handle both classIds and classes array
+            let teacherClasses = '<span class="badge">None</span>';
+            if (teacher.classes && Array.isArray(teacher.classes) && teacher.classes.length > 0) {
+                teacherClasses = teacher.classes
+                    .map(cls => `<span class="badge badge-class">${cls.class_name || cls.className}</span>`)
+                    .join(' ');
+            } else if (teacher.classIds && teacher.classIds.length > 0) {
+                teacherClasses = teacher.classIds.map(id => {
+                    const cls = classes.find(c => c.id === id);
+                    return cls ? `<span class="badge badge-class">${cls.className || cls.class_name}</span>` : '';
+                }).join(' ');
+            }
+            
+            const row = `
+                <tr>
+                    <td><strong>${teacherId}</strong></td>
+                    <td>${teacherName}</td>
+                    <td>${teacherEmail}</td>
+                    <td>${contactNo}</td>
+                    <td class="teacher-years">${teacherYears}</td>
+                    <td class="teacher-classes">${teacherClasses}</td>
+                    <td>
+                        <button class="btn btn-edit" onclick="showEditTeacherModal(${teacher.id})">Edit</button>
+                        <button class="btn btn-danger" onclick="deleteTeacher(${teacher.id})">Delete</button>
+                    </td>
+                </tr>
+            `;
+            tbody.innerHTML += row;
+        });
+    } catch (error) {
+        console.error('Error loading teachers table:', error);
+    }
 }
 
-function deleteTeacher(id) {
+async function deleteTeacher(id) {
     if (confirm('Are you sure you want to delete this teacher?')) {
-        let teachers = getData('teachers');
-        teachers = teachers.filter(t => t.id !== id);
-        saveData('teachers', teachers);
-        loadTeachersTable();
+        try {
+            await TeachersDB.delete(id);
+            await loadTeachersTable();
+        } catch (error) {
+            console.error('Error deleting teacher:', error);
+            alert('❌ Error deleting teacher: ' + error.message);
+        }
     }
 }
 
 // Students Management
-function showAddStudentModal() {
+async function showAddStudentModal() {
     document.getElementById('studentModalTitle').textContent = 'Add Student';
     document.getElementById('studentId').value = '';
     document.getElementById('studentName').value = '';
@@ -920,13 +1095,15 @@ function showAddStudentModal() {
     // Generate password in background (hidden field)
     generatePassword();
     
-    const classes = getData('classes') || [];
+    const classes = await getData('classes') || [];
     const select = document.getElementById('studentClass');
     select.innerHTML = '<option value="">Select Class</option>';
     
     classes.forEach(cls => {
-        if (cls && cls.id && cls.className) {
-            select.innerHTML += `<option value="${cls.id}" data-name="${cls.className}">${cls.className} - ${cls.class_section || 'N/A'}</option>`;
+        if (cls && cls.id && (cls.className || cls.class_name)) {
+            const className = cls.className || cls.class_name;
+            const classSection = cls.class_section || cls.classSection || 'N/A';
+            select.innerHTML += `<option value="${cls.id}" data-name="${className}">${className} - ${classSection}</option>`;
         }
     });
     
@@ -935,7 +1112,7 @@ function showAddStudentModal() {
 }
 
 // Generate roll number based on class
-function generateRollNumber() {
+async function generateRollNumber() {
     const classSelect = document.getElementById('studentClass');
     const selectedOption = classSelect.options[classSelect.selectedIndex];
     
@@ -946,7 +1123,7 @@ function generateRollNumber() {
     
     const classId = parseInt(selectedOption.value);
     const className = selectedOption.getAttribute('data-name');
-    const students = getData('students');
+    const students = await getData('students') || [];
     
     // Get class code (first 3 letters uppercase)
     const classCode = className.replace(/\s+/g, '').substring(0, 3).toUpperCase();
@@ -955,7 +1132,7 @@ function generateRollNumber() {
     const year = new Date().getFullYear().toString().slice(-2);
     
     // Count existing students in this class
-    const classStudents = students.filter(s => s.classId === classId);
+    const classStudents = students.filter(s => s.classId === classId || s.class_id === classId);
     const nextNumber = (classStudents.length + 1).toString().padStart(3, '0');
     
     // Format: CLASSYEARNUMBER (e.g., BCA25001)
@@ -978,106 +1155,112 @@ function generatePassword() {
     return password;
 }
 
-function showEditStudentModal(id) {
-    const students = getData('students') || [];
-    const student = students.find(s => s.id === id);
-    if (student) {
+async function showEditStudentModal(id) {
+    console.log('showEditStudentModal called with id:', id);
+    
+    try {
+        const students = await getData('students') || [];
+        console.log('Students loaded:', students.length);
+        
+        const student = students.find(s => s.id === id);
+        console.log('Found student:', student);
+        
+        if (!student) {
+            alert('Student not found!');
+            return;
+        }
+        
         document.getElementById('studentModalTitle').textContent = 'Edit Student';
         document.getElementById('studentId').value = student.id;
-        document.getElementById('studentName').value = student.student_name || '';
+        
+        // Handle both field name formats
+        const studentName = student.student_name || student.studentName || '';
+        const rollNumber = student.rollNumber || student.roll_number || '';
+        const studentContact = student.student_contact || student.studentContact || '';
+        const parentContact = student.parent_contact || student.parentContact || '';
+        const classTime = student.classTime || student.class_time || '09:00';
+        const classId = student.classId || student.class_id;
+        
+        document.getElementById('studentName').value = studentName;
         document.getElementById('studentEmail').value = student.email || '';
-        document.getElementById('studentRoll').value = student.rollNumber;
+        document.getElementById('studentRoll').value = rollNumber;
         document.getElementById('studentAddress').value = student.address || '';
-        document.getElementById('studentContact').value = student.student_contact || '';
-        document.getElementById('parentContact').value = student.parent_contact || '';
-        document.getElementById('studentClassTime').value = student.classTime || '';
+        document.getElementById('studentContact').value = studentContact;
+        document.getElementById('parentContact').value = parentContact;
+        document.getElementById('studentClassTime').value = classTime;
         document.getElementById('studentInfoBox').style.display = 'none';
         
         // Keep existing password (hidden)
         document.getElementById('studentPassword').value = student.password || '';
         
-        const classes = getData('classes') || [];
+        const classes = await getData('classes') || [];
         const select = document.getElementById('studentClass');
         select.innerHTML = '<option value="">Select Class</option>';
         
         classes.forEach(cls => {
-            if (cls && cls.id && cls.className) {
-                const selected = cls.id === student.classId ? 'selected' : '';
-                select.innerHTML += `<option value="${cls.id}" data-name="${cls.className}" ${selected}>${cls.className} - ${cls.class_section || 'N/A'}</option>`;
+            if (cls && cls.id && (cls.className || cls.class_name)) {
+                const className = cls.className || cls.class_name;
+                const classSection = cls.class_section || cls.classSection || 'N/A';
+                const selected = cls.id === classId ? 'selected' : '';
+                select.innerHTML += `<option value="${cls.id}" data-name="${className}" ${selected}>${className} - ${classSection}</option>`;
             }
         });
         
+        console.log('Opening modal...');
         document.getElementById('modalOverlay').classList.add('active');
         document.getElementById('addStudentModal').classList.add('active');
+    } catch (error) {
+        console.error('Error opening edit modal:', error);
+        alert('Error loading student data: ' + error.message);
     }
 }
 
-function saveStudent(event) {
+async function saveStudent(event) {
     event.preventDefault();
-    const students = getData('students') || [];
     const id = document.getElementById('studentId').value;
     const classSelect = document.getElementById('studentClass');
     const selectedOption = classSelect.options[classSelect.selectedIndex];
     const className = selectedOption.getAttribute('data-name');
     const rollNumber = document.getElementById('studentRoll').value;
     const password = document.getElementById('studentPassword').value;
-    const classTime = document.getElementById('studentClassTime').value;
     
-    // Check if roll number already exists (for new students)
-    if (!id) {
-        const existingStudent = students.find(s => s.rollNumber === rollNumber);
-        if (existingStudent) {
-            alert('Roll number already exists! Please select a different class or refresh.');
-            return;
-        }
-    }
-    
+    // Don't send class_time if column doesn't exist
     const studentData = {
-        id: id ? parseInt(id) : Date.now(),
         student_name: document.getElementById('studentName').value,
         email: document.getElementById('studentEmail').value,
-        rollNumber: rollNumber,
-        classId: parseInt(classSelect.value),
+        roll_number: rollNumber,
+        class_id: parseInt(classSelect.value),
         address: document.getElementById('studentAddress').value,
         student_contact: document.getElementById('studentContact').value,
         parent_contact: document.getElementById('parentContact').value,
-        classTime: classTime,
-        password: password,
-        createdAt: new Date().toISOString()
+        password: password
+        // Removed class_time temporarily until column is added to database
     };
     
-    if (id) {
-        const index = students.findIndex(s => s.id === parseInt(id));
-        if (index !== -1) {
-            // Keep the original password if not changed
-            if (!password) {
-                studentData.password = students[index].password;
-            }
-            students[index] = studentData;
+    try {
+        if (id) {
+            await StudentsDB.update(parseInt(id), studentData);
+        } else {
+            await StudentsDB.create(studentData);
+            
+            // Show credentials info
+            document.getElementById('displayRoll').textContent = rollNumber;
+            document.getElementById('displayPassword').textContent = password;
+            document.getElementById('studentInfoBox').style.display = 'block';
         }
-    } else {
-        students.push(studentData);
         
-        // Show credentials info
-        document.getElementById('displayRoll').textContent = rollNumber;
-        document.getElementById('displayPassword').textContent = password;
-        document.getElementById('studentInfoBox').style.display = 'block';
+        if (!id) {
+            alert(`Student created successfully!\n\nRoll Number: ${rollNumber}\nPassword: ${password}\n\nCredentials have been sent to the student.`);
+        }
         
-        // Create notification for student
-        createStudentNotification(studentData);
+        setTimeout(() => {
+            closeModal();
+            loadStudentsTable();
+        }, id ? 0 : 2000);
+    } catch (error) {
+        console.error('Error saving student:', error);
+        alert('❌ Error saving student: ' + error.message);
     }
-    
-    saveData('students', students);
-    
-    if (!id) {
-        // For new students, show success message with credentials
-        alert(`Student created successfully!\n\nRoll Number: ${rollNumber}\nPassword: ${password}\n\nCredentials have been sent to the student.`);
-    }
-    
-    setTimeout(() => {
-        closeModal();
-        loadStudentsTable();
-    }, id ? 0 : 2000);
 }
 
 // Create notification for student
@@ -1097,54 +1280,73 @@ function createStudentNotification(student) {
     saveData('notifications', notifications);
 }
 
-function loadStudentsTable() {
-    const students = getData('students') || [];
-    const classes = getData('classes') || [];
-    const tbody = document.getElementById('studentsTableBody');
-    tbody.innerHTML = '';
-    
-    students.forEach(student => {
-        const classObj = classes.find(c => c.id === student.classId);
-        const className = classObj ? `${classObj.className} - ${classObj.class_section || 'N/A'}` : 'N/A';
-        const classTime = student.classTime ? student.classTime : 'Not set';
+async function loadStudentsTable() {
+    try {
+        const students = await getData('students') || [];
+        const classes = await getData('classes') || [];
+        const tbody = document.getElementById('studentsTableBody');
+        tbody.innerHTML = '';
         
-        const row = `
-            <tr>
-                <td><strong>${student.rollNumber}</strong></td>
-                <td>${student.student_name || 'N/A'}</td>
-                <td>${student.email || 'N/A'}</td>
-                <td>${className}</td>
-                <td><span style="color: #3498db; font-weight: bold;">${classTime}</span></td>
-                <td>${student.student_contact || 'N/A'}</td>
-                <td>${student.parent_contact || 'N/A'}</td>
-                <td>
-                    <button class="btn btn-edit" onclick="showEditStudentModal(${student.id})">Edit</button>
-                    <button class="btn btn-danger" onclick="deleteStudent(${student.id})">Delete</button>
-                </td>
-            </tr>
-        `;
-        tbody.innerHTML += row;
-    });
+        students.forEach(student => {
+            // Handle both field name formats
+            const classId = student.classId || student.class_id;
+            const rollNumber = student.rollNumber || student.roll_number;
+            const studentName = student.student_name || student.studentName;
+            const studentContact = student.student_contact || student.studentContact;
+            const parentContact = student.parent_contact || student.parentContact;
+            
+            const classObj = classes.find(c => c.id === classId);
+            const className = classObj ? `${classObj.className || classObj.class_name} - ${classObj.class_section || classObj.classSection || 'N/A'}` : 'N/A';
+            
+            // Display class time with default if not set
+            let classTime = student.classTime || student.class_time;
+            if (!classTime || classTime === 'Not set') {
+                classTime = '09:00'; // Default class time
+            }
+            
+            const row = `
+                <tr>
+                    <td><strong>${rollNumber || 'N/A'}</strong></td>
+                    <td>${studentName || 'N/A'}</td>
+                    <td>${student.email || 'N/A'}</td>
+                    <td>${className}</td>
+                    <td><span style="color: #3498db; font-weight: bold;">${classTime}</span></td>
+                    <td>${studentContact || 'N/A'}</td>
+                    <td>${parentContact || 'N/A'}</td>
+                    <td>
+                        <button class="btn btn-edit" onclick="showEditStudentModal(${student.id})">Edit</button>
+                        <button class="btn btn-danger" onclick="deleteStudent(${student.id})">Delete</button>
+                    </td>
+                </tr>
+            `;
+            tbody.innerHTML += row;
+        });
+    } catch (error) {
+        console.error('Error loading students table:', error);
+    }
 }
 
-function deleteStudent(id) {
+async function deleteStudent(id) {
     if (confirm('Are you sure you want to delete this student?')) {
-        let students = getData('students');
-        students = students.filter(s => s.id !== id);
-        saveData('students', students);
-        loadStudentsTable();
+        try {
+            await StudentsDB.delete(id);
+            await loadStudentsTable();
+        } catch (error) {
+            console.error('Error deleting student:', error);
+            alert('❌ Error deleting student: ' + error.message);
+        }
     }
 }
 
 // Load Attendance Reports (missing function)
-function loadAttendanceReports() {
+async function loadAttendanceReports() {
     console.log('Loading attendance reports...');
     
     // Initialize the student report tab (default active tab)
-    loadStudentReport();
+    await loadStudentReport();
     
     // Also initialize the date report tab
-    loadDateReport();
+    await loadDateReport();
     
     // Show refresh button
     const refreshBtn = document.querySelector('#adminReportsSection .btn-info');
@@ -1174,221 +1376,229 @@ function switchReportTab(tab) {
 }
 
 // Student Report
-function loadStudentReport() {
-    const students = getData('students') || [];
-    const classes = getData('classes') || [];
-    const select = document.getElementById('studentReportFilter');
-    
-    // Only populate dropdown if it's empty
-    if (select.options.length <= 1) {
-        select.innerHTML = '<option value="">Select Student</option>';
-        students.forEach(student => {
-            select.innerHTML += `<option value="${student.id}">${student.student_name} (${student.rollNumber})</option>`;
-        });
-    }
-    
-    const studentId = parseInt(document.getElementById('studentReportFilter').value);
-    if (!studentId) {
-        document.getElementById('studentReportTableBody').innerHTML = '';
-        document.getElementById('studentReportStats').innerHTML = '';
-        return;
-    }
-    
-    const student = students.find(s => s.id === studentId);
-    if (!student) {
-        console.error('Student not found:', studentId);
-        return;
-    }
-    
-    const attendance = getData('attendance') || [];
-    const startDate = document.getElementById('studentReportStartDate').value;
-    const endDate = document.getElementById('studentReportEndDate').value;
-    
-    console.log('=== STUDENT REPORT ===');
-    console.log('Student:', student.student_name, 'ID:', studentId);
-    console.log('Total attendance records:', attendance.length);
-    console.log('Date range:', startDate, 'to', endDate);
-    
-    // Filter by student ID
-    let filtered = attendance.filter(a => {
-        const match = parseInt(a.studentId) === studentId;
-        if (match) {
-            console.log('Matched record:', a);
+async function loadStudentReport() {
+    try {
+        const students = await getData('students') || [];
+        const classes = await getData('classes') || [];
+        const select = document.getElementById('studentReportFilter');
+        
+        // Only populate dropdown if it's empty
+        if (select.options.length <= 1) {
+            select.innerHTML = '<option value="">Select Student</option>';
+            students.forEach(student => {
+                select.innerHTML += `<option value="${student.id}">${student.student_name} (${student.rollNumber})</option>`;
+            });
         }
-        return match;
-    });
-    console.log('Filtered by student:', filtered.length);
-    
-    // Filter by date range
-    if (startDate) {
-        filtered = filtered.filter(a => a.date >= startDate);
-        console.log('After start date filter:', filtered.length);
-    }
-    if (endDate) {
-        filtered = filtered.filter(a => a.date <= endDate);
-        console.log('After end date filter:', filtered.length);
-    }
-    
-    // Calculate stats
-    const total = filtered.length;
-    const present = filtered.filter(a => a.status === 'present').length;
-    const absent = total - present;
-    const percentage = total > 0 ? ((present / total) * 100).toFixed(2) : 0;
-    
-    console.log('Stats - Total:', total, 'Present:', present, 'Absent:', absent, 'Percentage:', percentage);
-    
-    // Display stats
-    const statsHtml = `
-        <div class="stat-item present">
-            <h4>Present</h4>
-            <div class="value">${present}</div>
-        </div>
-        <div class="stat-item absent">
-            <h4>Absent</h4>
-            <div class="value">${absent}</div>
-        </div>
-        <div class="stat-item">
-            <h4>Total</h4>
-            <div class="value">${total}</div>
-        </div>
-        <div class="stat-item percentage">
-            <h4>Percentage</h4>
-            <div class="value">${percentage}%</div>
-        </div>
-    `;
-    document.getElementById('studentReportStats').innerHTML = statsHtml;
-    
-    // Display table
-    const tbody = document.getElementById('studentReportTableBody');
-    tbody.innerHTML = '';
-    
-    if (filtered.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 40px;"><div style="color: #95a5a6; font-size: 16px;"><span style="font-size: 48px;">📋</span><br><br><strong>No Attendance Records Found</strong><br><small>This student has no attendance records for the selected date range.</small></div></td></tr>';
-        return;
-    }
-    
-    // Sort by date (newest first)
-    filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
-    
-    filtered.forEach(record => {
-        console.log('Processing record:', record);
         
-        // Get class name from classes array
-        const classObj = classes.find(c => c.id === parseInt(record.classId));
-        const className = classObj ? `${classObj.className} - ${classObj.class_section || 'N/A'}` : 'Unknown Class';
+        const studentId = parseInt(document.getElementById('studentReportFilter').value);
+        if (!studentId) {
+            document.getElementById('studentReportTableBody').innerHTML = '';
+            document.getElementById('studentReportStats').innerHTML = '';
+            return;
+        }
         
-        console.log('Class for record:', className, 'ClassID:', record.classId);
+        const student = students.find(s => s.id === studentId);
+        if (!student) {
+            console.error('Student not found:', studentId);
+            return;
+        }
         
-        // Format date
-        const formattedDate = record.date || 'N/A';
+        const attendance = await getData('attendance') || [];
+        const startDate = document.getElementById('studentReportStartDate').value;
+        const endDate = document.getElementById('studentReportEndDate').value;
         
-        // Format status
-        const statusText = record.status === 'present' ? '✓ PRESENT' : '✗ ABSENT';
-        const statusColor = record.status === 'present' ? '#27ae60' : '#e74c3c';
+        console.log('=== STUDENT REPORT ===');
+        console.log('Student:', student.student_name, 'ID:', studentId);
+        console.log('Total attendance records:', attendance.length);
+        console.log('Date range:', startDate, 'to', endDate);
         
-        const row = `
-            <tr>
-                <td><strong>${formattedDate}</strong></td>
-                <td><strong>${className}</strong></td>
-                <td><span style="color: ${statusColor}; font-weight: bold;">${statusText}</span></td>
-            </tr>
+        // Filter by student ID
+        let filtered = attendance.filter(a => {
+            const match = parseInt(a.studentId) === studentId;
+            if (match) {
+                console.log('Matched record:', a);
+            }
+            return match;
+        });
+        console.log('Filtered by student:', filtered.length);
+        
+        // Filter by date range
+        if (startDate) {
+            filtered = filtered.filter(a => a.date >= startDate);
+            console.log('After start date filter:', filtered.length);
+        }
+        if (endDate) {
+            filtered = filtered.filter(a => a.date <= endDate);
+            console.log('After end date filter:', filtered.length);
+        }
+        
+        // Calculate stats
+        const total = filtered.length;
+        const present = filtered.filter(a => a.status === 'present').length;
+        const absent = total - present;
+        const percentage = total > 0 ? ((present / total) * 100).toFixed(2) : 0;
+        
+        console.log('Stats - Total:', total, 'Present:', present, 'Absent:', absent, 'Percentage:', percentage);
+        
+        // Display stats
+        const statsHtml = `
+            <div class="stat-item present">
+                <h4>Present</h4>
+                <div class="value">${present}</div>
+            </div>
+            <div class="stat-item absent">
+                <h4>Absent</h4>
+                <div class="value">${absent}</div>
+            </div>
+            <div class="stat-item">
+                <h4>Total</h4>
+                <div class="value">${total}</div>
+            </div>
+            <div class="stat-item percentage">
+                <h4>Percentage</h4>
+                <div class="value">${percentage}%</div>
+            </div>
         `;
-        tbody.innerHTML += row;
-        console.log('Added row:', formattedDate, className, statusText);
-    });
-    
-    console.log('=== REPORT COMPLETE ===');
+        document.getElementById('studentReportStats').innerHTML = statsHtml;
+        
+        // Display table
+        const tbody = document.getElementById('studentReportTableBody');
+        tbody.innerHTML = '';
+        
+        if (filtered.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 40px;"><div style="color: #95a5a6; font-size: 16px;"><span style="font-size: 48px;">📋</span><br><br><strong>No Attendance Records Found</strong><br><small>This student has no attendance records for the selected date range.</small></div></td></tr>';
+            return;
+        }
+        
+        // Sort by date (newest first)
+        filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+        
+        filtered.forEach(record => {
+            console.log('Processing record:', record);
+            
+            // Get class name from classes array
+            const classObj = classes.find(c => c.id === parseInt(record.classId));
+            const className = classObj ? `${classObj.className} - ${classObj.class_section || 'N/A'}` : 'Unknown Class';
+            
+            console.log('Class for record:', className, 'ClassID:', record.classId);
+            
+            // Format date
+            const formattedDate = record.date || 'N/A';
+            
+            // Format status
+            const statusText = record.status === 'present' ? '✓ PRESENT' : '✗ ABSENT';
+            const statusColor = record.status === 'present' ? '#27ae60' : '#e74c3c';
+            
+            const row = `
+                <tr>
+                    <td><strong>${formattedDate}</strong></td>
+                    <td><strong>${className}</strong></td>
+                    <td><span style="color: ${statusColor}; font-weight: bold;">${statusText}</span></td>
+                </tr>
+            `;
+            tbody.innerHTML += row;
+            console.log('Added row:', formattedDate, className, statusText);
+        });
+        
+        console.log('=== REPORT COMPLETE ===');
+    } catch (error) {
+        console.error('Error loading student report:', error);
+    }
 }
 
 // Date Report
-function loadDateReport() {
-    const classes = getData('classes') || [];
-    const select = document.getElementById('dateReportClassFilter');
-    select.innerHTML = '<option value="">All Classes</option>';
-    
-    // Filter out undefined classes and add valid ones
-    classes.forEach(cls => {
-        if (cls && cls.id && cls.className) {
-            select.innerHTML += `<option value="${cls.id}">${cls.className} - ${cls.class_section || 'N/A'}</option>`;
-        }
-    });
-    
-    const date = document.getElementById('dateReportDate').value;
-    if (!date) {
-        document.getElementById('dateReportTableBody').innerHTML = '';
-        document.getElementById('dateReportStats').innerHTML = '';
-        return;
-    }
-    
-    const attendance = getData('attendance') || [];
-    const classFilter = document.getElementById('dateReportClassFilter').value;
-    
-    console.log('Loading date report for date:', date);
-    console.log('Total attendance records:', attendance.length);
-    
-    let filtered = attendance.filter(a => a.date === date);
-    console.log('Filtered by date:', filtered.length);
-    
-    if (classFilter) {
-        filtered = filtered.filter(a => a.classId === parseInt(classFilter));
-        console.log('Filtered by class:', filtered.length);
-    }
-    
-    // Calculate stats
-    const total = filtered.length;
-    const present = filtered.filter(a => a.status === 'present').length;
-    const absent = total - present;
-    const percentage = total > 0 ? ((present / total) * 100).toFixed(2) : 0;
-    
-    console.log('Stats - Total:', total, 'Present:', present, 'Absent:', absent);
-    
-    // Display stats
-    const statsHtml = `
-        <div class="stat-item present">
-            <h4>Present</h4>
-            <div class="value">${present}</div>
-        </div>
-        <div class="stat-item absent">
-            <h4>Absent</h4>
-            <div class="value">${absent}</div>
-        </div>
-        <div class="stat-item">
-            <h4>Total</h4>
-            <div class="value">${total}</div>
-        </div>
-        <div class="stat-item percentage">
-            <h4>Percentage</h4>
-            <div class="value">${percentage}%</div>
-        </div>
-    `;
-    document.getElementById('dateReportStats').innerHTML = statsHtml;
-    
-    // Display table
-    const tbody = document.getElementById('dateReportTableBody');
-    tbody.innerHTML = '';
-    
-    if (filtered.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 40px;"><div style="color: #95a5a6; font-size: 16px;"><span style="font-size: 48px;">📅</span><br><br><strong>No Attendance Records Found</strong><br><small>No attendance was marked for this date.</small></div></td></tr>';
-        return;
-    }
-    
-    filtered.forEach(record => {
-        // Get class name from classes array
-        const classObj = classes.find(c => c.id === record.classId);
-        const className = classObj ? `${classObj.className} - ${classObj.class_section || 'N/A'}` : 'N/A';
+async function loadDateReport() {
+    try {
+        const classes = await getData('classes') || [];
+        const select = document.getElementById('dateReportClassFilter');
+        select.innerHTML = '<option value="">All Classes</option>';
         
-        const row = `
-            <tr>
-                <td><strong>${record.date}</strong></td>
-                <td><strong>${className}</strong></td>
-                <td>${record.studentName}</td>
-                <td>${record.rollNumber || 'N/A'}</td>
-                <td><span style="color: ${record.status === 'present' ? '#27ae60' : '#e74c3c'}; font-weight: bold;">${record.status === 'present' ? '✓ PRESENT' : '✗ ABSENT'}</span></td>
-            </tr>
+        // Filter out undefined classes and add valid ones
+        classes.forEach(cls => {
+            if (cls && cls.id && cls.className) {
+                select.innerHTML += `<option value="${cls.id}">${cls.className} - ${cls.class_section || 'N/A'}</option>`;
+            }
+        });
+        
+        const date = document.getElementById('dateReportDate').value;
+        if (!date) {
+            document.getElementById('dateReportTableBody').innerHTML = '';
+            document.getElementById('dateReportStats').innerHTML = '';
+            return;
+        }
+        
+        const attendance = await getData('attendance') || [];
+        const classFilter = document.getElementById('dateReportClassFilter').value;
+        
+        console.log('Loading date report for date:', date);
+        console.log('Total attendance records:', attendance.length);
+        
+        let filtered = attendance.filter(a => a.date === date);
+        console.log('Filtered by date:', filtered.length);
+        
+        if (classFilter) {
+            filtered = filtered.filter(a => a.classId === parseInt(classFilter));
+            console.log('Filtered by class:', filtered.length);
+        }
+        
+        // Calculate stats
+        const total = filtered.length;
+        const present = filtered.filter(a => a.status === 'present').length;
+        const absent = total - present;
+        const percentage = total > 0 ? ((present / total) * 100).toFixed(2) : 0;
+        
+        console.log('Stats - Total:', total, 'Present:', present, 'Absent:', absent);
+        
+        // Display stats
+        const statsHtml = `
+            <div class="stat-item present">
+                <h4>Present</h4>
+                <div class="value">${present}</div>
+            </div>
+            <div class="stat-item absent">
+                <h4>Absent</h4>
+                <div class="value">${absent}</div>
+            </div>
+            <div class="stat-item">
+                <h4>Total</h4>
+                <div class="value">${total}</div>
+            </div>
+            <div class="stat-item percentage">
+                <h4>Percentage</h4>
+                <div class="value">${percentage}%</div>
+            </div>
         `;
-        tbody.innerHTML += row;
-        console.log('Added record:', record.studentName, record.status);
-    });
+        document.getElementById('dateReportStats').innerHTML = statsHtml;
+        
+        // Display table
+        const tbody = document.getElementById('dateReportTableBody');
+        tbody.innerHTML = '';
+        
+        if (filtered.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 40px;"><div style="color: #95a5a6; font-size: 16px;"><span style="font-size: 48px;">📅</span><br><br><strong>No Attendance Records Found</strong><br><small>No attendance was marked for this date.</small></div></td></tr>';
+            return;
+        }
+        
+        filtered.forEach(record => {
+            // Get class name from classes array
+            const classObj = classes.find(c => c.id === record.classId);
+            const className = classObj ? `${classObj.className} - ${classObj.class_section || 'N/A'}` : 'N/A';
+            
+            const row = `
+                <tr>
+                    <td><strong>${record.date}</strong></td>
+                    <td><strong>${className}</strong></td>
+                    <td>${record.studentName}</td>
+                    <td>${record.rollNumber || 'N/A'}</td>
+                    <td><span style="color: ${record.status === 'present' ? '#27ae60' : '#e74c3c'}; font-weight: bold;">${record.status === 'present' ? '✓ PRESENT' : '✗ ABSENT'}</span></td>
+                </tr>
+            `;
+            tbody.innerHTML += row;
+            console.log('Added record:', record.studentName, record.status);
+        });
+    } catch (error) {
+        console.error('Error loading date report:', error);
+    }
 }
 
 // Download functions
@@ -1635,120 +1845,191 @@ function showTeacherSection(section) {
     if (section === 'history') loadTeacherHistorySection();
 }
 
-function loadTeacherDashboard() {
-    const teachers = getData('teachers') || [];
-    const classes = getData('classes') || [];
-    const students = getData('students') || [];
-    
-    console.log('Loading teacher dashboard - teachers:', teachers.length);
-    
-    // For demo, assume first teacher
-    const teacher = teachers[0];
-    
-    if (!teacher) {
-        document.getElementById('assignedClassInfo').innerHTML = '<p style="color: #e74c3c;">No teacher data found</p>';
-        return;
-    }
-    
-    console.log('Current teacher:', teacher);
-    
-    // Get assigned classes
-    const assignedClassIds = teacher.classIds || [];
-    const assignedClasses = classes.filter(c => assignedClassIds.includes(c.id));
-    
-    console.log('Assigned class IDs:', assignedClassIds);
-    console.log('Assigned classes:', assignedClasses);
-    
-    // Count total students in assigned classes
-    const classStudents = students.filter(s => assignedClassIds.includes(s.classId));
-    
-    document.getElementById('teacherClasses').textContent = assignedClasses.length;
-    document.getElementById('teacherStudents').textContent = classStudents.length;
-    
-    // Display assigned classes with details and times
-    let classesHtml = '<h3>📚 My Classes</h3>';
-    
-    if (assignedClasses.length === 0) {
-        classesHtml += '<p style="color: #7f8c8d;">No classes assigned</p>';
-    } else {
-        classesHtml += '<div class="teacher-classes-list">';
-        assignedClasses.forEach(cls => {
-            const classStudentCount = students.filter(s => s.classId === cls.id).length;
-            const classTime = teacher.classTimes && teacher.classTimes[cls.id] ? teacher.classTimes[cls.id] : 'Not set';
-            
-            classesHtml += `
-                <div class="teacher-class-card">
-                    <div class="class-header">
-                        <h4>${cls.className}</h4>
-                        <span class="section-badge">${cls.class_section || 'N/A'}</span>
-                    </div>
-                    <div class="class-details">
-                        <p><strong>Year:</strong> ${cls.year}</p>
-                        <p><strong>Academic Year:</strong> ${cls.academic_year || 'N/A'}</p>
-                        <p><strong>Students:</strong> ${classStudentCount}</p>
-                        <p><strong>Class Time:</strong> <span style="color: #3498db; font-weight: bold;">${classTime}</span></p>
-                    </div>
-                </div>
-            `;
-        });
-        classesHtml += '</div>';
-    }
-    
-    document.getElementById('assignedClassInfo').innerHTML = classesHtml;
-}
-
-function loadTeacherMarkSection() {
-    const classes = getData('classes') || [];
-    const select = document.getElementById('teacherClassSelect');
-    select.innerHTML = '<option value="">Select a class</option>';
-    
-    // Filter out undefined classes and add valid ones
-    classes.forEach(cls => {
-        if (cls && cls.id && cls.className) {
-            select.innerHTML += `<option value="${cls.id}">${cls.className} - ${cls.class_section || 'N/A'}</option>`;
+async function loadTeacherDashboard() {
+    try {
+        const currentUserEmail = localStorage.getItem('currentUser');
+        const currentRole = localStorage.getItem('currentRole');
+        
+        console.log('='.repeat(60));
+        console.log('LOADING TEACHER DASHBOARD');
+        console.log('='.repeat(60));
+        console.log('Current user email:', currentUserEmail);
+        console.log('Current role:', currentRole);
+        console.log('Token present:', !!localStorage.getItem('token'));
+        
+        // Teachers should use their own endpoint, not admin endpoint
+        if (currentRole !== 'teacher') {
+            console.error('Not a teacher role!');
+            return;
         }
-    });
-    
-    // Set today's date
-    document.getElementById('attendanceDate').valueAsDate = new Date();
-    
-    // Set current time
-    const now = new Date();
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-    document.getElementById('attendanceTime').value = `${hours}:${minutes}`;
-    
-    // Initialize attendance counter
-    updateAttendanceCounter();
+        
+        // Fetch teacher's own classes using teacher endpoint
+        console.log('Fetching teacher classes from /api/teacher/my-classes...');
+        const response = await APIService.getTeacherClasses();
+        console.log('Teacher classes response:', response);
+        
+        // Extract classes array (now includes full class details)
+        const myClasses = response.classes || [];
+        console.log('My classes:', myClasses);
+        
+        // Fetch all students to count those in teacher's classes
+        const students = await getData('students') || [];
+        console.log('Total students in system:', students.length);
+        
+        // Get class IDs
+        const classIds = myClasses.map(c => c.id);
+        console.log('Teacher class IDs:', classIds);
+        
+        // Count students in teacher's classes
+        const myStudents = students.filter(s => {
+            const studentClassId = s.classId || s.class_id;
+            return classIds.includes(studentClassId);
+        });
+        
+        console.log('Students in my classes:', myStudents.length);
+        console.log('='.repeat(60));
+        
+        // Update dashboard stats
+        document.getElementById('teacherClasses').textContent = myClasses.length;
+        document.getElementById('teacherStudents').textContent = myStudents.length;
+        
+        // Display assigned classes with details
+        let classesHtml = '<h3>📚 My Classes</h3>';
+        
+        if (myClasses.length === 0) {
+            classesHtml += '<p style="color: #7f8c8d;">No classes assigned yet. Please contact admin.</p>';
+        } else {
+            classesHtml += '<div class="teacher-classes-list">';
+            myClasses.forEach(cls => {
+                const classId = cls.id || cls.class_id;
+                const className = cls.className || cls.class_name || 'Unknown';
+                const classSection = cls.class_section || cls.classSection || 'N/A';
+                const year = cls.year || 'N/A';
+                const academicYear = cls.academic_year || cls.academicYear || 'N/A';
+                
+                const classStudentCount = students.filter(s => {
+                    const studentClassId = s.classId || s.class_id;
+                    return studentClassId === classId;
+                }).length;
+                
+                const classTime = cls.class_time || '09:00:00';
+                
+                classesHtml += `
+                    <div class="teacher-class-card">
+                        <div class="class-header">
+                            <h4>${className}</h4>
+                            <span class="section-badge">${classSection}</span>
+                        </div>
+                        <div class="class-details">
+                            <p><strong>Year:</strong> ${year}</p>
+                            <p><strong>Academic Year:</strong> ${academicYear}</p>
+                            <p><strong>Students:</strong> ${classStudentCount}</p>
+                            <p><strong>Class Time:</strong> <span style="color: #3498db; font-weight: bold;">${classTime}</span></p>
+                        </div>
+                    </div>
+                `;
+            });
+            classesHtml += '</div>';
+        }
+        
+        document.getElementById('assignedClassInfo').innerHTML = classesHtml;
+    } catch (error) {
+        console.error('Error loading teacher dashboard:', error);
+        document.getElementById('assignedClassInfo').innerHTML = `
+            <p style="color: #e74c3c;">Error loading dashboard: ${error.message}</p>
+            <p style="color: #7f8c8d; font-size: 0.9rem;">Please try refreshing the page or contact admin.</p>
+        `;
+        document.getElementById('teacherClasses').textContent = '0';
+        document.getElementById('teacherStudents').textContent = '0';
+    }
 }
 
-function checkAttendanceStatus() {
-    const classId = document.getElementById('teacherClassSelect').value;
-    const date = document.getElementById('attendanceDate').value;
-    const warningBox = document.getElementById('attendanceWarning');
-    
-    if (!classId || !date) {
-        warningBox.style.display = 'none';
-        return;
+async function loadTeacherMarkSection() {
+    try {
+        console.log('Loading teacher mark attendance section...');
+        
+        // Fetch teacher's assigned classes
+        const response = await APIService.getTeacherClasses();
+        console.log('Teacher classes response:', response);
+        console.log('Response type:', typeof response);
+        console.log('Response keys:', Object.keys(response));
+        
+        // Extract classes array (now includes full class details)
+        const myClasses = response.classes || [];
+        console.log('My classes:', myClasses);
+        console.log('Number of classes:', myClasses.length);
+        
+        if (myClasses.length === 0) {
+            console.warn('⚠️ No classes found for teacher!');
+            console.log('Full response:', JSON.stringify(response, null, 2));
+        }
+        
+        const select = document.getElementById('teacherClassSelect');
+        if (!select) {
+            console.error('❌ teacherClassSelect element not found!');
+            return;
+        }
+        
+        select.innerHTML = '<option value="">Select a class</option>';
+        
+        // Add teacher's classes to dropdown
+        myClasses.forEach((cls, index) => {
+            console.log(`Adding class ${index + 1}:`, cls);
+            const className = cls.className || cls.class_name || 'Unknown';
+            const classSection = cls.class_section || cls.classSection || '';
+            const year = cls.year || '';
+            const displayName = classSection ? `${className} - ${classSection} (Year ${year})` : `${className} (Year ${year})`;
+            
+            const option = document.createElement('option');
+            option.value = cls.id;
+            option.textContent = displayName;
+            select.appendChild(option);
+            
+            console.log(`✅ Added: ${displayName}`);
+        });
+        
+        console.log('✅ Class dropdown populated with', myClasses.length, 'classes');
+        console.log('Dropdown HTML:', select.innerHTML);
+        
+        // Set today's date
+        document.getElementById('attendanceDate').valueAsDate = new Date();
+        
+        // Set current time
+        const now = new Date();
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        document.getElementById('attendanceTime').value = `${hours}:${minutes}`;
+        
+        // Initialize attendance counter
+        updateAttendanceCounter();
+    } catch (error) {
+        console.error('❌ Error loading teacher mark section:', error);
+        console.error('Error stack:', error.stack);
+        alert('Error loading classes: ' + error.message + '\n\nCheck browser console (F12) for details.');
     }
-    
-    const attendance = getData('attendance') || [];
-    const existingRecord = attendance.find(a => a.classId === parseInt(classId) && a.date === date);
-    
-    if (existingRecord) {
-        warningBox.style.display = 'block';
-        warningBox.className = 'warning-box';
-        warningBox.innerHTML = `
-            <strong>⚠️ Attendance Already Marked</strong><br>
-            This class already has attendance marked for ${date}. 
-            <button class="btn btn-secondary" onclick="editExistingAttendance(${existingRecord.id})" style="margin-top: 10px;">Edit Existing</button>
-        `;
-    } else {
+}
+
+async function checkAttendanceStatus() {
+    try {
+        const classId = document.getElementById('teacherClassSelect').value;
+        const date = document.getElementById('attendanceDate').value;
+        const warningBox = document.getElementById('attendanceWarning');
+        
+        if (!classId || !date) {
+            warningBox.style.display = 'none';
+            return;
+        }
+        
+        // For teachers, we don't need to check existing attendance
+        // The database will handle duplicates with ON DUPLICATE KEY UPDATE
+        // Just hide the warning box
         warningBox.style.display = 'none';
+        
+        // Check time restriction
+        checkTimeRestriction();
+    } catch (error) {
+        console.error('Error checking attendance status:', error);
     }
-    
-    // Check time restriction
-    checkTimeRestriction();
 }
 
 function checkTimeRestriction() {
@@ -1782,66 +2063,75 @@ function checkTimeRestriction() {
     }
 }
 
-function loadStudentsForAttendance() {
-    const classId = document.getElementById('teacherClassSelect').value;
-    console.log('loadStudentsForAttendance - classId:', classId);
-    
-    if (!classId) {
-        document.getElementById('attendanceStudentsList').innerHTML = '';
-        document.getElementById('saveAttendanceBtn').style.display = 'none';
-        document.getElementById('markAllPresentBtn').style.display = 'none';
-        document.getElementById('markAllAbsentBtn').style.display = 'none';
-        document.getElementById('clearAllBtn').style.display = 'none';
-        document.getElementById('exportCSVBtn').style.display = 'none';
-        return;
+async function loadStudentsForAttendance() {
+    try {
+        const classId = document.getElementById('teacherClassSelect').value;
+        console.log('loadStudentsForAttendance - classId:', classId);
+        
+        if (!classId) {
+            document.getElementById('attendanceStudentsList').innerHTML = '';
+            document.getElementById('saveAttendanceBtn').style.display = 'none';
+            document.getElementById('markAllPresentBtn').style.display = 'none';
+            document.getElementById('markAllAbsentBtn').style.display = 'none';
+            document.getElementById('clearAllBtn').style.display = 'none';
+            document.getElementById('exportCSVBtn').style.display = 'none';
+            return;
+        }
+        
+        const students = await getData('students') || [];
+        console.log('All students:', students);
+        
+        const classStudents = students.filter(s => s.classId === parseInt(classId) || s.class_id === parseInt(classId));
+        console.log('Students for classId', classId, ':', classStudents);
+        
+        const container = document.getElementById('attendanceStudentsList');
+        
+        if (classStudents.length === 0) {
+            container.innerHTML = '<p style="padding: 20px; text-align: center; color: #7f8c8d;">No students in this class</p>';
+            document.getElementById('saveAttendanceBtn').style.display = 'none';
+            document.getElementById('markAllPresentBtn').style.display = 'none';
+            document.getElementById('markAllAbsentBtn').style.display = 'none';
+            document.getElementById('clearAllBtn').style.display = 'none';
+            document.getElementById('exportCSVBtn').style.display = 'none';
+            return;
+        }
+        
+        container.innerHTML = '<h3>📚 Students (' + classStudents.length + ')</h3>';
+        
+        classStudents.forEach(student => {
+            const item = document.createElement('div');
+            item.className = 'attendance-item';
+            item.id = `student-${student.id}`;
+            
+            // Handle both camelCase and snake_case field names
+            const studentName = student.student_name || student.studentName || 'Unknown';
+            const rollNumber = student.roll_number || student.rollNumber || 'N/A';
+            
+            item.innerHTML = `
+                <div class="student-info">
+                    <div class="student-name">${studentName}</div>
+                    <div class="student-roll">${rollNumber}</div>
+                </div>
+                <div class="attendance-toggle">
+                    <button class="toggle-btn" onclick="markStatus(${student.id}, 'present', this)">✓ Present</button>
+                    <button class="toggle-btn" onclick="markStatus(${student.id}, 'absent', this)">✗ Absent</button>
+                </div>
+            `;
+            container.appendChild(item);
+        });
+        
+        document.getElementById('saveAttendanceBtn').style.display = 'block';
+        document.getElementById('markAllPresentBtn').style.display = 'inline-block';
+        document.getElementById('markAllAbsentBtn').style.display = 'inline-block';
+        document.getElementById('clearAllBtn').style.display = 'inline-block';
+        document.getElementById('exportCSVBtn').style.display = 'inline-block';
+        document.getElementById('viewHistoryBtn').style.display = 'inline-block';
+        
+        await checkAttendanceStatus();
+        updateAttendanceCounter();
+    } catch (error) {
+        console.error('Error loading students for attendance:', error);
     }
-    
-    const students = getData('students') || [];
-    console.log('All students:', students);
-    
-    const classStudents = students.filter(s => s.classId === parseInt(classId));
-    console.log('Students for classId', classId, ':', classStudents);
-    
-    const container = document.getElementById('attendanceStudentsList');
-    
-    if (classStudents.length === 0) {
-        container.innerHTML = '<p style="padding: 20px; text-align: center; color: #7f8c8d;">No students in this class</p>';
-        document.getElementById('saveAttendanceBtn').style.display = 'none';
-        document.getElementById('markAllPresentBtn').style.display = 'none';
-        document.getElementById('markAllAbsentBtn').style.display = 'none';
-        document.getElementById('clearAllBtn').style.display = 'none';
-        document.getElementById('exportCSVBtn').style.display = 'none';
-        return;
-    }
-    
-    container.innerHTML = '<h3>📚 Students (' + classStudents.length + ')</h3>';
-    
-    classStudents.forEach(student => {
-        const item = document.createElement('div');
-        item.className = 'attendance-item';
-        item.id = `student-${student.id}`;
-        item.innerHTML = `
-            <div class="student-info">
-                <div class="student-name">${student.student_name || 'Unknown'}</div>
-                <div class="student-roll">${student.rollNumber || 'N/A'}</div>
-            </div>
-            <div class="attendance-toggle">
-                <button class="toggle-btn" onclick="markStatus(${student.id}, 'present', this)">✓ Present</button>
-                <button class="toggle-btn" onclick="markStatus(${student.id}, 'absent', this)">✗ Absent</button>
-            </div>
-        `;
-        container.appendChild(item);
-    });
-    
-    document.getElementById('saveAttendanceBtn').style.display = 'block';
-    document.getElementById('markAllPresentBtn').style.display = 'inline-block';
-    document.getElementById('markAllAbsentBtn').style.display = 'inline-block';
-    document.getElementById('clearAllBtn').style.display = 'inline-block';
-    document.getElementById('exportCSVBtn').style.display = 'inline-block';
-    document.getElementById('viewHistoryBtn').style.display = 'inline-block';
-    
-    checkAttendanceStatus();
-    updateAttendanceCounter();
 }
 
 let attendanceData = {};
@@ -1908,7 +2198,11 @@ function updateAttendanceCounter() {
     counter.textContent = `Marked: ${marked}/${total}`;
 }
 
-function saveAttendance() {
+async function saveAttendance() {
+    // Prevent any default behavior
+    event?.preventDefault();
+    event?.stopPropagation();
+    
     const classId = document.getElementById('teacherClassSelect').value;
     const date = document.getElementById('attendanceDate').value;
     const time = document.getElementById('attendanceTime').value;
@@ -1916,10 +2210,24 @@ function saveAttendance() {
     console.log('=== SAVE ATTENDANCE ===');
     console.log('classId:', classId, 'date:', date, 'time:', time);
     console.log('attendanceData:', attendanceData);
+    console.log('Token:', localStorage.getItem('token') ? 'EXISTS' : 'MISSING');
+    console.log('Role:', localStorage.getItem('currentRole'));
     
-    if (!classId || !date || !time) {
-        showNotification('❌ Please select class, date, and time', 'error');
-        console.error('Missing required fields');
+    if (!classId) {
+        showNotification('❌ Please select a class from the dropdown', 'error');
+        console.error('No class selected');
+        return;
+    }
+    
+    if (!date) {
+        showNotification('❌ Please select a date', 'error');
+        console.error('No date selected');
+        return;
+    }
+    
+    if (!time) {
+        showNotification('❌ Please select a time', 'error');
+        console.error('No time selected');
         return;
     }
     
@@ -1930,61 +2238,54 @@ function saveAttendance() {
     }
     
     try {
-        const students = getData('students') || [];
-        console.log('Total students in system:', students.length);
-        
-        let attendance = getData('attendance') || [];
-        console.log('Existing attendance records:', attendance.length);
-        
-        // Check for duplicates
-        const existingRecords = attendance.filter(a => a.classId === parseInt(classId) && a.date === date);
-        console.log('Existing records for this class/date:', existingRecords.length);
-        
-        if (existingRecords.length > 0) {
-            if (!confirm('Attendance already exists for this date. Do you want to update it?')) {
-                console.log('User cancelled update');
-                return;
-            }
-            // Remove old records for this class and date
-            attendance = attendance.filter(a => !(a.classId === parseInt(classId) && a.date === date));
-            console.log('Removed old records, remaining:', attendance.length);
+        // Prepare attendance records in the format backend expects
+        const records = [];
+        for (const studentId of Object.keys(attendanceData)) {
+            records.push({
+                studentId: parseInt(studentId),
+                status: attendanceData[studentId]
+            });
         }
         
-        // Save new records
-        let savedCount = 0;
-        Object.keys(attendanceData).forEach(studentId => {
-            const student = students.find(s => s.id === parseInt(studentId));
-            if (student) {
-                const record = {
-                    id: Date.now() + Math.random(),
-                    classId: parseInt(classId),
-                    studentId: parseInt(studentId),
-                    studentName: student.student_name,
-                    rollNumber: student.rollNumber,
-                    date: date,
-                    time: time,
-                    status: attendanceData[studentId],
-                    markedAt: new Date().toISOString()
-                };
-                attendance.push(record);
-                savedCount++;
-                console.log('Saved record for student:', student.student_name, 'Status:', attendanceData[studentId]);
-            } else {
-                console.warn('Student not found for ID:', studentId);
-            }
-        });
+        console.log('Prepared records:', records);
         
-        console.log('Total records saved:', savedCount);
-        saveData('attendance', attendance);
-        console.log('Attendance data saved to localStorage');
-        console.log('Total attendance records now:', attendance.length);
+        // Prepare attendance payload for backend
+        const payload = {
+            classId: parseInt(classId),
+            date: date,
+            startTime: time,
+            records: records
+        };
         
-        showNotification(`✅ Attendance saved successfully! (${savedCount} students)`, 'success');
+        console.log('Sending attendance payload:', payload);
+        
+        // Save attendance via API
+        const response = await APIService.createAttendanceSession(payload);
+        
+        console.log('✅ Attendance saved successfully!', response);
+        showNotification(`✅ Attendance saved successfully! (${records.length} students)`, 'success');
+        
+        // Clear attendance data
         attendanceData = {};
-        loadStudentsForAttendance();
+        
+        // DON'T reload students - just update the counter
+        updateAttendanceCounter();
+        
+        // Clear the button highlights
+        const buttons = document.querySelectorAll('.toggle-btn');
+        buttons.forEach(btn => {
+            btn.classList.remove('present', 'absent');
+        });
     } catch (error) {
         console.error('Error saving attendance:', error);
-        showNotification('❌ Error saving attendance. Check console for details.', 'error');
+        
+        // Check if it's an auth error
+        if (error.message && (error.message.includes('token') || error.message.includes('Authorization'))) {
+            showNotification('❌ Session expired. Please login again.', 'error');
+            setTimeout(() => logout(), 2000);
+        } else {
+            showNotification('❌ Error saving attendance: ' + error.message, 'error');
+        }
     }
 }
 
@@ -2044,73 +2345,154 @@ function showNotification(message, type = 'info') {
     }, 4000);
 }
 
-function loadTeacherHistorySection() {
-    const classes = getData('classes') || [];
-    const select = document.getElementById('historyClassFilter');
-    select.innerHTML = '<option value="">Select Class</option>';
-    
-    classes.forEach(cls => {
-        select.innerHTML += `<option value="${cls.id}">${cls.className} - ${cls.class_section || 'N/A'}</option>`;
-    });
+async function loadTeacherHistorySection() {
+    try {
+        console.log('Loading teacher history section...');
+        
+        // Set initial message in table
+        const tbody = document.getElementById('historyTableBody');
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 40px;"><div style="color: #95a5a6;"><span style="font-size: 48px;">📋</span><br><br><strong>Select a Class</strong><br><small>Please select a class from the dropdown above to view attendance history.</small></div></td></tr>';
+        
+        // Fetch teacher's assigned classes
+        const response = await APIService.getTeacherClasses();
+        
+        // Extract classes array (now includes full class details)
+        const myClasses = response.classes || [];
+        
+        const select = document.getElementById('historyClassFilter');
+        select.innerHTML = '<option value="">Select Class</option>';
+        
+        myClasses.forEach(cls => {
+            const className = cls.className || cls.class_name || 'Unknown';
+            const classSection = cls.class_section || cls.classSection || '';
+            const displayName = classSection ? `${className} - ${classSection}` : className;
+            
+            select.innerHTML += `<option value="${cls.id}">${displayName}</option>`;
+        });
+        
+        console.log('History dropdown populated with', myClasses.length, 'classes');
+    } catch (error) {
+        console.error('Error loading teacher history section:', error);
+    }
 }
 
-function loadTeacherHistory() {
-    const classId = document.getElementById('historyClassFilter').value;
-    const date = document.getElementById('historyDateFilter').value;
-    
-    if (!classId) {
-        document.getElementById('historyTableBody').innerHTML = '';
-        return;
-    }
-    
-    let attendance = getData('attendance') || [];
-    attendance = attendance.filter(a => a.classId === parseInt(classId));
-    
-    if (date) {
-        attendance = attendance.filter(a => a.date === date);
-    }
-    
-    // Sort by date descending
-    attendance.sort((a, b) => new Date(b.date) - new Date(a.date));
-    
-    const tbody = document.getElementById('historyTableBody');
-    tbody.innerHTML = '';
-    
-    if (attendance.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 40px;"><div style="color: #95a5a6; font-size: 16px;"><span style="font-size: 48px;">📜</span><br><br><strong>No Attendance History</strong><br><small>No attendance records found for the selected class and date.</small></div></td></tr>';
-        return;
-    }
-    
-    // Calculate statistics
-    const present = attendance.filter(a => a.status === 'present').length;
-    const absent = attendance.filter(a => a.status === 'absent').length;
-    const total = attendance.length;
-    const percentage = total > 0 ? ((present / total) * 100).toFixed(2) : 0;
-    
-    // Display statistics
-    const statsHtml = `
-        <tr style="background: #f8f9fa; font-weight: bold;">
-            <td colspan="5">
-                📊 Statistics: Present: ${present} | Absent: ${absent} | Total: ${total} | Percentage: ${percentage}%
-            </td>
-        </tr>
-    `;
-    tbody.innerHTML = statsHtml;
-    
-    attendance.forEach(record => {
-        const statusColor = record.status === 'present' ? '#27ae60' : '#e74c3c';
-        const statusIcon = record.status === 'present' ? '✓' : '✗';
-        const row = `
-            <tr>
-                <td>${record.date}</td>
-                <td>${record.rollNumber}</td>
-                <td>${record.studentName}</td>
-                <td>${record.time || 'N/A'}</td>
-                <td><span style="color: ${statusColor}; font-weight: bold;">${statusIcon} ${record.status.toUpperCase()}</span></td>
+async function loadTeacherHistory() {
+    try {
+        const classId = document.getElementById('historyClassFilter').value;
+        const date = document.getElementById('historyDateFilter').value;
+        
+        console.log('=== LOAD TEACHER HISTORY ===');
+        console.log('classId from dropdown:', classId, 'type:', typeof classId);
+        console.log('date filter:', date);
+        
+        const tbody = document.getElementById('historyTableBody');
+        
+        // Check if classId is empty or invalid
+        if (!classId || classId === '' || classId === 'undefined' || classId === 'null') {
+            console.log('No valid classId, showing select message');
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 40px;"><div style="color: #95a5a6;"><span style="font-size: 48px;">📋</span><br><br><strong>Select a Class</strong><br><small>Please select a class from the dropdown above to view attendance history.</small></div></td></tr>';
+            return;
+        }
+        
+        // Show loading
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 40px;">Loading...</td></tr>';
+        
+        console.log('Calling APIService.getTeacherAttendanceHistory with classId:', classId);
+        
+        // Fetch attendance history from teacher endpoint with classId
+        const history = await APIService.getTeacherAttendanceHistory(classId);
+        console.log('Teacher history received:', history);
+        console.log('History is array?', Array.isArray(history));
+        console.log('History length:', history?.length);
+        
+        // Process history data
+        let attendance = [];
+        if (Array.isArray(history)) {
+            // If history is array of students with attendance
+            history.forEach(student => {
+                console.log('Processing student:', student.studentName, 'attendance count:', student.attendance?.length);
+                if (student.attendance && Array.isArray(student.attendance)) {
+                    student.attendance.forEach(record => {
+                        // Format date properly
+                        let formattedDate = record.date;
+                        if (record.date instanceof Date) {
+                            formattedDate = record.date.toISOString().split('T')[0];
+                        } else if (typeof record.date === 'string') {
+                            // If it's already a string, just use the date part
+                            formattedDate = record.date.split('T')[0];
+                        }
+                        
+                        attendance.push({
+                            date: formattedDate,
+                            time: record.time || 'N/A',
+                            status: record.status,
+                            studentName: student.studentName,
+                            rollNumber: student.rollNumber,
+                            class_id: record.class_id,
+                            student_id: record.student_id
+                        });
+                    });
+                }
+            });
+        }
+        
+        console.log('Processed attendance records:', attendance.length);
+        
+        // Filter by date if specified
+        if (date) {
+            attendance = attendance.filter(a => a.date === date);
+            console.log('After date filter:', attendance.length);
+        }
+        
+        // Sort by date descending
+        attendance.sort((a, b) => new Date(b.date) - new Date(a.date));
+        
+        tbody.innerHTML = '';
+        
+        if (attendance.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 40px;"><div style="color: #95a5a6; font-size: 16px;"><span style="font-size: 48px;">📜</span><br><br><strong>No Attendance History</strong><br><small>No attendance records found for the selected class and date.</small></div></td></tr>';
+            return;
+        }
+        
+        // Calculate statistics
+        const present = attendance.filter(a => a.status === 'present').length;
+        const absent = attendance.filter(a => a.status === 'absent').length;
+        const total = attendance.length;
+        const percentage = total > 0 ? ((present / total) * 100).toFixed(2) : 0;
+        
+        // Display statistics
+        const statsHtml = `
+            <tr style="background: #f8f9fa; font-weight: bold;">
+                <td colspan="5">
+                    📊 Statistics: Present: ${present} | Absent: ${absent} | Total: ${total} | Percentage: ${percentage}%
+                </td>
             </tr>
         `;
-        tbody.innerHTML += row;
-    });
+        tbody.innerHTML = statsHtml;
+        
+        attendance.forEach(record => {
+            const statusColor = record.status === 'present' ? '#27ae60' : '#e74c3c';
+            const statusIcon = record.status === 'present' ? '✓' : '✗';
+            const row = `
+                <tr>
+                    <td>${record.date}</td>
+                    <td>${record.rollNumber}</td>
+                    <td>${record.studentName}</td>
+                    <td><span style="color: ${statusColor}; font-weight: bold;">${statusIcon} ${record.status.toUpperCase()}</span></td>
+                    <td>${record.time || 'N/A'}</td>
+                </tr>
+            `;
+            tbody.innerHTML += row;
+        });
+    } catch (error) {
+        console.error('Error loading teacher history:', error);
+        console.error('Error details:', error.message, error.stack);
+        const tbody = document.getElementById('historyTableBody');
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 40px; color: #e74c3c;">
+            <strong>Error loading attendance history</strong><br>
+            <small>${error.message || 'Please try again or check console for details'}</small>
+        </td></tr>`;
+    }
 }
 
 function downloadHistoryReport() {
@@ -2173,84 +2555,168 @@ function showStudentSection(section) {
     if (section === 'attendance') loadStudentAttendance();
 }
 
-function loadStudentDashboard() {
-    const students = getData('students');
-    const classes = getData('classes');
-    const attendance = getData('attendance');
-    const studentId = parseInt(localStorage.getItem('currentStudentId'));
-    
-    const student = students.find(s => s.id === studentId);
-    
-    if (student) {
-        // Get class name from classes array
-        const studentClass = classes.find(c => c.id === student.classId);
-        const className = studentClass ? `${studentClass.className} - ${studentClass.class_section || 'N/A'}` : 'N/A';
+async function loadStudentDashboard() {
+    try {
+        console.log('=== LOAD STUDENT DASHBOARD ===');
+        const studentId = parseInt(localStorage.getItem('currentStudentId'));
+        console.log('Student ID:', studentId);
         
-        // Update header with student name
-        document.getElementById('studentUserInfo').textContent = student.student_name;
+        if (!studentId) {
+            console.error('No student ID found');
+            alert('Student ID not found. Please log in again.');
+            logout();
+            return;
+        }
         
-        // Display personal details
-        document.getElementById('studentDetails').innerHTML = `
-            <p><strong>Name:</strong> ${student.student_name}</p>
-            <p><strong>Roll Number:</strong> ${student.rollNumber}</p>
-            <p><strong>Class:</strong> ${className}</p>
-        `;
+        // Fetch student profile from student endpoint
+        const student = await APIService.getStudentProfile();
+        console.log('Student profile:', student);
         
-        // Calculate attendance statistics
-        const studentAttendance = attendance.filter(a => a.studentId === student.id);
-        const presentDays = studentAttendance.filter(a => a.status === 'present').length;
-        const absentDays = studentAttendance.filter(a => a.status === 'absent').length;
-        const total = studentAttendance.length;
-        const percentage = total > 0 ? ((presentDays / total) * 100).toFixed(1) : 0;
-        
-        // Update statistics cards
-        document.getElementById('studentAttendancePercent').textContent = percentage + '%';
-        document.getElementById('studentPresentDays').textContent = presentDays;
-        document.getElementById('studentAbsentDays').textContent = absentDays;
-        document.getElementById('studentTotalDays').textContent = total;
-    } else {
-        alert('Student data not found!');
-        logout();
+        if (student) {
+            // Update header with student name
+            const studentName = student.student_name || student.name || 'Student';
+            document.getElementById('studentUserInfo').textContent = studentName;
+            
+            // Get class information
+            const className = student.class_name || student.className || 'N/A';
+            const classSection = student.class_section || student.classSection || '';
+            const displayClassName = classSection ? `${className} - ${classSection}` : className;
+            
+            // Display personal details
+            document.getElementById('studentDetails').innerHTML = `
+                <p><strong>Name:</strong> ${studentName}</p>
+                <p><strong>Roll Number:</strong> ${student.roll_number || student.rollNumber || 'N/A'}</p>
+                <p><strong>Class:</strong> ${displayClassName}</p>
+            `;
+            
+            // Fetch attendance statistics from student endpoint
+            try {
+                const stats = await APIService.getStudentAttendancePercentage();
+                console.log('Attendance stats:', stats);
+                
+                const percentage = stats.percentage || 0;
+                const presentDays = stats.present || 0;
+                const absentDays = stats.absent || 0;
+                const total = stats.total || 0;
+                
+                // Update statistics cards
+                document.getElementById('studentAttendancePercent').textContent = percentage.toFixed(1) + '%';
+                document.getElementById('studentPresentDays').textContent = presentDays;
+                document.getElementById('studentAbsentDays').textContent = absentDays;
+                document.getElementById('studentTotalDays').textContent = total;
+            } catch (statsError) {
+                console.error('Error loading attendance stats:', statsError);
+                // Set default values if stats fail
+                document.getElementById('studentAttendancePercent').textContent = '0%';
+                document.getElementById('studentPresentDays').textContent = '0';
+                document.getElementById('studentAbsentDays').textContent = '0';
+                document.getElementById('studentTotalDays').textContent = '0';
+            }
+        } else {
+            console.error('Student profile not found');
+            alert('Student data not found!');
+            logout();
+        }
+    } catch (error) {
+        console.error('Error loading student dashboard:', error);
+        console.error('Error details:', error.message, error.stack);
+        alert('Error loading dashboard. Please try logging in again.');
     }
 }
 
-function loadStudentAttendance() {
-    const attendance = getData('attendance');
-    const studentId = parseInt(localStorage.getItem('currentStudentId'));
-    
-    if (!studentId) return;
-    
-    const monthFilter = document.getElementById('studentMonthFilter').value;
-    let studentAttendance = attendance.filter(a => a.studentId === studentId);
-    
-    if (monthFilter) {
-        const [year, month] = monthFilter.split('-');
-        studentAttendance = studentAttendance.filter(a => {
-            const [aYear, aMonth] = a.date.split('-');
-            return aYear === year && aMonth === month;
+async function loadStudentAttendance() {
+    try {
+        const studentId = parseInt(localStorage.getItem('currentStudentId'));
+        
+        console.log('=== LOAD STUDENT ATTENDANCE ===');
+        console.log('studentId:', studentId);
+        
+        if (!studentId) {
+            console.error('No student ID found in localStorage');
+            const tbody = document.getElementById('studentAttendanceTableBody');
+            tbody.innerHTML = '<tr><td colspan="2" style="text-align: center; padding: 40px; color: #e74c3c;">Student ID not found. Please log in again.</td></tr>';
+            return;
+        }
+        
+        console.log('Calling APIService.getStudentAttendance()');
+        
+        // Fetch student attendance from API
+        const response = await APIService.getStudentAttendance();
+        console.log('Student attendance response:', response);
+        console.log('Response type:', typeof response);
+        console.log('Is array?', Array.isArray(response));
+        
+        let studentAttendance = response || [];
+        
+        // Ensure it's an array
+        if (!Array.isArray(studentAttendance)) {
+            console.error('Attendance data is not an array:', studentAttendance);
+            // If it's an object with a data property, try that
+            if (studentAttendance && studentAttendance.data && Array.isArray(studentAttendance.data)) {
+                studentAttendance = studentAttendance.data;
+            } else {
+                studentAttendance = [];
+            }
+        }
+        
+        console.log('Attendance records count:', studentAttendance.length);
+        
+        const monthFilter = document.getElementById('studentMonthFilter').value;
+        
+        if (monthFilter && studentAttendance.length > 0) {
+            const [year, month] = monthFilter.split('-');
+            studentAttendance = studentAttendance.filter(a => {
+                if (!a.date) return false;
+                const dateStr = a.date.toString().split('T')[0]; // Handle date objects
+                const [aYear, aMonth] = dateStr.split('-');
+                return aYear === year && aMonth === month;
+            });
+            console.log('After month filter:', studentAttendance.length);
+        }
+        
+        // Sort by date (newest first)
+        studentAttendance.sort((a, b) => {
+            const dateA = new Date(a.date);
+            const dateB = new Date(b.date);
+            return dateB - dateA;
         });
+        
+        const tbody = document.getElementById('studentAttendanceTableBody');
+        tbody.innerHTML = '';
+        
+        if (studentAttendance.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="2" style="text-align: center; padding: 40px;"><div style="color: #95a5a6; font-size: 16px;"><span style="font-size: 48px;">📊</span><br><br><strong>No Attendance Records Yet</strong><br><small>You don\'t have any attendance records for the selected month.<br>Attendance will appear here once your teacher marks it.</small></div></td></tr>';
+            return;
+        }
+        
+        studentAttendance.forEach(record => {
+            // Format date properly
+            let displayDate = record.date;
+            if (record.date) {
+                displayDate = new Date(record.date).toISOString().split('T')[0];
+            }
+            
+            const statusColor = record.status === 'present' ? '#2ecc71' : '#e74c3c';
+            const row = `
+                <tr>
+                    <td>${displayDate}</td>
+                    <td><span style="color: ${statusColor}; font-weight: 600;">${record.status.toUpperCase()}</span></td>
+                </tr>
+            `;
+            tbody.innerHTML += row;
+        });
+        
+        console.log('Student attendance loaded successfully');
+    } catch (error) {
+        console.error('Error loading student attendance:', error);
+        console.error('Error message:', error.message);
+        console.error('Error stack:', error.stack);
+        const tbody = document.getElementById('studentAttendanceTableBody');
+        tbody.innerHTML = `<tr><td colspan="2" style="text-align: center; padding: 40px; color: #e74c3c;">
+            <strong>Error loading attendance</strong><br>
+            <small>${error.message || 'Please try again or check console for details'}</small>
+        </td></tr>`;
     }
-    
-    // Sort by date (newest first)
-    studentAttendance.sort((a, b) => new Date(b.date) - new Date(a.date));
-    
-    const tbody = document.getElementById('studentAttendanceTableBody');
-    tbody.innerHTML = '';
-    
-    if (studentAttendance.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="2" style="text-align: center; padding: 40px;"><div style="color: #95a5a6; font-size: 16px;"><span style="font-size: 48px;">📊</span><br><br><strong>No Attendance Records Yet</strong><br><small>You don\'t have any attendance records for the selected month.<br>Attendance will appear here once your teacher marks it.</small></div></td></tr>';
-        return;
-    }
-    
-    studentAttendance.forEach(record => {
-        const row = `
-            <tr>
-                <td>${record.date}</td>
-                <td><span style="color: ${record.status === 'present' ? '#2ecc71' : '#e74c3c'}; font-weight: 600;">${record.status.toUpperCase()}</span></td>
-            </tr>
-        `;
-        tbody.innerHTML += row;
-    });
 }
 
 // Modal Functions

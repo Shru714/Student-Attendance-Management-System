@@ -25,24 +25,34 @@ const AuthController = {
   async login(data) {
     const { email, password } = data;
 
+    console.log('=== LOGIN ATTEMPT ===');
+    console.log('Email:', email);
+    console.log('Password length:', password ? password.length : 0);
+
     if (!email || !password) {
       throw { status: 400, message: 'Email and password are required' };
     }
 
     const user = await UserModel.findByEmail(email);
+    console.log('User found:', user ? `Yes (${user.name}, ${user.role})` : 'No');
+    
     if (!user) {
       throw { status: 401, message: 'Invalid credentials' };
     }
 
+    console.log('Comparing passwords...');
     const isMatch = await bcrypt.compare(password, user.password);
+    console.log('Password match:', isMatch);
+    
     if (!isMatch) {
       throw { status: 401, message: 'Invalid credentials' };
     }
 
+    console.log('Generating JWT token...');
     const token = jwt.sign(
       { id: user.id, email: user.email, role: user.role },
       process.env.JWT_SECRET,
-      { expiresIn: process.env.JWT_EXPIRE }
+      { expiresIn: process.env.JWT_EXPIRE || '7d' }
     );
 
     let additionalData = {};
@@ -51,6 +61,7 @@ const AuthController = {
       additionalData = { studentId: studentInfo?.id, rollNumber: studentInfo?.rollNumber };
     }
 
+    console.log('Login successful for:', user.email);
     return {
       token,
       user: {
@@ -90,7 +101,7 @@ const AuthController = {
     const token = jwt.sign(
       { id: student.id, studentName: student.student_name, rollNumber: student.rollNumber, role: 'student' },
       process.env.JWT_SECRET,
-      { expiresIn: process.env.JWT_EXPIRE }
+      { expiresIn: process.env.JWT_EXPIRE || '7d' }
     );
 
     return {

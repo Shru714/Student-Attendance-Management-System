@@ -3,7 +3,12 @@ const jwt = require('jsonwebtoken');
 const authenticate = (req) => {
   return new Promise((resolve, reject) => {
     const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1];
+    
+    if (!authHeader) {
+      return reject({ status: 401, message: 'Authorization header missing' });
+    }
+    
+    const token = authHeader.split(' ')[1];
 
     if (!token) {
       return reject({ status: 401, message: 'Access token required' });
