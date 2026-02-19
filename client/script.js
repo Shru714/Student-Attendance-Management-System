@@ -314,12 +314,13 @@ function credentialLogin(event) {
         // Demo credentials (in production, this would be validated against backend)
         const credentials = {
             admin: {
-                'admin@example.com': 'admin123'
+                'admin@example.com': 'Admin@143'
             },
             teacher: {
-                'rajesh@example.com': 'teacher123',
-                'priya@example.com': 'teacher123',
-                'amit@example.com': 'teacher123'
+                'shrutiteli571@gmail.com': 'Teacher@143',
+                'sunny@gmail.com': 'Teacher@143',
+                'booby@gmail.com': 'Teacher@143',
+                'roc@gmail.com': 'Teacher@143'
             }
         };
         
@@ -391,9 +392,9 @@ function studentLogin(event) {
         return;
     }
     
-    // Check if password matches student name (password should be same as student name)
-    if (password.toLowerCase() !== student.student_name.toLowerCase()) {
-        alert('❌ Invalid password! Hint: Your password is the same as your student name.');
+    // Check if password matches (password should be "Student@143")
+    if (password !== 'Student@143') {
+        alert('❌ Invalid password! Hint: The password is Student@143');
         return;
     }
     
