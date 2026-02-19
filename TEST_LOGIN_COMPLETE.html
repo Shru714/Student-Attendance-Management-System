@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Test - Complete</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .page {
+            display: none;
+        }
+        .page.active {
+            display: block;
+        }
+        .login-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .login-container h1 {
+            color: white;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .login-container p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.1rem;
+            margin-bottom: 40px;
+        }
+        .role-buttons {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .role-btn {
+            background: white;
+            border: none;
+            padding: 30px 40px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            min-width: 200px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        .role-btn .icon {
+            font-size: 3rem;
+        }
+        .role-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        }
+        .admin-btn {
+            color: #e74c3c;
+        }
+        .teacher-btn {
+            color: #3498db;
+        }
+        .login-form {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            min-width: 400px;
+            max-width: 450px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .login-form label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        .login-form input[type="email"],
+        .login-form input[type="password"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+        .login-form input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .login-hint {
+            margin-bottom: 20px;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .login-hint small {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        .login-hint strong {
+            color: #667eea;
+        }
+        .btn {
+            width: 100%;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #5568d3;
+        }
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        .dashboard {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            min-width: 500px;
+            text-align: center;
+        }
+        .dashboard h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .dashboard p {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+        .success {
+            color: #2ecc71;
+            font-weight: bold;
+        }
+        .console-log {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: left;
+            font-family: monospace;
+            font-size: 0.9rem;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .console-log div {
+            margin: 5px 0;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- Login Page -->
+        <div id="loginPage" class="page active">
+            <div class="login-container">
+                <h1>🔐 Login Test System</h1>
+                <p>Click a button to test the login functionality</p>
+                <div class="role-buttons">
+                    <button class="role-btn admin-btn" onclick="showLoginForm('admin')">
+                        <span class="icon">👨‍💼</span>
+                        Login as Admin
+                    </button>
+                    <button class="role-btn teacher-btn" onclick="showLoginForm('teacher')">
+                        <span class="icon">👨‍🏫</span>
+                        Login as Teacher
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Credential Login Page -->
+        <div id="credentialLoginPage" class="page">
+            <div class="login-container">
+                <div class="login-form">
+                    <h1 id="loginFormTitle">Login</h1>
+                    <form onsubmit="credentialLogin(event)">
+                        <div class="form-group">
+                            <label for="loginEmail">Email Address</label>
+                            <input type="email" id="loginEmail" placeholder="Enter your email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="loginPassword">Password</label>
+                            <input type="password" id="loginPassword" placeholder="Enter your password" required>
+                        </div>
+                        <div class="login-hint">
+                            <small id="loginHint"></small>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Login</button>
+                        <button type="button" class="btn btn-secondary" onclick="backToLogin()">Back</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Page -->
+        <div id="dashboardPage" class="page">
+            <div class="login-container">
+                <div class="dashboard">
+                    <h2 id="dashboardTitle">Dashboard</h2>
+                    <p class="success">✅ Login Successful!</p>
+                    <p id="welcomeMsg"></p>
+                    <div class="console-log" id="consoleLog"></div>
+                    <button class="btn btn-secondary" onclick="logout()">Logout</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedRole = '';
+        let logs = [];
+
+        function log(message) {
+            console.log(message);
+            logs.push(message);
+            updateConsoleLog();
+        }
+
+        function updateConsoleLog() {
+            const consoleElement = document.getElementById('consoleLog');
+            if (consoleElement) {
+                consoleElement.innerHTML = logs.map(l => `<div>→ ${l}</div>`).join('');
+                consoleElement.scrollTop = consoleElement.scrollHeight;
+            }
+        }
+
+        function showLoginForm(role) {
+            try {
+                log(`showLoginForm called with role: ${role}`);
+                selectedRole = role;
+                
+                const loginPage = document.getElementById('loginPage');
+                const credentialPage = document.getElementById('credentialLoginPage');
+                
+                if (!loginPage || !credentialPage) {
+                    log('ERROR: Login pages not found!');
+                    alert('Error: Login pages not found. Please refresh the page.');
+                    return;
+                }
+                
+                loginPage.classList.remove('active');
+                credentialPage.classList.add('active');
+                
+                const titleElement = document.getElementById('loginFormTitle');
+                const hintElement = document.getElementById('loginHint');
+                
+                if (!titleElement || !hintElement) {
+                    log('ERROR: Form elements not found!');
+                    return;
+                }
+                
+                if (role === 'admin') {
+                    titleElement.textContent = 'Admin Login';
+                    hintElement.innerHTML = 'Default: <strong>admin@example.com</strong> / <strong>admin123</strong>';
+                } else if (role === 'teacher') {
+                    titleElement.textContent = 'Teacher Login';
+                    hintElement.innerHTML = 'Demo: <strong>rajesh@example.com</strong> / <strong>teacher123</strong>';
+                }
+                
+                const emailInput = document.getElementById('loginEmail');
+                const passwordInput = document.getElementById('loginPassword');
+                
+                if (emailInput) emailInput.value = '';
+                if (passwordInput) passwordInput.value = '';
+                
+                log('Login form displayed successfully ✓');
+            } catch (error) {
+                log(`ERROR in showLoginForm: ${error.message}`);
+                alert('An error occurred. Please refresh the page and try again.');
+            }
+        }
+
+        function credentialLogin(event) {
+            event.preventDefault();
+            
+            try {
+                log('credentialLogin called');
+                
+                const email = document.getElementById('loginEmail').value.trim();
+                const password = document.getElementById('loginPassword').value;
+                
+                log(`Attempting login for role: ${selectedRole}, email: ${email}`);
+                
+                const credentials = {
+                    admin: {
+                        'admin@example.com': 'admin123'
+                    },
+                    teacher: {
+                        'rajesh@example.com': 'teacher123',
+                        'priya@example.com': 'teacher123',
+                        'amit@example.com': 'teacher123'
+                    }
+                };
+                
+                if (credentials[selectedRole] && credentials[selectedRole][email] === password) {
+                    log('Login successful! ✓');
+                    
+                    document.getElementById('credentialLoginPage').classList.remove('active');
+                    document.getElementById('dashboardPage').classList.add('active');
+                    
+                    const roleTitle = selectedRole.charAt(0).toUpperCase() + selectedRole.slice(1);
+                    document.getElementById('dashboardTitle').textContent = `${roleTitle} Dashboard`;
+                    document.getElementById('welcomeMsg').textContent = `Welcome, ${email}!`;
+                    
+                    log(`Dashboard loaded for ${roleTitle}`);
+                } else {
+                    log('Login failed - invalid credentials ✗');
+                    alert('❌ Invalid email or password!\n\nPlease check your credentials and try again.');
+                }
+            } catch (error) {
+                log(`ERROR in credentialLogin: ${error.message}`);
+                alert('An error occurred during login. Please try again.');
+            }
+        }
+
+        function backToLogin() {
+            log('Returning to role selection');
+            document.getElementById('credentialLoginPage').classList.remove('active');
+            document.getElementById('loginPage').classList.add('active');
+        }
+
+        function logout() {
+            log('Logging out');
+            logs = [];
+            document.getElementById('dashboardPage').classList.remove('active');
+            document.getElementById('loginPage').classList.add('active');
+        }
+
+        // Initialize
+        log('System initialized ✓');
+        log('Ready to test login functionality');
+    </script>
+</body>
+</html>

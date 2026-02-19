@@ -1,34 +1,91 @@
 const db = require('../config/db');
 
 const AttendanceModel = {
-  async create(attendanceData) {
-    const { class_id, student_id, date, time, status } = attendanceData;
+  async createAttendance(classId, subjectId, date, startTime, endTime) {
     const [result] = await db.query(
-      'INSERT INTO attendance (class_id, student_id, date, time, status) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE status = ?, time = ?',
-      [class_id, student_id, date, time, status, status, time]
+      'INSERT INTO attendance (classId, subjectId, date, startTime, endTime) VALUES (?, ?, ?, ?, ?)',
+      [classId, subjectId, date, startTime, endTime]
     );
     return result.insertId;
   },
 
-  async getAll(filters = {}) {
+  async findAttendance(classId, subjectId, date) {
+    const [rows] = await db.query(
+      'SELECT * FROM attendance WHERE classId = ? AND subjectId = ? AND date = ?',
+      [classId, subjectId, date]
+    );
+    return rows[0];
+  },
+
+  async lockAttendance(attendanceId) {
+    await db.query('UPDATE attendance SET isLocked = TRUE WHERE id = ?', [attendanceId]);
+  },
+
+  async isAttendanceLocked(attendanceId) {
+    const [rows] = await db.query('SELECT isLocked FROM attendance WHERE id = ?', [attendanceId]);
+    return rows[0]?.isLocked || false;
+  },
+
+  async autoLockExpiredAttendance() {
+    const [settings] = await db.query('SELECT autoLockAfterMinutes FROM attendance_settings LIMIT 1');
+    const minutes = settings[0]?.autoLockAfterMinutes || 30;
+    
+    await db.query(`
+      UPDATE attendance 
+      SET isLocked = TRUE 
+      WHERE isLocked = FALSE 
+      AND TIMESTAMPADD(MINUTE, ?, CONCAT(date, ' ', endTime)) < NOW()
+    `, [minutes]);
+  },
+
+  async createRecord(attendanceId, studentId, status) {
+    await db.query(
+      'INSERT INTO attendance_records (attendanceId, studentId, status) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE status = ?',
+      [attendanceId, studentId, status, status]
+    );
+  },
+
+  async getRecordsByAttendance(attendanceId) {
+    const [rows] = await db.query(`
+      SELECT ar.*, s.rollNumber, u.name as studentName
+      FROM attendance_records ar
+      JOIN students s ON ar.studentId = s.id
+      JOIN users u ON s.userId = u.id
+      WHERE ar.attendanceId = ?
+    `, [attendanceId]);
+    return rows;
+  },
+
+  async getStudentAttendance(studentId) {
+    const [rows] = await db.query(`
+      SELECT a.date, ar.status, c.className, sub.subjectName
+      FROM attendance_records ar
+      JOIN attendance a ON ar.attendanceId = a.id
+      JOIN classes c ON a.classId = c.id
+      JOIN subjects sub ON a.subjectId = sub.id
+      WHERE ar.studentId = ?
+      ORDER BY a.date DESC
+    `, [studentId]);
+    return rows;
+  },
+
+  async getAllAttendance(filters = {}) {
     let query = `
-      SELECT a.*, c.class_name, c.class_section, s.student_name, s.roll_number
-      FROM attendance a
-      JOIN classes c ON a.class_id = c.id
-      JOIN students s ON a.student_id = s.id
+      SELECT a.date, c.className, sub.subjectName, u.name as studentName, s.rollNumber, ar.status
+      FROM attendance_records ar
+      JOIN attendance a ON ar.attendanceId = a.id
+      JOIN students s ON ar.studentId = s.id
+      JOIN users u ON s.userId = u.id
+      JOIN classes c ON a.classId = c.id
+      JOIN subjects sub ON a.subjectId = sub.id
       WHERE 1=1
     `;
     
     const params = [];
     
-    if (filters.class_id) {
-      query += ' AND a.class_id = ?';
-      params.push(filters.class_id);
-    }
-    
-    if (filters.student_id) {
-      query += ' AND a.student_id = ?';
-      params.push(filters.student_id);
+    if (filters.studentId) {
+      query += ' AND ar.studentId = ?';
+      params.push(filters.studentId);
     }
     
     if (filters.date) {
@@ -36,69 +93,37 @@ const AttendanceModel = {
       params.push(filters.date);
     }
     
-    query += ' ORDER BY a.date DESC, a.time DESC';
+    if (filters.subjectId) {
+      query += ' AND a.subjectId = ?';
+      params.push(filters.subjectId);
+    }
+    
+    query += ' ORDER BY a.date DESC';
     
     const [rows] = await db.query(query, params);
     return rows;
   },
 
-  async getByClassAndDate(classId, date) {
-    const [rows] = await db.query(`
-      SELECT a.*, s.student_name, s.roll_number
-      FROM attendance a
-      JOIN students s ON a.student_id = s.id
-      WHERE a.class_id = ? AND a.date = ?
-      ORDER BY s.roll_number
-    `, [classId, date]);
-    return rows;
-  },
-
-  async getStudentAttendance(studentId) {
-    const [rows] = await db.query(`
-      SELECT a.*, c.class_name, c.class_section
-      FROM attendance a
-      JOIN classes c ON a.class_id = c.id
-      WHERE a.student_id = ?
-      ORDER BY a.date DESC
-    `, [studentId]);
-    return rows;
-  },
-
-  async update(id, data) {
-    const updates = [];
-    const values = [];
-
-    if (data.status !== undefined) {
-      updates.push('status = ?');
-      values.push(data.status);
-    }
+  async checkLowAttendance() {
+    const [settings] = await db.query('SELECT lowAttendanceThreshold FROM attendance_settings LIMIT 1');
+    const threshold = settings[0]?.lowAttendanceThreshold || 50;
     
-    if (data.time !== undefined) {
-      updates.push('time = ?');
-      values.push(data.time);
-    }
-
-    if (updates.length === 0) return;
-
-    values.push(id);
-    await db.query(`UPDATE attendance SET ${updates.join(', ')} WHERE id = ?`, values);
-  },
-
-  async delete(id) {
-    await db.query('DELETE FROM attendance WHERE id = ?', [id]);
-  },
-
-  async getAttendancePercentage(studentId) {
-    const [rows] = await db.query(`
+    const [students] = await db.query(`
       SELECT 
+        s.id as studentId,
+        s.userId,
+        u.name,
         COUNT(*) as total,
-        SUM(CASE WHEN status = 'present' THEN 1 ELSE 0 END) as present
-      FROM attendance
-      WHERE student_id = ?
-    `, [studentId]);
+        SUM(CASE WHEN ar.status = 'Present' THEN 1 ELSE 0 END) as present,
+        (SUM(CASE WHEN ar.status = 'Present' THEN 1 ELSE 0 END) / COUNT(*) * 100) as percentage
+      FROM students s
+      JOIN users u ON s.userId = u.id
+      JOIN attendance_records ar ON s.id = ar.studentId
+      GROUP BY s.id, s.userId, u.name
+      HAVING percentage < ?
+    `, [threshold]);
     
-    const { total, present } = rows[0];
-    return total > 0 ? ((present / total) * 100).toFixed(2) : 0;
+    return students;
   }
 };
 

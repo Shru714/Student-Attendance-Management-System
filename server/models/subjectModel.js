@@ -19,26 +19,6 @@ const SubjectModel = {
     return rows[0];
   },
 
-  async update(id, data) {
-    const { subjectName, subjectCode } = data;
-    const updates = [];
-    const values = [];
-
-    if (subjectName !== undefined) {
-      updates.push('subjectName = ?');
-      values.push(subjectName);
-    }
-    if (subjectCode !== undefined) {
-      updates.push('subjectCode = ?');
-      values.push(subjectCode);
-    }
-
-    if (updates.length === 0) return;
-
-    values.push(id);
-    await db.query(`UPDATE subjects SET ${updates.join(', ')} WHERE id = ?`, values);
-  },
-
   async delete(id) {
     await db.query('DELETE FROM subjects WHERE id = ?', [id]);
   }

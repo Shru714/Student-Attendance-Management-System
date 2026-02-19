@@ -19,77 +19,51 @@ const TeacherController = {
       throw { status: 404, message: 'Teacher profile not found' };
     }
     const assignments = await TeacherAssignmentModel.getByTeacherId(teacher.id);
-    
-    // Get unique class IDs
-    const classIds = [...new Set(assignments.map(a => a.class_id))];
-    
-    // Fetch full class details for each class
-    const classes = [];
-    for (const classId of classIds) {
-      const classData = await ClassModel.findById(classId);
-      if (classData) {
-        // Add class time from assignment
-        const assignment = assignments.find(a => a.class_id === classId);
-        classData.class_time = assignment?.class_time || '09:00:00';
-        classes.push(classData);
-      }
-    }
-    
-    return { assignments, classes };
+    return { assignments };
   },
 
   async markAttendance(data) {
-    console.log('=== MARK ATTENDANCE BACKEND ===');
-    console.log('Received data:', JSON.stringify(data, null, 2));
+    const { classId, subjectId, date, records, startTime, endTime } = data;
+
+    // Check if attendance is within allowed time window
+    const now = new Date();
+    const currentTime = now.getHours() * 60 + now.getMinutes(); // minutes since midnight
     
-    const { classId, date, records, startTime } = data;
-
-    if (!classId || !date || !records || records.length === 0) {
-      throw { status: 400, message: 'Missing required fields: classId, date, or records' };
+    // Parse end time (e.g., "10:30" -> 630 minutes)
+    const [endHour, endMinute] = endTime.split(':').map(Number);
+    const endTimeMinutes = endHour * 60 + endMinute;
+    
+    // Add 30 minute grace period
+    const lockTimeMinutes = endTimeMinutes + 30;
+    
+    if (currentTime > lockTimeMinutes) {
+      throw { 
+        status: 403, 
+        message: `Attendance time closed. Attendance for ${startTime}-${endTime} must be marked before ${Math.floor(lockTimeMinutes/60)}:${(lockTimeMinutes%60).toString().padStart(2, '0')}`
+      };
     }
 
-    // Use startTime or current time
-    const time = startTime || new Date().toTimeString().slice(0, 5);
-    console.log('Using time:', time);
-
-    // Save each attendance record
-    const results = [];
-    for (const record of records) {
-      try {
-        console.log('Processing record:', record);
-        
-        const attendanceData = {
-          class_id: classId,
-          student_id: record.studentId,
-          date: date,
-          time: time,
-          status: record.status
-        };
-        
-        console.log('Saving attendance data:', attendanceData);
-        const id = await AttendanceModel.create(attendanceData);
-        console.log('Saved with ID:', id);
-        
-        results.push({ id, ...attendanceData });
-      } catch (error) {
-        console.error(`Error saving attendance for student ${record.studentId}:`, error);
-        throw error;
+    let attendance = await AttendanceModel.findAttendance(classId, subjectId, date);
+    
+    if (attendance) {
+      // Check if already locked
+      const isLocked = await AttendanceModel.isAttendanceLocked(attendance.id);
+      if (isLocked) {
+        throw { status: 403, message: 'Attendance is locked and cannot be modified' };
       }
+    } else {
+      const attendanceId = await AttendanceModel.createAttendance(classId, subjectId, date, startTime, endTime);
+      attendance = { id: attendanceId };
     }
 
-    console.log('All records saved successfully:', results.length);
-    return { 
-      message: 'Attendance marked successfully',
-      count: results.length,
-      records: results
-    };
+    for (const record of records) {
+      await AttendanceModel.createRecord(attendance.id, record.studentId, record.status);
+    }
+
+    return { message: 'Attendance marked successfully' };
   },
 
   async getHistory(classId, subjectId) {
-    if (!classId) {
-      throw { status: 400, message: 'Class ID is required' };
-    }
-
     const students = await StudentModel.getByClassId(classId);
     const history = [];
 
@@ -101,8 +75,8 @@ const TeacherController = {
         
       history.push({
         studentId: student.id,
-        studentName: student.student_name || student.name,
-        rollNumber: student.roll_number || student.rollNumber,
+        studentName: student.name,
+        rollNumber: student.rollNumber,
         attendance: filtered
       });
     }
@@ -117,38 +91,6 @@ const TeacherController = {
     }
     const subjects = await TeacherModel.getSubjects(teacher.id);
     return subjects;
-  },
-
-  async getStudents(userId, classId) {
-    const teacher = await TeacherModel.findByUserId(userId);
-    if (!teacher) {
-      throw { status: 404, message: 'Teacher profile not found' };
-    }
-
-    // If classId is provided, verify teacher has access to this class
-    if (classId) {
-      const assignments = await TeacherAssignmentModel.getByTeacherId(teacher.id);
-      const hasAccess = assignments.some(a => a.class_id == classId);
-      
-      if (!hasAccess) {
-        throw { status: 403, message: 'Access denied to this class' };
-      }
-      
-      // Return students for specific class
-      return await StudentModel.getByClassId(classId);
-    }
-
-    // If no classId, return all students from teacher's assigned classes
-    const assignments = await TeacherAssignmentModel.getByTeacherId(teacher.id);
-    const classIds = [...new Set(assignments.map(a => a.class_id))];
-    
-    const allStudents = [];
-    for (const cId of classIds) {
-      const students = await StudentModel.getByClassId(cId);
-      allStudents.push(...students);
-    }
-    
-    return allStudents;
   }
 };
 

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        button {
+            padding: 15px 30px;
+            margin: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background: #667eea;
+            color: white;
+        }
+        button:hover {
+            background: #5568d3;
+        }
+        .form-group {
+            margin: 15px 0;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .hidden {
+            display: none;
+        }
+        .hint {
+            background: #f0f0f0;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="roleSelection">
+            <h2>Select Your Role</h2>
+            <button onclick="showLoginForm('admin')">Login as Admin</button>
+            <button onclick="showLoginForm('teacher')">Login as Teacher</button>
+        </div>
+
+        <div id="loginForm" class="hidden">
+            <h2 id="loginTitle">Login</h2>
+            <div class="hint" id="loginHint"></div>
+            <form onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label>Email:</label>
+                    <input type="email" id="email" required>
+                </div>
+                <div class="form-group">
+                    <label>Password:</label>
+                    <input type="password" id="password" required>
+                </div>
+                <button type="submit">Login</button>
+                <button type="button" onclick="backToRoles()">Back</button>
+            </form>
+        </div>
+
+        <div id="dashboard" class="hidden">
+            <h2 id="dashboardTitle">Dashboard</h2>
+            <p id="welcomeMsg"></p>
+            <button onclick="logout()">Logout</button>
+        </div>
+    </div>
+
+    <script>
+        let selectedRole = '';
+
+        function showLoginForm(role) {
+            console.log('showLoginForm called with role:', role);
+            selectedRole = role;
+            
+            document.getElementById('roleSelection').classList.add('hidden');
+            document.getElementById('loginForm').classList.remove('hidden');
+            
+            if (role === 'admin') {
+                document.getElementById('loginTitle').textContent = 'Admin Login';
+                document.getElementById('loginHint').innerHTML = 'Default: <strong>admin@example.com</strong> / <strong>admin123</strong>';
+            } else if (role === 'teacher') {
+                document.getElementById('loginTitle').textContent = 'Teacher Login';
+                document.getElementById('loginHint').innerHTML = 'Demo: <strong>rajesh@example.com</strong> / <strong>teacher123</strong>';
+            }
+            
+            document.getElementById('email').value = '';
+            document.getElementById('password').value = '';
+        }
+
+        function handleLogin(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            
+            const credentials = {
+                admin: {
+                    'admin@example.com': 'admin123'
+                },
+                teacher: {
+                    'rajesh@example.com': 'teacher123',
+                    'priya@example.com': 'teacher123',
+                    'amit@example.com': 'teacher123'
+                }
+            };
+            
+            if (credentials[selectedRole] && credentials[selectedRole][email] === password) {
+                document.getElementById('loginForm').classList.add('hidden');
+                document.getElementById('dashboard').classList.remove('hidden');
+                document.getElementById('dashboardTitle').textContent = selectedRole.charAt(0).toUpperCase() + selectedRole.slice(1) + ' Dashboard';
+                document.getElementById('welcomeMsg').textContent = 'Welcome, ' + email + '!';
+            } else {
+                alert('❌ Invalid email or password!');
+            }
+        }
+
+        function backToRoles() {
+            document.getElementById('loginForm').classList.add('hidden');
+            document.getElementById('roleSelection').classList.remove('hidden');
+        }
+
+        function logout() {
+            document.getElementById('dashboard').classList.add('hidden');
+            document.getElementById('roleSelection').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>

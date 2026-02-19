@@ -1,0 +1,281 @@
+================================================================================
+DEMO DATA SETUP GUIDE
+================================================================================
+
+PURPOSE:
+When you load demo data, it creates sample classes, teachers, students, and 
+attendance records so you can immediately test all features without manually 
+creating data.
+
+================================================================================
+HOW TO LOAD DEMO DATA
+================================================================================
+
+STEP 1: Open Application
+- Open the application in your browser
+- You'll see the login page
+
+STEP 2: Login as Admin
+- Click "Login as Admin" button
+- You'll be taken to Admin Dashboard
+
+STEP 3: Load Demo Data
+- On the Admin Dashboard, you'll see a button: "📊 Load Demo Data"
+- Click this button
+- A confirmation message will appear showing:
+  * Classes: 5
+  * Teachers: 3
+  * Students: 8
+  * Attendance Records: 11
+
+STEP 4: Page Reloads
+- The page will automatically reload
+- All demo data is now loaded into the system
+
+================================================================================
+DEMO DATA CREATED
+================================================================================
+
+CLASSES (5 Total):
+1. PHP - Section B, Year 3
+2. Java - Section B, Year 2
+3. R programming - Section A, Year 1
+4. C - Section A, Year 1
+5. Python - Section A, Year 3
+
+TEACHERS (3 Total):
+1. Dr. Rajesh Kumar (TCH001) - Contact: 9876543210
+   - Teaches: All years and classes
+   
+2. Prof. Priya Sharma (TCH002) - Contact: 9876543211
+   - Teaches: Years 1-2, Classes 1-3
+   
+3. Dr. Amit Patel (TCH003) - Contact: 9876543212
+   - Teaches: All years, Classes 4-5
+
+STUDENTS (8 Total):
+1. Rahul Verma (PHP25001) - Class: PHP
+2. Anita Singh (PHP25002) - Class: PHP
+3. Vikram Joshi (PHP25003) - Class: PHP
+4. Sneha Gupta (Java25001) - Class: Java
+5. Arjun Reddy (Java25002) - Class: Java
+6. Pooja Mehta (Rprog25001) - Class: R programming
+7. Nikhil Kumar (C25001) - Class: C
+8. Divya Nair (Python25001) - Class: Python
+
+ATTENDANCE RECORDS (11 Total):
+- Today: 5 records (PHP and Java classes)
+- Yesterday: 3 records (PHP class)
+- Two days ago: 3 records (PHP class)
+
+================================================================================
+WHAT YOU CAN TEST AFTER LOADING DEMO DATA
+================================================================================
+
+1. MARK ATTENDANCE (Teacher Dashboard)
+   ✅ Select a class from dropdown (PHP, Java, R programming, C, Python)
+   ✅ Students will auto-load for that class
+   ✅ Mark students as Present/Absent
+   ✅ Save attendance
+   ✅ View attendance history
+
+2. MANAGE CLASSES (Admin Dashboard)
+   ✅ View all 5 classes
+   ✅ Edit class details
+   ✅ Delete classes
+   ✅ Add new classes
+
+3. MANAGE TEACHERS (Admin Dashboard)
+   ✅ View all 3 teachers
+   ✅ Edit teacher details
+   ✅ Delete teachers
+   ✅ Add new teachers
+
+4. MANAGE STUDENTS (Admin Dashboard)
+   ✅ View all 8 students
+   ✅ Edit student details
+   ✅ Delete students
+   ✅ Add new students
+
+5. ATTENDANCE REPORTS (Admin Dashboard)
+   ✅ View student reports
+   ✅ View date reports
+   ✅ Filter by date range
+   ✅ Filter by class
+   ✅ Export to CSV
+   ✅ Save reports
+
+================================================================================
+FIELD NAMES IN DEMO DATA
+================================================================================
+
+CLASSES:
+- id: Unique identifier
+- className: Class name (PHP, Java, etc.)
+- class_section: Section (A, B, etc.)
+- year: Year (1, 2, 3)
+- academic_year: Academic year (2025-2026)
+
+TEACHERS:
+- id: Unique identifier
+- name: Teacher's full name
+- email: Teacher's email
+- teacherId: Unique teacher ID (TCH001, etc.)
+- contactNo: Contact number (10 digits)
+- phone: Phone number
+- years: Array of years taught [1, 2, 3]
+- classIds: Array of class IDs [1, 2, 3]
+
+STUDENTS:
+- id: Unique identifier
+- student_name: Student's full name
+- email: Student's email
+- rollNumber: Auto-generated roll number
+- classId: Class ID
+- address: Student's address
+- student_contact: Student's contact number
+- parent_contact: Parent's contact number
+- password: Auto-generated password
+
+ATTENDANCE:
+- id: Unique identifier
+- classId: Class ID
+- studentId: Student ID
+- studentName: Student's name
+- rollNumber: Student's roll number
+- date: Date (YYYY-MM-DD format)
+- time: Time (HH:MM format)
+- status: 'present' or 'absent'
+- markedAt: Timestamp when marked
+
+================================================================================
+TESTING WORKFLOW
+================================================================================
+
+WORKFLOW 1: Mark Attendance
+1. Load demo data
+2. Login as Teacher
+3. Go to "Mark Attendance"
+4. Select class (e.g., "PHP - B")
+5. Students auto-load (Rahul, Anita, Vikram)
+6. Mark students as Present/Absent
+7. Click "Save Attendance"
+8. Success message appears
+
+WORKFLOW 2: View Reports
+1. Load demo data
+2. Login as Admin
+3. Go to "Attendance Reports"
+4. Select "Student Report" tab
+5. Select a student
+6. View attendance records
+7. Export to CSV
+
+WORKFLOW 3: Manage Data
+1. Load demo data
+2. Login as Admin
+3. Go to "Manage Classes"
+4. View all 5 classes
+5. Edit or delete a class
+6. Add a new class
+
+================================================================================
+CLEARING DEMO DATA
+================================================================================
+
+If you want to clear demo data and start fresh:
+
+METHOD 1: Browser DevTools
+1. Press F12 to open DevTools
+2. Go to "Application" or "Storage" tab
+3. Click "Local Storage"
+4. Find your domain
+5. Right-click and select "Clear"
+6. Refresh the page
+
+METHOD 2: Using Console
+1. Press F12 to open DevTools
+2. Go to "Console" tab
+3. Type: localStorage.clear()
+4. Press Enter
+5. Refresh the page
+
+================================================================================
+TROUBLESHOOTING
+================================================================================
+
+ISSUE: Demo data button not showing
+SOLUTION:
+1. Hard refresh: Ctrl+Shift+R
+2. Login as Admin
+3. Look for "📊 Load Demo Data" button on Dashboard
+
+ISSUE: Classes not showing in dropdown
+SOLUTION:
+1. Load demo data first
+2. Hard refresh: Ctrl+Shift+R
+3. Login as Teacher
+4. Go to Mark Attendance
+5. Click on class dropdown
+
+ISSUE: Students not loading
+SOLUTION:
+1. Make sure demo data is loaded
+2. Select a class from dropdown
+3. Students should auto-load
+4. If not, check browser console for errors
+
+ISSUE: Attendance not saving
+SOLUTION:
+1. Make sure at least one student is marked
+2. Check that date and time are selected
+3. Try hard refresh: Ctrl+Shift+R
+4. Try again
+
+================================================================================
+DEMO DATA STATISTICS
+================================================================================
+
+Total Records Created:
+- Classes: 5
+- Teachers: 3
+- Students: 8
+- Attendance Records: 11
+- Total Data Points: 27
+
+Data Distribution:
+- PHP Class: 3 students
+- Java Class: 2 students
+- R programming Class: 1 student
+- C Class: 1 student
+- Python Class: 1 student
+
+Attendance Distribution:
+- Today: 5 records
+- Yesterday: 3 records
+- Two days ago: 3 records
+
+================================================================================
+NEXT STEPS
+================================================================================
+
+After loading demo data:
+
+1. Test Mark Attendance feature
+2. Test Attendance Reports
+3. Test Manage Classes/Teachers/Students
+4. Test Export functionality
+5. Test all filters and searches
+6. Test Edit and Delete operations
+7. Test Add new records
+
+================================================================================
+VERSION INFORMATION
+================================================================================
+
+Script Version: v=14
+Demo Data Version: 1.0
+Last Updated: February 9, 2026
+Status: ✅ COMPLETE
+
+================================================================================

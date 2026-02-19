@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Teacher Button</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .test-section {
+            background: #f5f5f5;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        button {
+            padding: 10px 20px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        button:hover {
+            background: #2980b9;
+        }
+        .success {
+            color: green;
+            font-weight: bold;
+        }
+        .error {
+            color: red;
+            font-weight: bold;
+        }
+        .info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-left: 4px solid #2196f3;
+            margin: 10px 0;
+        }
+        pre {
+            background: #263238;
+            color: #aed581;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Teacher Button Test Page</h1>
+    
+    <div class="info">
+        <strong>Purpose:</strong> This page tests if the teacher management system is working correctly.
+    </div>
+
+    <div class="test-section">
+        <h2>Step 1: Initialize Data</h2>
+        <p>Click this button to set up demo data in localStorage:</p>
+        <button onclick="setupDemoData()">Setup Demo Data</button>
+        <div id="setupResult"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Step 2: Check Data</h2>
+        <p>Verify that data was created correctly:</p>
+        <button onclick="checkData()">Check Data</button>
+        <div id="checkResult"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Step 3: Test Teacher Modal</h2>
+        <p>This simulates what happens when you click "+ Add Teacher":</p>
+        <button onclick="testTeacherModal()">Test Teacher Modal Function</button>
+        <div id="modalResult"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Step 4: Open Actual Application</h2>
+        <p>If all tests pass above, open the actual application:</p>
+        <button onclick="window.open('client/index.html', '_blank')">Open Application</button>
+    </div>
+
+    <div class="test-section">
+        <h2>Troubleshooting</h2>
+        <button onclick="clearAllData()">Clear All Data</button>
+        <button onclick="showConsoleCommands()">Show Console Commands</button>
+        <div id="troubleshootResult"></div>
+    </div>
+
+    <script>
+        function setupDemoData() {
+            const demoClasses = [
+                { id: 1, name: 'BCA 1st Year', year: 1 },
+                { id: 2, name: 'BCA 2nd Year', year: 2 },
+                { id: 3, name: 'MCA 1st Year', year: 1 }
+            ];
+            
+            const demoSubjects = [
+                { id: 1, name: 'Mathematics', code: 'MATH101' },
+                { id: 2, name: 'Physics', code: 'PHY101' },
+                { id: 3, name: 'Computer Science', code: 'CS101' },
+                { id: 4, name: 'English', code: 'ENG101' },
+                { id: 5, name: 'Data Structures', code: 'CS201' }
+            ];
+            
+            const demoTeachers = [
+                { 
+                    id: 1, 
+                    name: 'Dr. Rajesh Kumar', 
+                    email: 'rajesh@example.com', 
+                    teacherId: 'TCH001',
+                    contactNo: '9876543210',
+                    phone: '1234567890',
+                    subjectIds: [1, 2],
+                    years: [1, 2],
+                    classIds: [1, 2]
+                }
+            ];
+            
+            localStorage.setItem('classes', JSON.stringify(demoClasses));
+            localStorage.setItem('subjects', JSON.stringify(demoSubjects));
+            localStorage.setItem('teachers', JSON.stringify(demoTeachers));
+            localStorage.setItem('students', JSON.stringify([]));
+            localStorage.setItem('attendance', JSON.stringify([]));
+            
+            document.getElementById('setupResult').innerHTML = 
+                '<p class="success">✓ Demo data created successfully!</p>';
+        }
+
+        function checkData() {
+            const classes = JSON.parse(localStorage.getItem('classes') || '[]');
+            const subjects = JSON.parse(localStorage.getItem('subjects') || '[]');
+            const teachers = JSON.parse(localStorage.getItem('teachers') || '[]');
+            
+            let html = '<h3>Data Check Results:</h3>';
+            html += `<p>Classes: ${classes.length} <span class="${classes.length > 0 ? 'success' : 'error'}">${classes.length > 0 ? '✓' : '✗'}</span></p>`;
+            html += `<p>Subjects: ${subjects.length} <span class="${subjects.length > 0 ? 'success' : 'error'}">${subjects.length > 0 ? '✓' : '✗'}</span></p>`;
+            html += `<p>Teachers: ${teachers.length} <span class="${teachers.length >= 0 ? 'success' : 'error'}">✓</span></p>`;
+            
+            if (classes.length > 0 && subjects.length > 0) {
+                html += '<p class="success"><strong>✓ All required data is present!</strong></p>';
+            } else {
+                html += '<p class="error"><strong>✗ Missing required data. Click "Setup Demo Data" first.</strong></p>';
+            }
+            
+            html += '<h4>Details:</h4>';
+            html += '<pre>' + JSON.stringify({ classes, subjects, teachers }, null, 2) + '</pre>';
+            
+            document.getElementById('checkResult').innerHTML = html;
+        }
+
+        function testTeacherModal() {
+            try {
+                const subjects = JSON.parse(localStorage.getItem('subjects') || '[]');
+                const classes = JSON.parse(localStorage.getItem('classes') || '[]');
+                
+                let html = '<h3>Modal Test Results:</h3>';
+                
+                if (subjects.length === 0) {
+                    html += '<p class="error">✗ No subjects found - modal would show warning</p>';
+                } else {
+                    html += `<p class="success">✓ Found ${subjects.length} subjects</p>`;
+                    html += '<p>Subjects would be displayed as checkboxes:</p><ul>';
+                    subjects.forEach(s => {
+                        html += `<li>${s.name} (${s.code})</li>`;
+                    });
+                    html += '</ul>';
+                }
+                
+                if (classes.length === 0) {
+                    html += '<p class="error">✗ No classes found - modal would show warning</p>';
+                } else {
+                    html += `<p class="success">✓ Found ${classes.length} classes</p>`;
+                    html += '<p>Classes would be displayed as checkboxes:</p><ul>';
+                    classes.forEach(c => {
+                        html += `<li>${c.name} (Year ${c.year})</li>`;
+                    });
+                    html += '</ul>';
+                }
+                
+                if (subjects.length > 0 && classes.length > 0) {
+                    html += '<p class="success"><strong>✓ Teacher modal would open successfully!</strong></p>';
+                } else {
+                    html += '<p class="error"><strong>✗ Teacher modal would show warnings. Setup demo data first.</strong></p>';
+                }
+                
+                document.getElementById('modalResult').innerHTML = html;
+            } catch (error) {
+                document.getElementById('modalResult').innerHTML = 
+                    `<p class="error">✗ Error: ${error.message}</p>`;
+            }
+        }
+
+        function clearAllData() {
+            if (confirm('This will delete all data. Are you sure?')) {
+                localStorage.clear();
+                document.getElementById('troubleshootResult').innerHTML = 
+                    '<p class="success">✓ All data cleared. Click "Setup Demo Data" to start fresh.</p>';
+            }
+        }
+
+        function showConsoleCommands() {
+            const commands = `
+// Check what's in localStorage
+console.log('Classes:', JSON.parse(localStorage.getItem('classes')));
+console.log('Subjects:', JSON.parse(localStorage.getItem('subjects')));
+console.log('Teachers:', JSON.parse(localStorage.getItem('teachers')));
+
+// Clear all data
+localStorage.clear();
+
+// Add subjects manually
+localStorage.setItem('subjects', JSON.stringify([
+  { id: 1, name: 'Mathematics', code: 'MATH101' },
+  { id: 2, name: 'Physics', code: 'PHY101' }
+]));
+
+// Add classes manually
+localStorage.setItem('classes', JSON.stringify([
+  { id: 1, name: 'BCA 1st Year', year: 1 }
+]));
+            `;
+            
+            document.getElementById('troubleshootResult').innerHTML = 
+                '<h3>Console Commands:</h3><p>Copy and paste these into your browser console (F12):</p><pre>' + commands + '</pre>';
+        }
+
+        // Auto-check data on page load
+        window.onload = function() {
+            const subjects = JSON.parse(localStorage.getItem('subjects') || '[]');
+            const classes = JSON.parse(localStorage.getItem('classes') || '[]');
+            
+            if (subjects.length === 0 || classes.length === 0) {
+                alert('⚠️ No demo data found. Click "Setup Demo Data" to begin testing.');
+            }
+        };
+    </script>
+</body>
+</html>

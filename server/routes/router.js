@@ -88,7 +88,6 @@ const router = async (req, res) => {
               profile: '/api/teacher/profile',
               classes: '/api/teacher/my-classes',
               subjects: '/api/teacher/my-subjects',
-              students: '/api/teacher/students',
               markAttendance: '/api/teacher/mark-attendance',
               history: '/api/teacher/history'
             },
@@ -163,19 +162,6 @@ const router = async (req, res) => {
       return { status: 201, data: result };
     }
 
-    if (path === '/api/admin/subjects' && method === 'PUT') {
-      await authorize(['admin'])(req);
-      const data = await parseBody(req);
-      const result = await AdminController.updateSubject(data);
-      return { status: 200, data: result };
-    }
-
-    if (path === '/api/admin/subjects' && method === 'DELETE') {
-      await authorize(['admin'])(req);
-      const result = await AdminController.deleteSubject(query.id);
-      return { status: 200, data: result };
-    }
-
     // Admin - Teachers
     if (path === '/api/admin/teachers' && method === 'GET') {
       await authorize(['admin'])(req);
@@ -217,13 +203,6 @@ const router = async (req, res) => {
       return { status: 201, data: result };
     }
 
-    if (path === '/api/admin/students' && method === 'PUT') {
-      await authorize(['admin'])(req);
-      const data = await parseBody(req);
-      const result = await AdminController.updateStudent(data);
-      return { status: 200, data: result };
-    }
-
     if (path === '/api/admin/students/bulk' && method === 'POST') {
       await authorize(['admin'])(req);
       const data = await parseBody(req);
@@ -248,19 +227,6 @@ const router = async (req, res) => {
     if (path === '/api/admin/attendance' && method === 'GET') {
       await authorize(['admin'])(req);
       const result = await AdminController.getAttendanceReports(query);
-      return { status: 200, data: result };
-    }
-
-    if (path === '/api/admin/attendance' && method === 'PUT') {
-      await authorize(['admin'])(req);
-      const data = await parseBody(req);
-      const result = await AdminController.updateAttendanceRecord(data);
-      return { status: 200, data: result };
-    }
-
-    if (path === '/api/admin/attendance' && method === 'DELETE') {
-      await authorize(['admin'])(req);
-      const result = await AdminController.deleteAttendanceRecord(query.id);
       return { status: 200, data: result };
     }
 
@@ -299,13 +265,6 @@ const router = async (req, res) => {
     if (path === '/api/teacher/history' && method === 'GET') {
       await authorize(['teacher'])(req);
       const result = await TeacherController.getHistory(query.classId, query.subjectId);
-      return { status: 200, data: result };
-    }
-
-    // Teacher - Get Students (for marking attendance)
-    if (path === '/api/teacher/students' && method === 'GET') {
-      const user = await authorize(['teacher'])(req);
-      const result = await TeacherController.getStudents(user.id, query.classId);
       return { status: 200, data: result };
     }
 

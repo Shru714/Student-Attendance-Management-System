@@ -165,17 +165,10 @@ CREATE TABLE attendance_settings (
 
 -- 1. INSERT USERS (Admin and Teachers)
 -- Password hashes for: Admin@143, Teacher@143
--- Note: These are bcrypt hashes with salt rounds = 10
--- Generated using bcrypt.hash() to ensure correct matching
--- IMPORTANT: These hashes are verified and working!
-
 INSERT INTO users (name, email, password, role) VALUES
 -- Admin (Password: Admin@143)
--- Hash verified: bcrypt.compare('Admin@143', hash) = true
 ('Admin User', 'admin@example.com', '$2a$10$ZHVFgKDbP8x1pk.1uemMw.dgBsohvQWY14di85wSb7sq4yTj6xrra', 'admin'),
-
 -- Teachers (Password: Teacher@143)
--- Hash verified: bcrypt.compare('Teacher@143', hash) = true
 ('Shruti Sudheer Teli', 'shrutiteli571@gmail.com', '$2a$10$oOPaIPIorqcUEfe4sK7ryeWAoe5h49V.sG6tLvfWdu/PiZ79cVSrW', 'teacher'),
 ('sunny', 'sunny@gmail.com', '$2a$10$oOPaIPIorqcUEfe4sK7ryeWAoe5h49V.sG6tLvfWdu/PiZ79cVSrW', 'teacher'),
 ('Booby', 'booby@gmail.com', '$2a$10$oOPaIPIorqcUEfe4sK7ryeWAoe5h49V.sG6tLvfWdu/PiZ79cVSrW', 'teacher'),
@@ -208,7 +201,6 @@ INSERT INTO subjects (subject_name, subject_code) VALUES
 ('Operating Systems', 'CS305');
 
 -- 4. INSERT TEACHERS
--- user_id references: 2=Shruti, 3=sunny, 4=Booby, 5=Rocky
 INSERT INTO teachers (user_id, teacher_id, contact_no, phone) VALUES
 (2, 'S1', '9880816449', '9880816449'),
 (3, 'TCH002', '9880816449', '9880816449'),
@@ -216,69 +208,59 @@ INSERT INTO teachers (user_id, teacher_id, contact_no, phone) VALUES
 (5, 'TCH004', '9880816449', '9880816449');
 
 -- 5. INSERT STUDENTS (Password: Student@143)
--- BCA 1st Year A Section
 INSERT INTO students (student_name, email, roll_number, class_id, address, student_contact, parent_contact, password) VALUES
+-- BCA 1st Year A Section
 ('Rahul Verma', 'rahul.verma@example.com', 'BCA1A001', 1, '123 MG Road, Mumbai, Maharashtra', '9876543220', '9876543221', 'Student@143'),
 ('Priya Desai', 'priya.desai@example.com', 'BCA1A002', 1, '456 Park Street, Mumbai, Maharashtra', '9876543222', '9876543223', 'Student@143'),
 ('Amit Shah', 'amit.shah@example.com', 'BCA1A003', 1, '789 Link Road, Mumbai, Maharashtra', '9876543224', '9876543225', 'Student@143'),
 ('Sneha Kapoor', 'sneha.kapoor@example.com', 'BCA1A004', 1, '321 SV Road, Mumbai, Maharashtra', '9876543226', '9876543227', 'Student@143'),
 ('Rohan Gupta', 'rohan.gupta@example.com', 'BCA1A005', 1, '654 Hill Road, Mumbai, Maharashtra', '9876543228', '9876543229', 'Student@143'),
-
 -- BCA 1st Year B Section
 ('Anjali Sharma', 'anjali.sharma@example.com', 'BCA1B001', 2, '111 Nehru Place, Delhi', '9876543230', '9876543231', 'Student@143'),
 ('Vikram Malhotra', 'vikram.malhotra@example.com', 'BCA1B002', 2, '222 Connaught Place, Delhi', '9876543232', '9876543233', 'Student@143'),
 ('Kavita Singh', 'kavita.singh@example.com', 'BCA1B003', 2, '333 Karol Bagh, Delhi', '9876543234', '9876543235', 'Student@143'),
 ('Arjun Reddy', 'arjun.reddy@example.com', 'BCA1B004', 2, '444 Lajpat Nagar, Delhi', '9876543236', '9876543237', 'Student@143'),
 ('Pooja Mehta', 'pooja.mehta@example.com', 'BCA1B005', 2, '555 Saket, Delhi', '9876543238', '9876543239', 'Student@143'),
-
 -- BCA 2nd Year A Section
 ('Karan Joshi', 'karan.joshi@example.com', 'BCA2A001', 3, '666 MG Road, Bangalore', '9876543240', '9876543241', 'Student@143'),
 ('Divya Nair', 'divya.nair@example.com', 'BCA2A002', 3, '777 Brigade Road, Bangalore', '9876543242', '9876543243', 'Student@143'),
 ('Nikhil Kumar', 'nikhil.kumar@example.com', 'BCA2A003', 3, '888 Indiranagar, Bangalore', '9876543244', '9876543245', 'Student@143'),
 ('Riya Patel', 'riya.patel@example.com', 'BCA2A004', 3, '999 Koramangala, Bangalore', '9876543246', '9876543247', 'Student@143'),
 ('Sanjay Rao', 'sanjay.rao@example.com', 'BCA2A005', 3, '101 Whitefield, Bangalore', '9876543248', '9876543249', 'Student@143'),
-
 -- BCA 2nd Year B Section
 ('Meera Iyer', 'meera.iyer@example.com', 'BCA2B001', 4, '202 Anna Salai, Chennai', '9876543250', '9876543251', 'Student@143'),
 ('Aditya Krishnan', 'aditya.krishnan@example.com', 'BCA2B002', 4, '303 T Nagar, Chennai', '9876543252', '9876543253', 'Student@143'),
 ('Lakshmi Menon', 'lakshmi.menon@example.com', 'BCA2B003', 4, '404 Adyar, Chennai', '9876543254', '9876543255', 'Student@143'),
 ('Suresh Babu', 'suresh.babu@example.com', 'BCA2B004', 4, '505 Velachery, Chennai', '9876543256', '9876543257', 'Student@143'),
 ('Deepika Rao', 'deepika.rao@example.com', 'BCA2B005', 4, '606 Mylapore, Chennai', '9876543258', '9876543259', 'Student@143'),
-
 -- BCA 3rd Year A Section
 ('Rajat Khanna', 'rajat.khanna@example.com', 'BCA3A001', 5, '707 Civil Lines, Pune', '9876543260', '9876543261', 'Student@143'),
 ('Swati Deshmukh', 'swati.deshmukh@example.com', 'BCA3A002', 5, '808 Koregaon Park, Pune', '9876543262', '9876543263', 'Student@143'),
 ('Manish Kulkarni', 'manish.kulkarni@example.com', 'BCA3A003', 5, '909 Shivaji Nagar, Pune', '9876543264', '9876543265', 'Student@143'),
 ('Ananya Jain', 'ananya.jain@example.com', 'BCA3A004', 5, '1010 Viman Nagar, Pune', '9876543266', '9876543267', 'Student@143'),
 ('Varun Agarwal', 'varun.agarwal@example.com', 'BCA3A005', 5, '1111 Hinjewadi, Pune', '9876543268', '9876543269', 'Student@143'),
-
 -- BCA 3rd Year B Section
 ('Ishita Bansal', 'ishita.bansal@example.com', 'BCA3B001', 6, '1212 Park Street, Kolkata', '9876543270', '9876543271', 'Student@143'),
 ('Abhishek Ghosh', 'abhishek.ghosh@example.com', 'BCA3B002', 6, '1313 Salt Lake, Kolkata', '9876543272', '9876543273', 'Student@143'),
 ('Tanvi Chatterjee', 'tanvi.chatterjee@example.com', 'BCA3B003', 6, '1414 New Town, Kolkata', '9876543274', '9876543275', 'Student@143'),
 ('Siddharth Sen', 'siddharth.sen@example.com', 'BCA3B004', 6, '1515 Ballygunge, Kolkata', '9876543276', '9876543277', 'Student@143'),
 ('Nisha Roy', 'nisha.roy@example.com', 'BCA3B005', 6, '1616 Howrah, Kolkata', '9876543278', '9876543279', 'Student@143'),
-
 -- MCA 1st Year A Section
 ('Gaurav Mishra', 'gaurav.mishra@example.com', 'MCA1A001', 7, '1717 Gomti Nagar, Lucknow', '9876543280', '9876543281', 'Student@143'),
 ('Shruti Pandey', 'shruti.pandey@example.com', 'MCA1A002', 7, '1818 Hazratganj, Lucknow', '9876543282', '9876543283', 'Student@143'),
 ('Harsh Tiwari', 'harsh.tiwari@example.com', 'MCA1A003', 7, '1919 Alambagh, Lucknow', '9876543284', '9876543285', 'Student@143'),
-
 -- MCA 1st Year B Section
 ('Ritika Saxena', 'ritika.saxena@example.com', 'MCA1B001', 8, '2020 Banjara Hills, Hyderabad', '9876543286', '9876543287', 'Student@143'),
 ('Akash Reddy', 'akash.reddy@example.com', 'MCA1B002', 8, '2121 Jubilee Hills, Hyderabad', '9876543288', '9876543289', 'Student@143'),
 ('Neha Yadav', 'neha.yadav@example.com', 'MCA1B003', 8, '2222 Madhapur, Hyderabad', '9876543290', '9876543291', 'Student@143'),
-
 -- B.Tech CS 1st Year A Section
 ('Yash Chopra', 'yash.chopra@example.com', 'BT1A001', 9, '2323 Sector 17, Chandigarh', '9876543292', '9876543293', 'Student@143'),
 ('Simran Kaur', 'simran.kaur@example.com', 'BT1A002', 9, '2424 Sector 22, Chandigarh', '9876543294', '9876543295', 'Student@143'),
-
 -- B.Tech CS 1st Year B Section
 ('Aryan Malhotra', 'aryan.malhotra@example.com', 'BT1B001', 10, '2525 Model Town, Jaipur', '9876543296', '9876543297', 'Student@143'),
 ('Tanya Sharma', 'tanya.sharma@example.com', 'BT1B002', 10, '2626 C Scheme, Jaipur', '9876543298', '9876543299', 'Student@143');
 
 -- 6. ASSIGN TEACHERS TO YEARS
--- teacher_id: 1=Shruti(S1), 2=sunny(TCH002), 3=Booby(TCH003), 4=Rocky(TCH004)
 INSERT INTO teacher_years (teacher_id, year) VALUES
 (1, 1),  -- Shruti: Year 1
 (2, 2),  -- sunny: Year 2
@@ -286,19 +268,17 @@ INSERT INTO teacher_years (teacher_id, year) VALUES
 (4, 4);  -- Rocky: Year 4
 
 -- 7. ASSIGN TEACHERS TO CLASSES
--- Note: Assigning to available classes based on years
 INSERT INTO teacher_classes (teacher_id, class_id, class_time) VALUES
-(1, 1, '09:00:00'),  -- Shruti: BCA 1A (Year 1)
-(2, 3, '09:00:00'),  -- sunny: BCA 2A (Year 2)
-(3, 1, '10:30:00'),  -- Booby: BCA 1A (Year 1)
-(4, 5, '09:00:00');  -- Rocky: BCA 3A (Year 4 -> using Year 3 class)
+(1, 1, '09:00:00'),  -- Shruti: BCA 1A
+(2, 3, '09:00:00'),  -- sunny: BCA 2A
+(3, 1, '10:30:00'),  -- Booby: BCA 1A
+(4, 5, '09:00:00');  -- Rocky: BCA 3A
 
 -- 8. ASSIGN TEACHERS TO SUBJECTS
--- Assigning subjects based on class names from screenshot
 INSERT INTO teacher_subjects (teacher_id, subject_id) VALUES
-(1, 1),  -- Shruti: Programming in C (R)
-(2, 1),  -- sunny: Programming in C (C)
-(3, 1),  -- Booby: Programming in C (C)
+(1, 1),  -- Shruti: Programming in C
+(2, 1),  -- sunny: Programming in C
+(3, 1),  -- Booby: Programming in C
 (4, 6);  -- Rocky: Python Programming
 
 -- 9. CREATE TEACHER ASSIGNMENTS
@@ -357,7 +337,6 @@ INSERT INTO attendance_settings (setting_key, setting_value) VALUES
 -- ============================================
 -- CREATE INDEXES FOR BETTER PERFORMANCE
 -- ============================================
-
 CREATE INDEX idx_users_email ON users(email);
 CREATE INDEX idx_users_role ON users(role);
 CREATE INDEX idx_students_roll ON students(roll_number);
@@ -371,7 +350,6 @@ CREATE INDEX idx_notifications_student ON notifications(student_id);
 -- ============================================
 -- SUMMARY AND CREDENTIALS
 -- ============================================
-
 SELECT '============================================' AS '';
 SELECT '✅ DATABASE SETUP COMPLETE!' AS '';
 SELECT '============================================' AS '';
@@ -391,7 +369,7 @@ SELECT '  Email: admin@example.com' AS '';
 SELECT '  Password: Admin@143' AS '';
 SELECT '' AS '';
 SELECT 'TEACHER (Example):' AS '';
-SELECT '  Email: rajesh.kumar@example.com' AS '';
+SELECT '  Email: shrutiteli571@gmail.com' AS '';
 SELECT '  Password: Teacher@143' AS '';
 SELECT '' AS '';
 SELECT 'STUDENT (Example):' AS '';
