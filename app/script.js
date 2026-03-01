@@ -2088,6 +2088,18 @@ function saveAttendance() {
         return;
     }
     
+    // Check if date is holiday or weekend
+    const nonWorkingDay = isNonWorkingDay(date);
+    if (nonWorkingDay.isNonWorking) {
+        if (!confirm(`⚠️ ${nonWorkingDay.reason}\n\nAre you sure you want to mark attendance for a non-working day?`)) {
+            return;
+        }
+    } else if (nonWorkingDay.isHalfDay) {
+        if (!confirm(`ℹ️ ${nonWorkingDay.reason}\n\nThis is a half-day. Continue marking attendance?`)) {
+            return;
+        }
+    }
+    
     try {
         const students = getData('students') || [];
         const classes = getData('classes') || [];
@@ -2128,7 +2140,9 @@ function saveAttendance() {
                     date: date,
                     time: time,
                     status: attendanceData[studentId],
-                    markedAt: new Date().toISOString()
+                    markedAt: new Date().toISOString(),
+                    isHoliday: nonWorkingDay.isNonWorking,
+                    holidayReason: nonWorkingDay.reason
                 };
                 attendance.push(record);
                 savedCount++;
@@ -3656,6 +3670,9 @@ function generateInsights(attendance, students, classes) {
         </div>
     `).join('');
 }
+
+
+// ============================================
 // TIMETABLE MANAGEMENT SYSTEM
 // ============================================
 
@@ -4182,4 +4199,3 @@ function getCurrentPeriod(classId, date) {
 
 // Initialize timetable on page load
 initTimetableStorage();
-

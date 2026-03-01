@@ -568,16 +568,6 @@
                             </div>
                         </div>
 
-                        <!-- QR Code Button for Teachers -->
-                        <div style="margin-bottom: 20px; text-align: center;">
-                            <button class="btn btn-primary" onclick="showQRGeneratorModal()" style="padding: 12px 24px; font-size: 16px;">
-                                📱 Generate QR Code for Attendance
-                            </button>
-                            <p style="color: #7f8c8d; margin-top: 10px; font-size: 14px;">
-                                Generate a QR code for students to scan and mark their attendance automatically
-                            </p>
-                        </div>
-
                         <div class="attendance-form">
                             <div class="form-row">
                                 <div class="form-group">
@@ -668,17 +658,6 @@
 
                     <!-- Student Dashboard Section -->
                     <div id="studentDashboardSection" class="content-section active">
-                        <!-- QR Code Scanner Button for Students -->
-                        <div style="margin-bottom: 20px; text-align: center; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px; color: white;">
-                            <h3 style="margin-bottom: 10px;">📷 Quick Attendance</h3>
-                            <button class="btn" onclick="showQRScannerModal()" style="background: white; color: #667eea; padding: 12px 24px; font-size: 16px; font-weight: bold;">
-                                Scan QR Code to Mark Attendance
-                            </button>
-                            <p style="margin-top: 10px; font-size: 14px; opacity: 0.9;">
-                                Scan the QR code displayed by your teacher to mark your attendance instantly
-                            </p>
-                        </div>
-
                         <div class="student-info-card">
                             <h3>Personal Details</h3>
                             <div id="studentDetails"></div>
@@ -1044,6 +1023,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 
     <script src="script.js?v=34"></script>
-    <script src="qr-attendance.js"></script>
+    <script src="../qr-attendance.js"></script>
 </body>
 </html>

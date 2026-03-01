@@ -1,0 +1,588 @@
+================================================================================
+    STUDENT ATTENDANCE MANAGEMENT SYSTEM - COMPLETE INFORMATION
+================================================================================
+
+TABLE OF CONTENTS:
+1. Quick Start Guide
+2. Login Credentials
+3. System Features
+4. Demo Data Information
+5. Database Setup
+6. Troubleshooting
+7. File Structure
+8. Technical Information
+
+================================================================================
+1. QUICK START GUIDE
+================================================================================
+
+STEP 1: Run START_APP.bat
+   - Double-click START_APP.bat
+   - Select option 3: Import Database with Demo Data
+   - Enter MySQL username (default: root)
+   - Enter MySQL password
+
+STEP 2: Open Application
+   - Select option 1: Open Application
+   - Or manually open: app/index.html in browser
+
+STEP 3: Login
+   - Use credentials from section 2 below
+   - Admin: admin@example.com / Admin@143
+   - Teacher: shrutiteli571@gmail.com / Teacher@143
+   - Student: Rahul Verma / PHP25001 / Student@143
+
+STEP 4: Explore Features
+   - Admin: Manage classes, teachers, students, view reports
+   - Teacher: Mark attendance, view history
+   - Student: View personal attendance records
+
+================================================================================
+2. LOGIN CREDENTIALS
+================================================================================
+
+ADMIN LOGIN
+-----------
+Email:    admin@example.com
+Password: Admin@143
+Access:   Full system control, manage all users
+
+TEACHER LOGINS
+--------------
+All teachers use password: Teacher@143
+
+Teacher 1: Dr. Rajesh Kumar
+Email:    shrutiteli571@gmail.com
+ID:       TCH001
+Contact:  9876543210
+
+Teacher 2: Prof. Priya Sharma
+Email:    priya@example.com
+ID:       TCH002
+Contact:  9876543211
+
+Teacher 3: Dr. Amit Patel
+Email:    amit@example.com
+ID:       TCH003
+Contact:  9876543212
+
+STUDENT LOGINS
+--------------
+All students use password: Student@143
+
+Student 1: Rahul Verma
+Roll Number: PHP25001
+Class: PHP - Section B
+
+Student 2: Anita Singh
+Roll Number: PHP25002
+Class: PHP - Section B
+
+Student 3: Vikram Joshi
+Roll Number: PHP25003
+Class: PHP - Section B
+
+Student 4: Sneha Gupta
+Roll Number: Java25001
+Class: Java - Section B
+
+Student 5: Arjun Reddy
+Roll Number: Java25002
+Class: Java - Section B
+
+Student 6: Pooja Mehta
+Roll Number: Rprog25001
+Class: R programming - Section A
+
+Student 7: Nikhil Kumar
+Roll Number: C25001
+Class: C - Section A
+
+Student 8: Divya Nair
+Roll Number: Python25001
+Class: Python - Section A
+
+================================================================================
+3. SYSTEM FEATURES
+================================================================================
+
+ADMIN DASHBOARD
+---------------
+✓ Dashboard Overview
+  - Total classes count
+  - Total teachers count
+  - Total students count
+  - Today's attendance count
+
+✓ Manage Classes
+  - Add new classes
+  - Edit existing classes
+  - Delete classes
+  - View class details (name, section, year, academic year)
+
+✓ Manage Teachers
+  - Add new teachers with auto-generated IDs (TCH001, TCH002...)
+  - Edit teacher information
+  - Delete teachers
+  - Manage leave requests
+  - View teacher assignments
+
+✓ Manage Students
+  - Add new students
+  - Edit student information
+  - Delete students
+  - Manage leave requests
+  - View student details
+
+✓ Attendance Reports
+  - Student Report: View attendance by student with date range
+  - Date Report: View attendance by date with class filter
+  - Export to CSV and PDF
+  - Real-time statistics
+
+✓ Leave Management
+  - Submit leave requests for teachers/students
+  - Approve or reject leave requests
+  - View leave history
+  - Color-coded status (Pending/Approved/Rejected)
+
+TEACHER DASHBOARD
+-----------------
+✓ Mark Attendance
+  - Select class from dropdown
+  - Auto-load students for selected class
+  - Mark Present/Absent for each student
+  - Save attendance with date and time
+  - Duplicate prevention
+
+✓ View History
+  - View past attendance records
+  - Filter by class and date
+  - Edit previous attendance
+
+✓ Class Management
+  - View assigned classes
+  - View student lists
+
+STUDENT DASHBOARD
+-----------------
+✓ View Attendance
+  - Personal attendance records
+  - Attendance percentage
+  - Date-wise attendance
+  - Present/Absent statistics
+
+✓ Leave Requests
+  - View submitted leave requests
+  - Check leave status
+
+================================================================================
+4. DEMO DATA INFORMATION
+================================================================================
+
+CLASSES (5 Total)
+-----------------
+1. PHP - Section B, Year 3, Academic Year 2025-2026
+2. Java - Section B, Year 2, Academic Year 2025-2026
+3. R programming - Section A, Year 1, Academic Year 2025-2026
+4. C - Section A, Year 1, Academic Year 2025-2026
+5. Python - Section A, Year 3, Academic Year 2025-2026
+
+TEACHERS (3 Total)
+------------------
+1. Dr. Rajesh Kumar (TCH001)
+   - Contact: 9876543210
+   - Teaches: All years, All classes
+   - Email: shrutiteli571@gmail.com
+
+2. Prof. Priya Sharma (TCH002)
+   - Contact: 9876543211
+   - Teaches: Years 1-2, Classes 1-3
+   - Email: priya@example.com
+
+3. Dr. Amit Patel (TCH003)
+   - Contact: 9876543212
+   - Teaches: All years, Classes 4-5
+   - Email: amit@example.com
+
+STUDENTS (8 Total)
+------------------
+1. Rahul Verma (PHP25001) - PHP Class
+2. Anita Singh (PHP25002) - PHP Class
+3. Vikram Joshi (PHP25003) - PHP Class
+4. Sneha Gupta (Java25001) - Java Class
+5. Arjun Reddy (Java25002) - Java Class
+6. Pooja Mehta (Rprog25001) - R programming Class
+7. Nikhil Kumar (C25001) - C Class
+8. Divya Nair (Python25001) - Python Class
+
+ATTENDANCE RECORDS (11 Total)
+------------------------------
+- Today: 5 records (PHP and Java classes)
+- Yesterday: 3 records (PHP class)
+- Two days ago: 3 records (PHP class)
+
+================================================================================
+5. DATABASE SETUP
+================================================================================
+
+DATABASE NAME: attendance_system
+
+TABLES:
+-------
+1. users - Admin, teacher, student login credentials
+2. classes - Class information
+3. teachers - Teacher profiles
+4. students - Student profiles
+5. attendance - Attendance records
+6. leaves - Leave management records
+
+SETUP OPTIONS:
+--------------
+Option 1: Using START_APP.bat (Recommended)
+   - Run START_APP.bat
+   - Select option 3: Import Database with Demo Data
+   - Follow prompts
+
+Option 2: Manual Import
+   - Open MySQL command line
+   - Run: mysql -u root -p < server/database/schema_with_data.sql
+   - Enter password when prompted
+
+Option 3: Empty Schema
+   - Run START_APP.bat
+   - Select option 2: Import Database (Empty Schema)
+   - Manually add data through admin panel
+
+CONFIGURATION:
+--------------
+Database: attendance_system
+Server Port: 3001
+MySQL User: root
+MySQL Password: (set in server/.env)
+
+Environment file location: server/.env
+Contains:
+- DB_HOST=localhost
+- DB_USER=root
+- DB_PASSWORD=your_password
+- DB_NAME=attendance_system
+- PORT=3001
+- JWT_SECRET=your_secret_key
+
+================================================================================
+6. TROUBLESHOOTING
+================================================================================
+
+ISSUE: Login not working
+SOLUTION:
+   - Check credentials are exact (case-sensitive)
+   - Clear browser cache (Ctrl+Shift+Delete)
+   - Hard refresh (Ctrl+F5)
+   - Check browser console for errors (F12)
+
+ISSUE: Database connection failed
+SOLUTION:
+   - Check MySQL is running
+   - Verify credentials in server/.env
+   - Run START_APP.bat → Option 4: Check Database Connection
+   - Ensure database exists: SHOW DATABASES;
+
+ISSUE: Frontend not loading
+SOLUTION:
+   - Clear browser cache
+   - Check browser console for errors
+   - Ensure all files are in correct directories
+   - Try opening in incognito mode
+
+ISSUE: Attendance not saving
+SOLUTION:
+   - Check browser console for errors
+   - Verify localStorage is enabled
+   - Try clearing localStorage and reloading demo data
+   - Ensure date and time are selected
+
+ISSUE: Leave button not visible
+SOLUTION:
+   - Clear browser cache (Ctrl+Shift+Delete)
+   - Hard refresh (Ctrl+F5)
+   - Check that you're logged in as Admin
+   - Verify script version is v=26
+
+ISSUE: Class filter not working in reports
+SOLUTION:
+   - Clear browser cache completely
+   - Reload page (Ctrl+F5)
+   - Check browser console for debug messages
+   - Verify attendance records have correct classId
+
+ISSUE: Teacher ID showing N/A
+SOLUTION:
+   - Clear all data
+   - Load demo data again
+   - New teachers will auto-generate IDs (TCH001, TCH002...)
+
+ISSUE: Students not loading in attendance
+SOLUTION:
+   - Ensure demo data is loaded
+   - Select a class from dropdown
+   - Check that students are assigned to that class
+   - Refresh page if needed
+
+================================================================================
+7. FILE STRUCTURE
+================================================================================
+
+ROOT DIRECTORY
+--------------
+START_APP.bat           - Main launcher with menu
+README.md               - Complete documentation
+SYSTEM_INFO.txt         - This file
+
+APP FOLDER (Frontend)
+---------------------
+app/
+├── index.html          - Main HTML file (v=26)
+├── script.js           - JavaScript logic (v=26)
+└── style.css           - Styling (v=26)
+
+CLIENT FOLDER (Alternative Frontend)
+------------------------------------
+client/
+├── index.html          - Alternative HTML
+├── script.js           - Alternative JavaScript
+├── style.css           - Alternative styling
+└── public/             - Public assets
+
+SERVER FOLDER (Backend)
+-----------------------
+server/
+├── config/             - Database configuration
+│   └── db.js
+├── controllers/        - Route controllers
+│   ├── adminController.js
+│   ├── attendanceController.js
+│   ├── authController.js
+│   ├── studentController.js
+│   └── teacherController.js
+├── models/             - Database models
+│   ├── attendanceModel.js
+│   ├── classModel.js
+│   ├── studentModel.js
+│   ├── teacherModel.js
+│   └── userModel.js
+├── routes/             - API routes
+├── middleware/         - Authentication middleware
+├── database/           - SQL schema files
+│   ├── schema.sql
+│   ├── schema_compatible.sql
+│   └── schema_with_data.sql
+├── .env                - Environment variables
+├── server.js           - Main server file
+└── package.json        - Dependencies
+
+================================================================================
+8. TECHNICAL INFORMATION
+================================================================================
+
+FRONTEND TECHNOLOGY
+-------------------
+- HTML5
+- CSS3 with Flexbox and Grid
+- Vanilla JavaScript (ES6+)
+- LocalStorage for data persistence
+- Responsive design
+
+BACKEND TECHNOLOGY
+------------------
+- Node.js (v14+)
+- Express.js framework
+- MySQL database (v8.0+)
+- JWT for authentication
+- bcrypt for password hashing
+
+DATA STORAGE
+------------
+- Primary: LocalStorage (offline mode)
+- Secondary: MySQL database (optional)
+- Leaves: Stored in localStorage under 'leaves' key
+- Attendance: Stored in localStorage under 'attendance' key
+
+BROWSER SUPPORT
+---------------
+✓ Chrome (latest)
+✓ Firefox (latest)
+✓ Safari (latest)
+✓ Edge (latest)
+✓ Mobile browsers
+
+SECURITY FEATURES
+-----------------
+- Password validation with specific format
+- Role-based access control
+- Session management
+- Input validation and sanitization
+- SQL injection prevention
+
+VERSION INFORMATION
+-------------------
+Current Version: v=26
+Script Version: v=26
+Style Version: v=26
+Last Updated: February 2026
+Status: ✅ COMPLETE
+
+RECENT UPDATES
+--------------
+✓ Added Leave Management System
+✓ Fixed Attendance Reports class filtering
+✓ Auto-generate Teacher IDs (TCH001, TCH002...)
+✓ Fixed table alignment issues
+✓ Fixed email and contact overflow
+✓ Improved UI/UX
+✓ Enhanced error handling
+✓ Added comprehensive documentation
+
+KEY FEATURES
+------------
+✓ Auto-generated Teacher IDs
+✓ Auto-generated Student Roll Numbers
+✓ Leave Management with Approve/Reject
+✓ Attendance Reports with Filters
+✓ Export to CSV and PDF
+✓ Real-time Statistics
+✓ Duplicate Prevention
+✓ Session Management
+✓ Responsive Design
+✓ Offline Mode Support
+
+DATA VALIDATION
+---------------
+- Teacher Contact: Exactly 10 digits
+- Email: Valid email format
+- Password: Specific format (Admin@143, Teacher@143, Student@143)
+- Roll Number: Auto-generated format (PHP25001, Java25001, etc.)
+- Teacher ID: Auto-generated format (TCH001, TCH002, etc.)
+- Date: Valid date format (YYYY-MM-DD)
+- Leave Dates: End date cannot be before start date
+
+PERFORMANCE
+-----------
+- Fast loading with LocalStorage
+- Efficient data filtering
+- Optimized rendering
+- Minimal API calls
+- Cached resources
+
+API ENDPOINTS (Backend)
+-----------------------
+Authentication:
+- POST /api/auth/login
+- POST /api/auth/register
+
+Classes:
+- GET /api/classes
+- POST /api/classes
+- PUT /api/classes/:id
+- DELETE /api/classes/:id
+
+Teachers:
+- GET /api/teachers
+- POST /api/teachers
+- PUT /api/teachers/:id
+- DELETE /api/teachers/:id
+
+Students:
+- GET /api/students
+- POST /api/students
+- PUT /api/students/:id
+- DELETE /api/students/:id
+
+Attendance:
+- GET /api/attendance
+- POST /api/attendance
+- GET /api/attendance/student/:id
+- GET /api/attendance/date/:date
+
+================================================================================
+ADDITIONAL INFORMATION
+================================================================================
+
+LEAVE MANAGEMENT WORKFLOW
+-------------------------
+1. Admin clicks "Leave" button for teacher/student
+2. Modal opens with leave form and history
+3. Admin fills in start date, end date, and reason
+4. Submits leave request (status: pending)
+5. Admin can approve or reject from leave history
+6. Status updates with color coding:
+   - 🟢 Green = Approved
+   - 🔴 Red = Rejected
+   - 🟠 Orange = Pending
+
+ATTENDANCE MARKING WORKFLOW
+---------------------------
+1. Teacher logs in
+2. Selects class from dropdown
+3. Students auto-load for that class
+4. Teacher marks Present/Absent for each student
+5. Selects date and time
+6. Clicks "Save Attendance"
+7. System checks for duplicates
+8. Saves attendance records
+9. Shows success notification
+
+REPORT GENERATION WORKFLOW
+--------------------------
+1. Admin goes to Attendance Reports
+2. Selects report type (Student or Date)
+3. Applies filters (student, date range, class)
+4. Views statistics and records
+5. Exports to CSV or PDF if needed
+6. Can save report to database
+
+DEMO DATA LOADING
+-----------------
+1. Login as Admin
+2. Look for "Load Demo Data" button on dashboard
+3. Click button
+4. Confirmation message shows data loaded
+5. Page reloads with demo data
+6. All features now testable with sample data
+
+CLEARING DATA
+-------------
+Method 1: Browser DevTools
+   - Press F12
+   - Go to Application/Storage tab
+   - Click Local Storage
+   - Right-click and select Clear
+   - Refresh page
+
+Method 2: Console
+   - Press F12
+   - Go to Console tab
+   - Type: localStorage.clear()
+   - Press Enter
+   - Refresh page
+
+================================================================================
+SUPPORT AND DOCUMENTATION
+================================================================================
+
+For detailed documentation, see: README.md
+For quick reference, use: START_APP.bat menu
+For troubleshooting, check section 6 above
+
+GitHub Repository:
+https://github.com/Shru714/Student-Attendance-Management-System
+
+================================================================================
+END OF SYSTEM INFORMATION
+================================================================================
+
+Last Updated: February 2026
+Version: 2.0
+Status: ✅ COMPLETE AND READY TO USE
+
+================================================================================
