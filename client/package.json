@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Student Attendance Management System - Frontend",
   "scripts": {
-    "start": "npx http-server -p 8080 -o"
+    "start": "npx http-server . -p 8080 -o --exclude public,src,node_modules"
   },
   "keywords": ["attendance", "student", "management"],
   "author": "",
